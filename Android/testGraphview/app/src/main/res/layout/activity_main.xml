@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="IrrFire.MainActivity">
+
+
+    <TextView
+        android:id="@+id/tvLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="34dp"
+        android:layout_marginBottom="24dp"
+        android:gravity="center_vertical|center_horizontal"
+        android:text="Location"
+        android:textColor="@android:color/holo_blue_bright"
+        android:textSize="28sp" />
+
+    <TableLayout
+        android:id="@+id/tbMetadata"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_blue_bright"
+        android:stretchColumns="*">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvDeviceIDTxt"
+                android:layout_height="wrap_content"
+                android:layout_width="0dip"
+                android:layout_weight="40"
+                android:text="Device ID" />
+
+            <TextView
+                android:id="@+id/tvDeviceID"
+                android:layout_height="wrap_content"
+                android:layout_width="0dip"
+                android:layout_weight="60"
+                android:text="Device ID" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvMacAddrTxt"
+                android:layout_height="wrap_content"
+                android:layout_width="0dip"
+                android:layout_weight="40"
+                android:text="MAC address" />
+
+            <TextView
+                android:id="@+id/tvMacAddr"
+                android:layout_height="wrap_content"
+                android:layout_width="0dip"
+                android:layout_weight="60"
+                android:text="MacAddr" />
+        </TableRow>
+
+    </TableLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/emptyText11"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="50"
+            android:inputType="none" />
+    </LinearLayout>
+
+    <TableLayout
+        android:id="@+id/tbState"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="*"
+        android:background="@android:color/holo_blue_dark">
+
+        <TableRow
+            android:layout_margin="3dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvMeasureModeTxt"
+                android:layout_width="0dip"
+                android:layout_weight="40"
+                android:layout_height="wrap_content"
+                android:text="Measurement mode" />
+
+            <TextView
+                android:id="@+id/tvMeasureMode"
+                android:layout_width="0dip"
+                android:layout_weight="60"
+                android:layout_height="wrap_content"
+                android:text="TextView" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvUseDeepSleepTxt"
+                android:layout_weight="40"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:text="Deep sleep enabled" />
+
+            <TextView
+                android:id="@+id/tvUseDeepSleep"
+                android:layout_weight="60"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:text="TextView" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvSecsToSleepTxt"
+                android:layout_weight="40"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:text="Secs to sleep" />
+
+            <TextView
+                android:id="@+id/tvSecsToSleep"
+                android:layout_weight="60"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:text="TextView" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvMaxSlpCyclesTxt"
+                android:layout_weight="40"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:text="Max sleep cycles" />
+
+            <TextView
+                android:id="@+id/tvMaxSlpCycles"
+                android:layout_weight="60"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:text="TextView" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvCurrentSleepCycleTxt"
+                android:layout_weight="40"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:text="Current sleep cycle" />
+
+            <TextView
+                android:id="@+id/tvCurrentSleepCycle"
+                android:layout_weight="60"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:text="Name" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvWifiSSIDTxt"
+                android:layout_weight="40"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:text="Wifi SSID" />
+
+            <TextView
+                android:id="@+id/tvWifiSSID"
+                android:layout_weight="60"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:text="Name" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvTimestampStateTxt"
+                android:layout_height="wrap_content"
+                android:layout_width="0dip"
+                android:layout_weight="40"
+                android:text="Timestamp" />
+
+            <TextView
+                android:id="@+id/tvTimestampState"
+                android:layout_height="wrap_content"
+                android:layout_width="0dip"
+                android:layout_weight="60"
+                android:text="(timestamp)" />
+        </TableRow>
+    </TableLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/emptyText10"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+    <TableLayout
+        android:id="@+id/tbTelemetryCurrent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="*"
+        android:background="@android:color/background_light">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvVccTxt"
+                android:layout_height="wrap_content"
+                android:layout_width="0dip"
+                android:layout_weight="40"
+                android:text="Battery Voltage" />
+
+            <TextView
+                android:id="@+id/tvVcc"
+                android:layout_height="wrap_content"
+                android:layout_width="0dip"
+                android:layout_weight="60"
+                android:text="0.00" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <TextView
+                android:id="@+id/tvLastAnalogueTxt"
+                android:layout_height="wrap_content"
+                android:layout_weight="40"
+                android:layout_width="0dip"
+                android:text="Analogue (0-1023)" />
+
+            <TextView
+                android:id="@+id/tvLastAnalogueReading"
+                android:layout_height="wrap_content"
+                android:layout_weight="60"
+                android:layout_width="0dip"
+                android:text="TextView" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvLastOpenTimestampTxt"
+                android:layout_height="wrap_content"
+                android:layout_weight="40"
+                android:layout_width="0dip"
+                android:text="Valve last open time" />
+
+            <TextView
+                android:id="@+id/tvLastOpenTimestamp"
+                android:layout_height="wrap_content"
+                android:layout_weight="60"
+                android:layout_width="0dip"
+                android:text="TextView" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvWifiTxt"
+                android:layout_height="wrap_content"
+                android:layout_weight="40"
+                android:layout_width="0dip"
+                android:text="Wifi signal strength" />
+
+            <TextView
+                android:id="@+id/tvWifi"
+                android:layout_height="wrap_content"
+                android:layout_weight="60"
+                android:layout_width="0dip"
+                android:text="20db" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvTimestampTelemetryTxt"
+                android:layout_height="wrap_content"
+                android:layout_weight="40"
+                android:layout_width="0dip"
+                android:text="Last data read time" />
+
+            <TextView
+                android:id="@+id/tvTimestampTelemetryTime"
+                android:layout_height="wrap_content"
+                android:layout_weight="60"
+                android:layout_width="0dip"
+                android:text="Time" />
+
+        </TableRow>
+
+    </TableLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/emptyText12"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+
+    <com.jjoe64.graphview.GraphView
+        android:layout_width="match_parent"
+        android:layout_height="200dip"
+        android:id="@+id/graph" />
+
+</LinearLayout>

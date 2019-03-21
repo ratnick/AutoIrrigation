@@ -1,0 +1,109 @@
+
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+
+const {BigQuery} = require('@google-cloud/bigquery');
+const bigquery = new BigQuery();
+
+const cors = require('cors')({ origin: true });
+admin.initializeApp(functions.config().firebase);
+const db = admin.database();
+
+/*************************************************************************
+ * Receive data from pubsub, then 
+ * Write telemetry raw data to bigquery
+ * Maintain last data on firebase realtime database
+ */
+
+exports.receiveTelemetry = functions.pubsub
+  .topic('irr-topic')
+  .onPublish((message, context) => {
+    const attributes = message.attributes;
+    const payload = message.json;
+    const deviceId = attributes['deviceId'];
+
+    const data = {
+      macAddress:           payload.macAddress,
+      Wifi:                 payload.Wifi,
+      lastOpenTimestamp:    payload.lastOpenTimestamp,
+      openDuration:         payload.openDuration,
+      lastAnalogueReading:  payload.lastAnalogueReading,
+      Vcc:                  payload.Vcc,
+      deviceId: deviceId,
+      timestamp: context.timestamp
+    };
+
+  console.log("Received: " + message.data);
+
+    return Promise.all([
+      insertIntoBigquery(data),
+      updateCurrentDataFirebase(data)
+    ]);
+  });
+
+/** 
+ * Maintain last status in firebase
+*/
+function updateCurrentDataFirebase(data) {
+  return db.ref(`/devices/${data.deviceId}`).set({
+    Wifi: data.Wifi,
+    lastTimestamp: data.timestamp
+  });
+}
+
+/**
+ * Store all the raw data in bigquery
+ */
+function insertIntoBigquery(data) {
+
+
+  // TODO: Make sure you set the `bigquery.datasetname` Google Cloud environment variable.
+//  const dataset = bigquery.dataset('irr_data');
+  const dataset = bigquery.dataset(functions.config().bigquery.datasetname);
+  // TODO: Make sure you set the `bigquery.tablename` Google Cloud environment variable.
+  const table = dataset.table('raw_data');
+//  const table = dataset.table(functions.config().bigquery.tablename);
+
+    console.log(dataset);
+
+  return table.insert(data);
+}
+
+/*************************************************************************
+ * Query bigquery with the last 7 days of data
+ * HTTPS endpoint to be used by the webapp
+ */
+exports.getReportData = functions.https.onRequest((req, res) => {
+  console.log('exports.getReportData:');
+  const projectId = process.env.GCLOUD_PROJECT;
+  console.log(functions.config().bigquery.datasetname);
+  const datasetName = functions.config().bigquery.datasetname;
+  const tableName = functions.config().bigquery.tablename;
+  const table = `${projectId}.${datasetName}.${tableName}`;
+
+  const query = `
+    SELECT 
+      TIMESTAMP_TRUNC(data.timestamp, HOUR, 'America/Cuiaba') data_hora,
+      avg(data.Wifi) as avg_Wifi,
+      min(data.Wifi) as min_Wifi,
+      max(data.Wifi) as max_Wifi,
+      count(*) as data_points      
+    FROM \`${table}\` data
+    WHERE data.timestamp between timestamp_sub(current_timestamp, INTERVAL 7 DAY) and current_timestamp()
+    group by data_hora
+    order by data_hora
+  `;
+
+  return bigquery
+    .query({
+      query: query,
+      useLegacySql: false
+    })
+    .then(result => {
+      const rows = result[0];
+
+      cors(req, res, () => {
+        res.json(rows);
+      });
+    });
+});
