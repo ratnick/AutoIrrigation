@@ -1,0 +1,25 @@
+Tape:
+helt ud i hjørnerne
+midt ingenting
+
+Heat:
+150W halogene lamp
+
+Import: auto repair OK
+
+Rotate:
+ x 270 deg
+ z 90 deg
+
+Print setup
+Quality: Good
+Rim: no
+Raft: no
+Support: no
+Layer height: 0.3
+Speeed: slow
+Temp: -5
+
+Est time: 2:30
+
+

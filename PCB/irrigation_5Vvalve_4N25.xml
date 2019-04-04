@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="D">
+  <design>
+    <source>K:\_SRC\projects\Vanding\AutoIrrigation\PCB\irrigation_5Vvalve_4N25.sch</source>
+    <date>23-03-2019 17:48:19</date>
+    <tool>Eeschema (5.0.2)-1</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>Irrigation</title>
+        <company/>
+        <rev>1.00</rev>
+        <date>2019-02-08</date>
+        <source>irrigation_5Vvalve_4N25.sch</source>
+        <comment number="1" value="with battery monitor and 5V/12V option for valve"/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="Q1">
+      <value>TIP120</value>
+      <footprint>footprint:TIP120_v4</footprint>
+      <datasheet>http://www.fairchildsemi.com/ds/TI/TIP120.pdf</datasheet>
+      <libsource lib="Transistor_BJT" part="TIP120" description="5A Ic, 60V Vce, Silicon Darlington Power NPN Transistor, TO-220"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5C4F21EB</tstamp>
+    </comp>
+    <comp ref="R2">
+      <value>5k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5C4F22D3</tstamp>
+    </comp>
+    <comp ref="SW1">
+      <value>ON/OFF</value>
+      <footprint>footprint:2p_connector_v2</footprint>
+      <libsource lib="Switch" part="SW_SPST" description="Single Pole Single Throw (SPST) switch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5C4F30A2</tstamp>
+    </comp>
+    <comp ref="J4">
+      <value>Soil sensor</value>
+      <footprint>footprint:2p_connector_v2</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Connector" part="Conn_01x02_Female" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5C4F9672</tstamp>
+    </comp>
+    <comp ref="J1">
+      <value>Sol</value>
+      <footprint>footprint:2p_connector_v2</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Connector" part="Conn_01x02_Female" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5C4F9789</tstamp>
+    </comp>
+    <comp ref="J3">
+      <value>Valve</value>
+      <footprint>footprint:2p_connector_v2</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Connector" part="Conn_01x02_Female" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5C4F97F0</tstamp>
+    </comp>
+    <comp ref="U2">
+      <value>WeMos_mini</value>
+      <footprint>wemos_d1_mini:D1_mini_board_v4</footprint>
+      <datasheet>http://www.wemos.cc/Products/d1_mini.html</datasheet>
+      <libsource lib="wemos_mini" part="WeMos_mini" description="WeMos D1 mini"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5C4F9AC3</tstamp>
+    </comp>
+    <comp ref="R1">
+      <value>100k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5C4F9DC6</tstamp>
+    </comp>
+    <comp ref="SS1">
+      <value>SOIL_SENSOR</value>
+      <footprint>footprint:Soil sensor_v3</footprint>
+      <datasheet>https://www.aliexpress.com/item/Free-Shipping-Soil-Hygrometer-Humidity-Detection-Module-Moisture-Water-Sensor-Soil-moisture-for-Arduino/32704803481.html?spm=2114.search0104.3.16.6368597e5Z19nX&amp;transAbTest=ae803_4&amp;ws_ab_test=searchweb0_0%2Csearchweb201602_2_10065_10068_319_317_10696_453_10084_454_10083_433_10618_431_10304_10307_10820_10821_537_10302_536_10902_10059_10884_10887_100031_321_322_10103%2Csearchweb201603_51%2CppcSwitch_0&amp;algo_pvid=aab9002f-3c39-4bfa-ba02-40efef501c31&amp;algo_expid=aab9002f-3c39-4bfa-ba02-40efef501c31-2</datasheet>
+      <libsource lib="NNR-lib" part="SOIL_SENSOR" description="Soil moisture sensor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5C4FA314</tstamp>
+    </comp>
+    <comp ref="J2">
+      <value>Batt</value>
+      <footprint>footprint:2p_connector_v2</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5C554B8B</tstamp>
+    </comp>
+    <comp ref="JP1">
+      <value>BATT / HUM</value>
+      <footprint>footprint:3p_switch_v2</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Device" part="Jumper_NC_Dual" description="Dual jumper, normally closed"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5C52F9B9</tstamp>
+    </comp>
+    <comp ref="Opto1">
+      <value>PC817</value>
+      <footprint>Package_DIP:DIP-4_W7.62mm</footprint>
+      <datasheet>http://www.soselectronic.cz/a_info/resource/d/pc817.pdf</datasheet>
+      <libsource lib="Isolator" part="PC817" description="DC Optocoupler, Vce 35V, CTR 50-300%, DIP4"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5C922828</tstamp>
+    </comp>
+    <comp ref="SW2">
+      <value>flash</value>
+      <footprint>Button_Switch_THT:SW_PUSH_6mm_H4.3mm</footprint>
+      <libsource lib="Switch" part="SW_Push_Open" description="Push button switch, push-to-open, generic, two pins"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5C938ACF</tstamp>
+    </comp>
+    <comp ref="U4">
+      <value>J5019</value>
+      <footprint>footprint:J5019_v1</footprint>
+      <datasheet>https://www.aliexpress.com/item/Lithium-Li-ion-18650-3-7V-4-2V-Battery-Charger-Board-DC-DC-Step-Up-Boost/32901921699.html</datasheet>
+      <libsource lib="NNR-lib" part="J5019" description="J5019 Lithium Li-ion 18650 3.7V 4.2V Battery Charger Board DC-DC Step Up Boost Module"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5C94F80F</tstamp>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="Connector" part="Conn_01x02_Female">
+      <description>Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x02_Female</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector_Generic" part="Conn_01x02">
+      <description>Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x02</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="Jumper_NC_Dual">
+      <description>Dual jumper, normally closed</description>
+      <docs>~</docs>
+      <fields>
+        <field name="Reference">JP</field>
+        <field name="Value">Jumper_NC_Dual</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive"/>
+        <pin num="2" name="2" type="passive"/>
+        <pin num="3" name="3" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="R">
+      <description>Resistor</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>R_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">R</field>
+        <field name="Value">R</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Isolator" part="PC817">
+      <description>DC Optocoupler, Vce 35V, CTR 50-300%, DIP4</description>
+      <docs>http://www.soselectronic.cz/a_info/resource/d/pc817.pdf</docs>
+      <footprints>
+        <fp>DIP*W7.62mm*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">PC817</field>
+        <field name="Footprint">Package_DIP:DIP-4_W7.62mm</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+        <pin num="3" name="~" type="passive"/>
+        <pin num="4" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="NNR-lib" part="J5019">
+      <description>J5019 Lithium Li-ion 18650 3.7V 4.2V Battery Charger Board DC-DC Step Up Boost Module</description>
+      <docs>https://www.aliexpress.com/item/Lithium-Li-ion-18650-3-7V-4-2V-Battery-Charger-Board-DC-DC-Step-Up-Boost/32901921699.html</docs>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">J5019</field>
+      </fields>
+      <pins>
+        <pin num="1" name="GND" type="passive"/>
+        <pin num="2" name="BAT-" type="power_in"/>
+        <pin num="3" name="BAT+" type="power_in"/>
+        <pin num="4" name="OUT+" type="power_out"/>
+        <pin num="5" name="IN+" type="power_in"/>
+        <pin num="6" name="IN_GND" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="NNR-lib" part="SOIL_SENSOR">
+      <description>Soil moisture sensor</description>
+      <docs>https://www.aliexpress.com/item/Free-Shipping-Soil-Hygrometer-Humidity-Detection-Module-Moisture-Water-Sensor-Soil-moisture-for-Arduino/32704803481.html?spm=2114.search0104.3.16.6368597e5Z19nX&amp;transAbTest=ae803_4&amp;ws_ab_test=searchweb0_0%2Csearchweb201602_2_10065_10068_319_317_10696_453_10084_454_10083_433_10618_431_10304_10307_10820_10821_537_10302_536_10902_10059_10884_10887_100031_321_322_10103%2Csearchweb201603_51%2CppcSwitch_0&amp;algo_pvid=aab9002f-3c39-4bfa-ba02-40efef501c31&amp;algo_expid=aab9002f-3c39-4bfa-ba02-40efef501c31-2</docs>
+      <fields>
+        <field name="Reference">SS</field>
+        <field name="Value">SOIL_SENSOR</field>
+      </fields>
+      <pins>
+        <pin num="1" name="A0" type="input"/>
+        <pin num="2" name="D0" type="input"/>
+        <pin num="3" name="GND" type="power_in"/>
+        <pin num="4" name="VCC" type="power_in"/>
+        <pin num="5" name="+" type="passive"/>
+        <pin num="6" name="-" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Switch" part="SW_Push_Open">
+      <description>Push button switch, push-to-open, generic, two pins</description>
+      <fields>
+        <field name="Reference">SW</field>
+        <field name="Value">SW_Push_Open</field>
+      </fields>
+      <pins>
+        <pin num="1" name="A" type="passive"/>
+        <pin num="2" name="B" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Switch" part="SW_SPST">
+      <description>Single Pole Single Throw (SPST) switch</description>
+      <fields>
+        <field name="Reference">SW</field>
+        <field name="Value">SW_SPST</field>
+      </fields>
+      <pins>
+        <pin num="1" name="A" type="passive"/>
+        <pin num="2" name="B" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Transistor_BJT" part="TIP120">
+      <aliases>
+        <alias>TIP121</alias>
+        <alias>TIP122</alias>
+      </aliases>
+      <description>5A Ic, 60V Vce, Silicon Darlington Power NPN Transistor, TO-220</description>
+      <docs>http://www.fairchildsemi.com/ds/TI/TIP120.pdf</docs>
+      <footprints>
+        <fp>TO?220*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">Q</field>
+        <field name="Value">TIP120</field>
+        <field name="Footprint">Package_TO_SOT_THT:TO-220-3_Vertical</field>
+      </fields>
+      <pins>
+        <pin num="1" name="B" type="input"/>
+        <pin num="2" name="C" type="passive"/>
+        <pin num="3" name="E" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="wemos_mini" part="WeMos_mini">
+      <description>WeMos D1 mini</description>
+      <docs>http://www.wemos.cc/Products/d1_mini.html</docs>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">WeMos_mini</field>
+      </fields>
+      <pins>
+        <pin num="1" name="5V" type="power_in"/>
+        <pin num="2" name="GND" type="power_in"/>
+        <pin num="3" name="D4" type="BiDi"/>
+        <pin num="4" name="D3" type="BiDi"/>
+        <pin num="5" name="D2" type="BiDi"/>
+        <pin num="6" name="D1" type="BiDi"/>
+        <pin num="7" name="Rx" type="BiDi"/>
+        <pin num="8" name="Tx" type="BiDi"/>
+        <pin num="9" name="Rst" type="BiDi"/>
+        <pin num="10" name="A0" type="BiDi"/>
+        <pin num="11" name="D0" type="BiDi"/>
+        <pin num="12" name="D5" type="BiDi"/>
+        <pin num="13" name="D6" type="BiDi"/>
+        <pin num="14" name="D7" type="BiDi"/>
+        <pin num="15" name="D8" type="BiDi"/>
+        <pin num="16" name="3.3V" type="power_out"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="Connector">
+      <uri>C:\Program Files\KiCad\share\kicad\library/Connector.lib</uri>
+    </library>
+    <library logical="Connector_Generic">
+      <uri>C:\Program Files\KiCad\share\kicad\library/Connector_Generic.lib</uri>
+    </library>
+    <library logical="Device">
+      <uri>C:\Program Files\KiCad\share\kicad\library/Device.lib</uri>
+    </library>
+    <library logical="Isolator">
+      <uri>C:\Program Files\KiCad\share\kicad\library/Isolator.lib</uri>
+    </library>
+    <library logical="NNR-lib">
+      <uri>K:/DEV/KiCAD/Components/NNR-lib.lib</uri>
+    </library>
+    <library logical="Switch">
+      <uri>C:\Program Files\KiCad\share\kicad\library/Switch.lib</uri>
+    </library>
+    <library logical="Transistor_BJT">
+      <uri>C:\Program Files\KiCad\share\kicad\library/Transistor_BJT.lib</uri>
+    </library>
+    <library logical="wemos_mini">
+      <uri>K:/DEV/KiCAD/Components/d1_mini_kicad-master/d1_mini_kicad-master/library/wemos_mini.lib</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="Net-(JP1-Pad2)">
+      <node ref="JP1" pin="2"/>
+      <node ref="U2" pin="10"/>
+    </net>
+    <net code="2" name="GND">
+      <node ref="SS1" pin="3"/>
+      <node ref="U4" pin="1"/>
+      <node ref="U4" pin="2"/>
+      <node ref="Q1" pin="3"/>
+      <node ref="U4" pin="6"/>
+      <node ref="U2" pin="2"/>
+      <node ref="Opto1" pin="2"/>
+      <node ref="J2" pin="2"/>
+      <node ref="J1" pin="1"/>
+    </net>
+    <net code="3" name="Net-(JP1-Pad1)">
+      <node ref="SS1" pin="1"/>
+      <node ref="JP1" pin="1"/>
+    </net>
+    <net code="4" name="Net-(JP1-Pad3)">
+      <node ref="R1" pin="2"/>
+      <node ref="JP1" pin="3"/>
+    </net>
+    <net code="5" name="Net-(SW2-Pad1)">
+      <node ref="SW2" pin="1"/>
+      <node ref="U2" pin="11"/>
+    </net>
+    <net code="6" name="Net-(SW2-Pad2)">
+      <node ref="U2" pin="9"/>
+      <node ref="SW2" pin="2"/>
+    </net>
+    <net code="7" name="Net-(SW1-Pad1)">
+      <node ref="U4" pin="4"/>
+      <node ref="SW1" pin="1"/>
+    </net>
+    <net code="8" name="Net-(J2-Pad1)">
+      <node ref="R1" pin="1"/>
+      <node ref="J2" pin="1"/>
+      <node ref="U4" pin="3"/>
+    </net>
+    <net code="9" name="Net-(Opto1-Pad3)">
+      <node ref="SS1" pin="4"/>
+      <node ref="Opto1" pin="3"/>
+    </net>
+    <net code="10" name="Net-(Opto1-Pad1)">
+      <node ref="Opto1" pin="1"/>
+      <node ref="U2" pin="4"/>
+    </net>
+    <net code="11" name="Net-(U2-Pad14)">
+      <node ref="U2" pin="14"/>
+    </net>
+    <net code="12" name="Net-(U2-Pad6)">
+      <node ref="U2" pin="6"/>
+    </net>
+    <net code="13" name="Net-(U2-Pad7)">
+      <node ref="U2" pin="7"/>
+    </net>
+    <net code="14" name="Net-(U2-Pad8)">
+      <node ref="U2" pin="8"/>
+    </net>
+    <net code="15" name="Net-(U2-Pad13)">
+      <node ref="U2" pin="13"/>
+    </net>
+    <net code="16" name="Net-(U2-Pad5)">
+      <node ref="U2" pin="5"/>
+    </net>
+    <net code="17" name="Net-(U2-Pad15)">
+      <node ref="U2" pin="15"/>
+    </net>
+    <net code="18" name="Net-(U2-Pad16)">
+      <node ref="U2" pin="16"/>
+    </net>
+    <net code="19" name="Net-(SS1-Pad2)">
+      <node ref="SS1" pin="2"/>
+    </net>
+    <net code="20" name="Net-(R2-Pad1)">
+      <node ref="U2" pin="12"/>
+      <node ref="R2" pin="1"/>
+    </net>
+    <net code="21" name="Net-(Q1-Pad1)">
+      <node ref="Q1" pin="1"/>
+      <node ref="R2" pin="2"/>
+    </net>
+    <net code="22" name="Net-(J4-Pad1)">
+      <node ref="SS1" pin="5"/>
+      <node ref="J4" pin="1"/>
+    </net>
+    <net code="23" name="Net-(J3-Pad1)">
+      <node ref="Q1" pin="2"/>
+      <node ref="J3" pin="1"/>
+    </net>
+    <net code="24" name="Net-(J3-Pad2)">
+      <node ref="SW1" pin="2"/>
+      <node ref="J3" pin="2"/>
+      <node ref="U2" pin="1"/>
+      <node ref="Opto1" pin="4"/>
+    </net>
+    <net code="25" name="Net-(U2-Pad3)">
+      <node ref="U2" pin="3"/>
+    </net>
+    <net code="26" name="Net-(J1-Pad2)">
+      <node ref="J1" pin="2"/>
+      <node ref="U4" pin="5"/>
+    </net>
+    <net code="27" name="Net-(J4-Pad2)">
+      <node ref="SS1" pin="6"/>
+      <node ref="J4" pin="2"/>
+    </net>
+  </nets>
+</export>
