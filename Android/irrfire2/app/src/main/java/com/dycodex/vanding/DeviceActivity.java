@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewDebug;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -53,7 +54,7 @@ public class DeviceActivity extends AppCompatActivity {
     @BindView(R.id.tvLocation)                  EditText tvLocation;
     @BindView(R.id.tvMacAddr)                   TextView tvMacAddr;
     @BindView(R.id.tvMeasureMode)               TextView tvMeasureMode;
-    @BindView(R.id.tvUseDeepSleep)              TextView tvUseDeepSleep;
+    @BindView(R.id.tvdeepSleepEnabled)          EditText tvdeepSleepEnabled;
     @BindView(R.id.tvSecsToSleep)               EditText tvSecsToSleep;
     @BindView(R.id.tvMaxSlpCycles)              EditText tvMaxSlpCycles;
     @BindView(R.id.tvCurrentSleepCycle)         TextView tvCurrentSleepCycle;
@@ -86,7 +87,7 @@ public class DeviceActivity extends AppCompatActivity {
     private IrrDevice[] mIrrDevice = new IrrDevice[MAX_DEVICES];
     private String mSelectedDeviceId = INITIAL_DEVICE_ID;
     //private IrrDevice mSelectedIrrDevice;
-    private int mSelectedIrrDeviceK = -1;
+    private int mSelectedIrrDeviceK = 0;
 
     // UI elements
     private GraphView graph;
@@ -110,6 +111,7 @@ public class DeviceActivity extends AppCompatActivity {
                 mIrrDevice[mSelectedIrrDeviceK].metadata.location = tvLocation.getText().toString();
                 mIrrDevice[mSelectedIrrDeviceK].metadata.deviceID = tvDeviceID.getText().toString();
                 mIrrDevice[mSelectedIrrDeviceK].state.secsToSleep = Integer.valueOf(tvSecsToSleep.getText().toString());
+                mIrrDevice[mSelectedIrrDeviceK].state.deepSleepEnabled = Boolean.valueOf(tvdeepSleepEnabled.getText().toString());
                 mIrrDevice[mSelectedIrrDeviceK].state.maxSlpCycles = Integer.valueOf(tvMaxSlpCycles.getText().toString());
                 mIrrDevice[mSelectedIrrDeviceK].state.mainLoopDelay = Integer.valueOf(tvMainLoopDelay.getText().toString());
                 mIrrDevice[mSelectedIrrDeviceK].state.openDur = Integer.valueOf(tvOpenDuration.getText().toString());
@@ -124,6 +126,7 @@ public class DeviceActivity extends AppCompatActivity {
         mDeviceReference[mSelectedIrrDeviceK].child("metadata").child("location").setValue(mIrrDevice[mSelectedIrrDeviceK].metadata.location);
         mDeviceReference[mSelectedIrrDeviceK].child("metadata").child("deviceID").setValue(mIrrDevice[mSelectedIrrDeviceK].metadata.deviceID);
         mDeviceReference[mSelectedIrrDeviceK].child("state").child("secsToSleep").setValue(mIrrDevice[mSelectedIrrDeviceK].state.secsToSleep);
+        mDeviceReference[mSelectedIrrDeviceK].child("state").child("deepSleepEnabled").setValue(mIrrDevice[mSelectedIrrDeviceK].state.deepSleepEnabled);
         mDeviceReference[mSelectedIrrDeviceK].child("state").child("maxSlpCycles").setValue(mIrrDevice[mSelectedIrrDeviceK].state.maxSlpCycles);
         mDeviceReference[mSelectedIrrDeviceK].child("state").child("mainLoopDelay").setValue(mIrrDevice[mSelectedIrrDeviceK].state.mainLoopDelay);
         mDeviceReference[mSelectedIrrDeviceK].child("state").child("openDur").setValue(mIrrDevice[mSelectedIrrDeviceK].state.openDur);
@@ -360,6 +363,7 @@ public class DeviceActivity extends AppCompatActivity {
                     IrrDeviceState devState = dataSnapshot.getValue(IrrDeviceState.class);
                     if (devState != null) {
                         mIrrDevice[k].state = devState;
+                        updateUIBasedOnState(devState);
                     }
                 }
 
@@ -367,6 +371,7 @@ public class DeviceActivity extends AppCompatActivity {
                     IrrDeviceTelemetry tele = dataSnapshot.getValue(IrrDeviceTelemetry.class);
                     if (tele != null) {
                         mIrrDevice[k].telemetry_current = tele;
+                        updateUIBasedOnTelemetry(tele);
                     }
                 }
 
@@ -430,36 +435,57 @@ public class DeviceActivity extends AppCompatActivity {
             int i = 0/0;  // GENERATE ERROR
         }
         int count = (int) teledataSnapshot.getChildrenCount();
-        DataPoint[] values = new DataPoint[count];
-        int i = 0;
-        IrrDeviceTelemetry post;
 
-        switch (parameterName) {
-            case "Vcc":
-                for (DataSnapshot postSnapshot : teledataSnapshot.getChildren()) {
-                    post = postSnapshot.getValue(IrrDeviceTelemetry.class);
-                    DataPoint v = new DataPoint(post.timestamp, post.Vcc);
-                    values[i++] = v;
+        if (parameterName.equals("valveState")) {
+            DataPoint[] values = new DataPoint[count*2];
+            int i = 0;
+            IrrDeviceTelemetry post;
+
+            float prevValveState = 0;
+            for (DataSnapshot postSnapshot : teledataSnapshot.getChildren()) {
+                post = postSnapshot.getValue(IrrDeviceTelemetry.class);
+                if (prevValveState != post.valveState) {  // insert extra point before real point to make a sharp edge on the graph
+                    DataPoint x = new DataPoint(post.timestamp-1, (float) 0.3 * prevValveState);   // setting to 0.3 to make a better visualisation
+                    values[i++] = x;
                 }
-                break;
-            case "valveState":
-                for (DataSnapshot postSnapshot : teledataSnapshot.getChildren()) {
-                    post = postSnapshot.getValue(IrrDeviceTelemetry.class);
-                    DataPoint v = new DataPoint(post.timestamp, (float) 0.5 * post.valveState);   // setting to 0.5 to make a better visualisation
-                    values[i++] = v;
-                }
-                break;
-            case "lastAnalogueReading":  // NORMALIZED HERE
-                for (DataSnapshot postSnapshot : teledataSnapshot.getChildren()) {
-                    post = postSnapshot.getValue(IrrDeviceTelemetry.class);
-                    DataPoint v = new DataPoint(post.timestamp, (float) post.lastAnalogueReading / 1024.0);  // normalize to 1
-                    values[i++] = v;
-                }
-                break;
-            default: i=0/0; //crash
+                DataPoint v = new DataPoint(post.timestamp, (float) 0.3 * post.valveState);
+                values[i++] = v;
+                prevValveState = post.valveState;
+            }
+            Log.d("data fetch", "i=" + Integer.toString(i) + "  count=" + Integer.toString(count*2));
+            while (i < count*2) {
+                DataPoint x = new DataPoint(values[i-1].getX()+2, (float) 0.0);
+                values[i++] = x;
+            }
+            Log.d("data fetch", "i=" + Integer.toString(i) + "  count=" + Integer.toString(count*2));
+            return values;
+
+        } else {
+
+            DataPoint[] values = new DataPoint[count];
+            int i = 0;
+            IrrDeviceTelemetry post;
+
+            switch (parameterName) {
+                case "Vcc":
+                    for (DataSnapshot postSnapshot : teledataSnapshot.getChildren()) {
+                        post = postSnapshot.getValue(IrrDeviceTelemetry.class);
+                        DataPoint v = new DataPoint(post.timestamp, post.Vcc);
+                        values[i++] = v;
+                    }
+                    break;
+                case "lastAnalogueReading":  // NORMALIZED HERE
+                    for (DataSnapshot postSnapshot : teledataSnapshot.getChildren()) {
+                        post = postSnapshot.getValue(IrrDeviceTelemetry.class);
+                        DataPoint v = new DataPoint(post.timestamp, (float) post.lastAnalogueReading / 1024.0);  // normalize to 1
+                        values[i++] = v;
+                    }
+                    break;
+                default: i=0/0; //crash
+            }
+            return values;
         }
 
-        return values;
     }
 
     private void FormatSeries(GraphView graph) {
@@ -511,11 +537,11 @@ public class DeviceActivity extends AppCompatActivity {
         maxY2 = (long) mIrrDevice[mSelectedIrrDeviceK].xSeriesVcc.getHighestValueY();
         //graph.getSecondScale().setMinY(minY2);
         //graph.getSecondScale().setMaxY(maxY2);
-        graph.getSecondScale().setMinY(2);  // Use this in production when voltage is aligned between 2.5 and 5V
-        graph.getSecondScale().setMaxY(5);
+        graph.getSecondScale().setMinY(2.75);  // Use this in production when voltage is aligned between 2.5 and 5V
+        graph.getSecondScale().setMaxY(4.75);
         graph.getGridLabelRenderer().setVerticalLabelsSecondScaleColor(Color.MAGENTA);
         graph.getGridLabelRenderer().setSecondScaleLabelVerticalWidth(30);
-        graph.getGridLabelRenderer().setNumVerticalLabels(5);
+        graph.getGridLabelRenderer().setNumVerticalLabels(9);
         graph.getGridLabelRenderer().setVerticalLabelsSecondScaleAlign(Paint.Align.RIGHT);
 
         // X-axis auto date labels
@@ -565,6 +591,8 @@ public class DeviceActivity extends AppCompatActivity {
 
     // Pure UI updates
     private void DisplayDeviceData() {
+        Log.d("HomeX", "mSelectedIrrDeviceK=" + Integer.toString(mSelectedIrrDeviceK));
+
         tvDeviceID.setText(mIrrDevice[mSelectedIrrDeviceK].metadata.deviceID);
         updateUIBasedOnMetadata(mIrrDevice[mSelectedIrrDeviceK].metadata);
         updateUIBasedOnState(mIrrDevice[mSelectedIrrDeviceK].state);
@@ -591,7 +619,7 @@ public class DeviceActivity extends AppCompatActivity {
     private void updateUIBasedOnState(IrrDeviceState state) {
 
         tvMeasureMode.setText(state.mode);
-        tvUseDeepSleep.setText(String.format("%b", state.useDeepSleep));
+        tvdeepSleepEnabled.setText(String.format("%b", state.deepSleepEnabled));
         tvSecsToSleep.setText(String.format("%d", state.secsToSleep));
         tvMaxSlpCycles.setText(String.format("%d", state.maxSlpCycles));
         tvCurrentSleepCycle.setText(String.format("%d", state.curSleepCycle));

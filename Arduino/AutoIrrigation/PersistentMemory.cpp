@@ -7,8 +7,7 @@
 
 void PersistentMemoryClass::init(
 	bool resetMemory, 
-	int _secondsToSleep, 
-	int _maxSleepCycles, 
+	int _totalSecondsToSleep,
 	const char* _deviceID, 
 	int _valveOpenDuration, 
 	int _valveSoakTime,
@@ -19,23 +18,18 @@ void PersistentMemoryClass::init(
 
 	if (resetMemory) {
 		strcpy(ps.deviceID, _deviceID);
-//		strcpy(ps.deviceID, "test");
 		strcpy(ps.macAddress, "ABCDEF");
 		strcpy(ps.deviceLocation, "not set");
 		strcpy(ps.wifiSSID, "nohrTDC");
 		strcpy(ps.wifiPwd, "RASMUSSEN");
 		strcpy(ps.cloudUserName, "initial value");
 		strcpy(ps.cloudPwd, "not used");
-		ps.secondsToSleep = _secondsToSleep;    // hardware limitation of max MAX_DEEP_SLEEP
-		ps.maxSleepCycles = _maxSleepCycles;  // The total sleep time before the loop() is executed is secondsToSleep * maxSleepCycles
+		ps.secondsToSleep = _totalSecondsToSleep; 
 		ps.currentSleepCycle = 0; // counts which sleep cycle we are at right now.
 		ps.valveOpenDuration = _valveOpenDuration;
 		ps.valveSoakTime = _valveSoakTime;
 		ps.mainLoopDelay = _mainLoopDelay;
-
-//		for (int i = 0; i < MAX_KEPT_LOGLINES; i++) {
-//			strcpy(ps.logLines[i], "not used");
-//		}
+		ps.deepSleepEnabled = true;
 		WritePersistentMemory();
 	}
 	else {
@@ -87,12 +81,14 @@ String PersistentMemoryClass::GetdeviceLocation()	{ return String(ps.deviceLocat
 String PersistentMemoryClass::GetmacAddress()		{ return String(ps.macAddress); }
 String PersistentMemoryClass::GetwifiSSID()			{ return String(ps.wifiSSID); }
 String PersistentMemoryClass::GetCloudUsername()	{ return String(ps.cloudUserName); }
-int PersistentMemoryClass::GetsecondsToSleep()		{ return ps.secondsToSleep;}
+int PersistentMemoryClass::GettotalSecondsToSleep() { return ps.totalSecondsToSleep; }
+int PersistentMemoryClass::GetsecondsToSleep()		{ return ps.secondsToSleep; }
 int PersistentMemoryClass::GetmaxSleepCycles()		{ return ps.maxSleepCycles;}
 int PersistentMemoryClass::GetcurrentSleepCycle()	{ return ps.currentSleepCycle;}
 int PersistentMemoryClass::GetvalveOpenDuration()	{ return ps.valveOpenDuration; }
-int PersistentMemoryClass::GetvalveSoakTime() { return ps.valveSoakTime; }
-int PersistentMemoryClass::GetmainLoopDelay() { return ps.mainLoopDelay; }
+int PersistentMemoryClass::GetvalveSoakTime()		{ return ps.valveSoakTime; }
+int PersistentMemoryClass::GetmainLoopDelay()		{ return ps.mainLoopDelay; }
+boolean PersistentMemoryClass::GetdeepSleepEnabled() { return ps.deepSleepEnabled;  }
 
 String mac2String(byte ar[]) {
 	String s;
@@ -124,6 +120,11 @@ void PersistentMemoryClass::SetdeviceLocation(String deviceLocation_) {
 	WritePersistentMemory();
 }
 
+void PersistentMemoryClass::SettotalSecondsToSleep(int totalSecondsToSleep_) {
+	ps.totalSecondsToSleep = totalSecondsToSleep_;
+	WritePersistentMemory();
+}
+
 void PersistentMemoryClass::SetsecondsToSleep(int secondsToSleep_) {
 	ps.secondsToSleep = secondsToSleep_;
 	WritePersistentMemory();
@@ -147,6 +148,11 @@ void PersistentMemoryClass::SetmainLoopDelay(int mainLoopDelay_) {
 	WritePersistentMemory();
 }
 
+void PersistentMemoryClass::SetdeepSleepEnabled(boolean deepSleepEnabled_) {
+	ps.deepSleepEnabled = deepSleepEnabled_;
+	WritePersistentMemory();
+}
+
 void PersistentMemoryClass::Printps() {
 	LogLine(2, __FUNCTION__, "deviceID          " + String(ps.deviceID));
 	LogLine(2, __FUNCTION__, "macAddress        " + String(ps.macAddress));
@@ -155,6 +161,7 @@ void PersistentMemoryClass::Printps() {
 	LogLine(2, __FUNCTION__, "wifiPwd           " + String(ps.wifiPwd));
 	LogLine(2, __FUNCTION__, "cloudUserName     " + String(ps.cloudUserName));
 	LogLine(2, __FUNCTION__, "cloudPwd          " + String(ps.cloudPwd));
+	LogLine(2, __FUNCTION__, "totalSecondsToSleep " + String(ps.totalSecondsToSleep));
 	LogLine(2, __FUNCTION__, "secondsToSleep    " + String(ps.secondsToSleep));
 	LogLine(2, __FUNCTION__, "maxSleepCycles    " + String(ps.maxSleepCycles));
 	LogLine(2, __FUNCTION__, "currentSleepCycle " + String(ps.currentSleepCycle));
@@ -162,6 +169,8 @@ void PersistentMemoryClass::Printps() {
 	LogLine(2, __FUNCTION__, "valveOpenDuration " + String(ps.valveOpenDuration));
 	LogLine(2, __FUNCTION__, "valveSoakTime " + String(ps.valveSoakTime));
 	LogLine(2, __FUNCTION__, "mainLoopDelay " + String(ps.mainLoopDelay));
+	LogLine(2, __FUNCTION__, "deepSleepEnabled " + String(ps.deepSleepEnabled));
+	
 	//	for (int i = 0; i < MAX_KEPT_LOGLINES; i++) {
 //		LogLine(2, __FUNCTION__, "Logline " + String(i) + ":" + String(ps.logLines[i]));
 //	}

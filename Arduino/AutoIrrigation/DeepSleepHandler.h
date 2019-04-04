@@ -9,10 +9,11 @@
 	#include "WProgram.h"
 #endif
 
+
+#define MAX_DEEP_SLEEP_SECS 3600  // micro seconds ~1 hour + 1 second (real limit is higher, https://thingpulse.com/max-deep-sleep-for-esp8266/)
 // hardware based constant ()
 // According to the ESP8266 SDK, you can only sleep for 4,294,967,295 µs, which is about ~71 minutes.
 // https://www.losant.com/blog/making-the-esp8266-low-powered-with-deep-sleep
-#define MAX_DEEP_SLEEP_SECS 3600
 
 class DeepSleepHandlerClass
 {
@@ -20,8 +21,8 @@ protected:
 
 
 public:
-	/* void init(); */
-	void GoToDeepSleep(int secondsToSleep);
+	void SetDeepSleepPeriod(int secondsToSleep);
+	void GoToDeepSleep();
 
 private:
 

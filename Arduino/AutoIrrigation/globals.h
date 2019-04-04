@@ -11,7 +11,7 @@
 
 const int LED_PIN = LED_BUILTIN;
 
-#define MAX_DEEP_SLEEP 3600000000
+#define MAX_DEEP_SLEEP 3600000000   // micro seconds
 //#define MAX_KEPT_LOGLINES 5
 //#define MAX_LINE_LENGTH 100
 
@@ -23,13 +23,15 @@ struct PersistentDataStruct {
 	char wifiPwd[15];
 	char cloudUserName[30];
 	char cloudPwd[15];
-	int secondsToSleep;  // hardware limitation of max MAX_DEEP_SLEEP 3600000000
-	int maxSleepCycles;  // The total sleep time before the loop() is executed is secondsToSleep * maxSleepCycles
+	int totalSecondsToSleep;  
+	int secondsToSleep;  
+	int maxSleepCycles;  
 	int currentSleepCycle; // counts which sleep cycle we are at right now.
 	float lastVccSummarizedReading;
 	int valveOpenDuration;
 	int valveSoakTime;
 	int mainLoopDelay;
+	boolean deepSleepEnabled;
 
 //TODO	boolean stopInstantly;   /* if the sensor thinks something is wrong, this bit is flipped, and it will never open the valve until reset*/
 //TODO	time_t lastValveopenTimeStamp;

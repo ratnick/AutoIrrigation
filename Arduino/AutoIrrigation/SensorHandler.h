@@ -9,7 +9,7 @@
 	#include "WProgram.h"
 #endif
 
-#define SIMULATE_SENSORS true
+#define SIMULATE_SENSORS false
 
 class SensorHandlerClass
 {

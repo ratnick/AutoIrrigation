@@ -21,12 +21,15 @@ class WaterSensorClass
 	 const float HUMIDITY_THRESHOLD = 30; // above this value we have detected water
 
 	 int pinNbr;
+	 int pwrCtrlPin; // if a pin is used to control power relay / optocoupler or similar. Set to zero if unused
+	 boolean pwrCtrlPinActive;  // which value is used to activate the relay (true or false)
+
 	 char name[15];
 	 SensorHandlerClass::SensorType sensorType;
 	 float lastAnalogueReading;
 	 boolean lastDigitalReading;
 
-	 void init(int _pinNbr, char _name[], SensorHandlerClass::SensorType _sensorType);
+	 void init(int _pinNbr, char _name[], SensorHandlerClass::SensorType _sensorType, int _pwrCtrlPin, boolean _pwrCtrlPinActive);
 	 boolean CheckIfWater();
 
 private:

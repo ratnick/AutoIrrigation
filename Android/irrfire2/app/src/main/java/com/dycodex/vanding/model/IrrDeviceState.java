@@ -15,7 +15,7 @@ public class IrrDeviceState {
     public int soakTime;
     public int mainLoopDelay;
     public long timestamp;
-    public boolean useDeepSleep;
+    public boolean deepSleepEnabled;
 
     public IrrDeviceState() {
         // Default constructor required for calls to DataSnapshot.getValue(Comment.class)

@@ -152,18 +152,22 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/tvUseDeepSleepTxt"
+                android:id="@+id/tvdeepSleepEnabledTxt"
                 android:layout_width="0dip"
                 android:layout_height="wrap_content"
                 android:layout_weight="40"
                 android:text="Deep sleep enabled" />
 
-            <TextView
-                android:id="@+id/tvUseDeepSleep"
+            <EditText
+                android:id="@+id/tvdeepSleepEnabled"
                 android:layout_width="0dip"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="60"
-                android:text="TextView" />
+                android:backgroundTint="@android:color/holo_blue_dark"
+                android:inputType="text"
+                android:padding="0dp"
+                android:text=""
+                android:textSize="14sp" />
         </TableRow>
 
         <TableRow
