@@ -259,3 +259,46 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+3d print/battery corner.stl
+3d print/Body46.stl
+3d print/Body46.3w
+3d print/Body37.stl
+3d print/Body34.stl
+3d print/Body26.stl
+3d print/Body10.stl
+3d print/Body1.stl
+3d print/BOTTOM~1.3w
+3d print/øje.stl
+3d print/valve corner.stl
+3d print/irrigation_5Vvalve_4N25_18650_WRAP-brd.svg
+3d print/irrigation_5Vvalve_4N25_18650_WRAP-Margin.svg
+3d print/irrigation_5Vvalve_4N25_18650_WRAP-Margin.dxf
+3d print/irrigation_5Vvalve_4N25_18650_WRAP-F.CrtYd.svg
+3d print/irrigation_5Vvalve_4N25_18650_WRAP-F.CrtYd.dxf
+3d print/irrigation_5Vvalve_4N25_18650_WRAP-Edge.Cuts.svg
+3d print/irrigation_5Vvalve_4N25_18650_WRAP-Edge.Cuts.dxf
+Android/quickstart-android-master/
+Android/testGraphview/
+docs/old version/
+*.svg
+*.kicad_pcb-bak
+*.dcm
+PCB/irrigation.wrl
+PCB/irrigation.step
+PCB/irrigation.pro
+PCB/irrigation.mtl
+PCB/irrigation.emp
+PCB/irrigation.emn
+PCB/irrigation.dsn
+PCB/irrigation.cad
+PCB/irrigation v0.1.pro
+PCB/irrigation - Kopi.kicad_pcb
+PCB/_autosave-WRAPPED.kicad_pcb
+PCB/irrigation.cmp
+PCB/irrigation.net
+PCB/untitled.stl
+PCB/shapes3D/TO-220-3_Vertical.wrl
+PCB/shapes3D/R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal.wrl
+PCB/noname.sch
+PCB/WRAPPED.pro
+PCB/WRAPPED.kicad_pcb

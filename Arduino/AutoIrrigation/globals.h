@@ -69,8 +69,8 @@ struct DeviceConfig {
 
 enum UploadType {
 	UploadTelemetry,
-	UploadState,
-	GetState,
+	UploadStateAndSettings,
+	GetSettings,
 	UploadLog
 };
 

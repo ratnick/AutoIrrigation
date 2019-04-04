@@ -14,7 +14,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewDebug;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -24,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.dycodex.vanding.model.IrrDevice;
 import com.dycodex.vanding.model.IrrDeviceMetadata;
+import com.dycodex.vanding.model.IrrDeviceSettings;
 import com.dycodex.vanding.model.IrrDeviceState;
 import com.dycodex.vanding.model.IrrDeviceTelemetry;
 
@@ -52,15 +52,15 @@ public class DeviceActivity extends AppCompatActivity {
 
     @BindView(R.id.tvDeviceID)                  EditText tvDeviceID;
     @BindView(R.id.tvLocation)                  EditText tvLocation;
-    @BindView(R.id.tvMacAddr)                   TextView tvMacAddr;
-    @BindView(R.id.tvMeasureMode)               TextView tvMeasureMode;
     @BindView(R.id.tvdeepSleepEnabled)          EditText tvdeepSleepEnabled;
     @BindView(R.id.tvSecsToSleep)               EditText tvSecsToSleep;
-    @BindView(R.id.tvMaxSlpCycles)              EditText tvMaxSlpCycles;
-    @BindView(R.id.tvCurrentSleepCycle)         TextView tvCurrentSleepCycle;
     @BindView(R.id.tvMainLoopDelay)             EditText tvMainLoopDelay;
     @BindView(R.id.tvOpenDuration)              EditText tvOpenDuration;
     @BindView(R.id.tvSoakTime)                  EditText tvSoakTime;
+    @BindView(R.id.tvMacAddr)                   TextView tvMacAddr;
+    @BindView(R.id.tvMeasureMode)               TextView tvMeasureMode;
+    @BindView(R.id.tvMaxSlpCycles)              TextView tvMaxSlpCycles;
+    @BindView(R.id.tvCurrentSleepCycle)         TextView tvCurrentSleepCycle;
     @BindView(R.id.tvWifiSSID)                  TextView tvWifiSSID;
     @BindView(R.id.tvTimestampState)            TextView tvTimestampState;
 
@@ -108,32 +108,31 @@ public class DeviceActivity extends AppCompatActivity {
 
         setButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                mIrrDevice[mSelectedIrrDeviceK].metadata.location = tvLocation.getText().toString();
-                mIrrDevice[mSelectedIrrDeviceK].metadata.deviceID = tvDeviceID.getText().toString();
-                mIrrDevice[mSelectedIrrDeviceK].state.secsToSleep = Integer.valueOf(tvSecsToSleep.getText().toString());
-                mIrrDevice[mSelectedIrrDeviceK].state.deepSleepEnabled = Boolean.valueOf(tvdeepSleepEnabled.getText().toString());
-                mIrrDevice[mSelectedIrrDeviceK].state.maxSlpCycles = Integer.valueOf(tvMaxSlpCycles.getText().toString());
-                mIrrDevice[mSelectedIrrDeviceK].state.mainLoopDelay = Integer.valueOf(tvMainLoopDelay.getText().toString());
-                mIrrDevice[mSelectedIrrDeviceK].state.openDur = Integer.valueOf(tvOpenDuration.getText().toString());
-                mIrrDevice[mSelectedIrrDeviceK].state.soakTime = Integer.valueOf(tvSoakTime.getText().toString());
-                mIrrDevice[mSelectedIrrDeviceK].state.UserUpdate = true;
+                mIrrDevice[mSelectedIrrDeviceK].metadata.loc = tvLocation.getText().toString();
+                mIrrDevice[mSelectedIrrDeviceK].metadata.device = tvDeviceID.getText().toString();
+                mIrrDevice[mSelectedIrrDeviceK].settings.totSlp = Integer.valueOf(tvSecsToSleep.getText().toString());
+                mIrrDevice[mSelectedIrrDeviceK].settings.slpEnabl = Boolean.valueOf(tvdeepSleepEnabled.getText().toString());
+                mIrrDevice[mSelectedIrrDeviceK].settings.loopSec = Integer.valueOf(tvMainLoopDelay.getText().toString());
+                mIrrDevice[mSelectedIrrDeviceK].settings.vlvOpen = Integer.valueOf(tvOpenDuration.getText().toString());
+                mIrrDevice[mSelectedIrrDeviceK].settings.vlvSoak = Integer.valueOf(tvSoakTime.getText().toString());
+                mIrrDevice[mSelectedIrrDeviceK].settings.Updated = true;
                 writeStateToFirebase();
             }
         });
     }
 
     public void writeStateToFirebase() {
-        mDeviceReference[mSelectedIrrDeviceK].child("metadata").child("location").setValue(mIrrDevice[mSelectedIrrDeviceK].metadata.location);
-        mDeviceReference[mSelectedIrrDeviceK].child("metadata").child("deviceID").setValue(mIrrDevice[mSelectedIrrDeviceK].metadata.deviceID);
-        mDeviceReference[mSelectedIrrDeviceK].child("state").child("secsToSleep").setValue(mIrrDevice[mSelectedIrrDeviceK].state.secsToSleep);
-        mDeviceReference[mSelectedIrrDeviceK].child("state").child("deepSleepEnabled").setValue(mIrrDevice[mSelectedIrrDeviceK].state.deepSleepEnabled);
-        mDeviceReference[mSelectedIrrDeviceK].child("state").child("maxSlpCycles").setValue(mIrrDevice[mSelectedIrrDeviceK].state.maxSlpCycles);
-        mDeviceReference[mSelectedIrrDeviceK].child("state").child("mainLoopDelay").setValue(mIrrDevice[mSelectedIrrDeviceK].state.mainLoopDelay);
-        mDeviceReference[mSelectedIrrDeviceK].child("state").child("openDur").setValue(mIrrDevice[mSelectedIrrDeviceK].state.openDur);
-        mDeviceReference[mSelectedIrrDeviceK].child("state").child("soakTime").setValue(mIrrDevice[mSelectedIrrDeviceK].state.soakTime);
-        mDeviceReference[mSelectedIrrDeviceK].child("state").child("UserUpdate").setValue(true);
+        mDeviceReference[mSelectedIrrDeviceK].child("metadata").child("loc").setValue(mIrrDevice[mSelectedIrrDeviceK].metadata.loc);
+        mDeviceReference[mSelectedIrrDeviceK].child("metadata").child("device").setValue(mIrrDevice[mSelectedIrrDeviceK].metadata.device);
+        mDeviceReference[mSelectedIrrDeviceK].child("settings").child("totSlp").setValue(mIrrDevice[mSelectedIrrDeviceK].settings.totSlp);
+        mDeviceReference[mSelectedIrrDeviceK].child("settings").child("slpEnabl").setValue(mIrrDevice[mSelectedIrrDeviceK].settings.slpEnabl);
+        mDeviceReference[mSelectedIrrDeviceK].child("state").child("slpMxCyc").setValue(mIrrDevice[mSelectedIrrDeviceK].state.slpMxCyc);
+        mDeviceReference[mSelectedIrrDeviceK].child("settings").child("loopSec").setValue(mIrrDevice[mSelectedIrrDeviceK].settings.loopSec);
+        mDeviceReference[mSelectedIrrDeviceK].child("settings").child("vlvOpen").setValue(mIrrDevice[mSelectedIrrDeviceK].settings.vlvOpen);
+        mDeviceReference[mSelectedIrrDeviceK].child("settings").child("vlvSoak").setValue(mIrrDevice[mSelectedIrrDeviceK].settings.vlvSoak);
+        mDeviceReference[mSelectedIrrDeviceK].child("state").child("slpDura").setValue(mIrrDevice[mSelectedIrrDeviceK].state.slpDura);
+        mDeviceReference[mSelectedIrrDeviceK].child("settings").child("Updated").setValue(true);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -310,14 +309,15 @@ public class DeviceActivity extends AppCompatActivity {
                         mIrrDevice[i].metadata = dataSnapshot.child("metadata").getValue(IrrDeviceMetadata.class);
                         mIrrDevice[i].telemetry_current = dataSnapshot.child("telemetry_current").getValue(IrrDeviceTelemetry.class);
                         mIrrDevice[i].state = dataSnapshot.child("state").getValue(IrrDeviceState.class);
+                        mIrrDevice[i].settings = dataSnapshot.child("settings").getValue(IrrDeviceSettings.class);
                         mIrrDevice[i].xSeriesVcc.resetData(readAllData(dataSnapshot, "Vcc"));
-                        mIrrDevice[i].xSerieslastAnalogueReading.resetData(readAllData(dataSnapshot, "lastAnalogueReading"));
-                        mIrrDevice[i].xSeriesValveState.resetData(readAllData(dataSnapshot, "valveState"));
+                        mIrrDevice[i].xSerieslastAnalogueReading.resetData(readAllData(dataSnapshot, "lastAnalog"));
+                        mIrrDevice[i].xSeriesValveState.resetData(readAllData(dataSnapshot, "vlvState"));
 
-                        if (dsKey == INITIAL_DEVICE_ID) {
+//                        if (dsKey == INITIAL_DEVICE_ID) {
                             DisplayDeviceData();
 //                            graphDataInitialized = true;
-                        }
+//                        }
                     }
 
                     @Override
@@ -367,6 +367,14 @@ public class DeviceActivity extends AppCompatActivity {
                     }
                 }
 
+                if (key.equals("settings")) {
+                    IrrDeviceSettings devSettings = dataSnapshot.getValue(IrrDeviceSettings.class);
+                    if (devSettings != null) {
+                        mIrrDevice[k].settings = devSettings;
+                        updateUIBasedOnSettings(devSettings);
+                    }
+                }
+
                 if (key.equals("telemetry_current")) {
                     IrrDeviceTelemetry tele = dataSnapshot.getValue(IrrDeviceTelemetry.class);
                     if (tele != null) {
@@ -380,8 +388,8 @@ public class DeviceActivity extends AppCompatActivity {
                     if (deviceKey == mSelectedDeviceId) {
                         Log.e("Count ", "" + dataSnapshot.getChildrenCount());
                         mIrrDevice[k].xSeriesVcc.resetData(readAllData(dataSnapshot, "Vcc"));
-                        mIrrDevice[k].xSerieslastAnalogueReading.resetData(readAllData(dataSnapshot, "lastAnalogueReading"));
-                        mIrrDevice[k].xSeriesValveState.resetData(readAllData(dataSnapshot, "valveState"));
+                        mIrrDevice[k].xSerieslastAnalogueReading.resetData(readAllData(dataSnapshot, "lastAnalog"));
+                        mIrrDevice[k].xSeriesValveState.resetData(readAllData(dataSnapshot, "vlvState"));
                     }
                 }
 
@@ -436,7 +444,7 @@ public class DeviceActivity extends AppCompatActivity {
         }
         int count = (int) teledataSnapshot.getChildrenCount();
 
-        if (parameterName.equals("valveState")) {
+        if (parameterName.equals("vlvState")) {
             DataPoint[] values = new DataPoint[count*2];
             int i = 0;
             IrrDeviceTelemetry post;
@@ -444,13 +452,13 @@ public class DeviceActivity extends AppCompatActivity {
             float prevValveState = 0;
             for (DataSnapshot postSnapshot : teledataSnapshot.getChildren()) {
                 post = postSnapshot.getValue(IrrDeviceTelemetry.class);
-                if (prevValveState != post.valveState) {  // insert extra point before real point to make a sharp edge on the graph
-                    DataPoint x = new DataPoint(post.timestamp-1, (float) 0.3 * prevValveState);   // setting to 0.3 to make a better visualisation
+                if (prevValveState != post.vlvState) {  // insert extra point before real point to make a sharp edge on the graph
+                    DataPoint x = new DataPoint(post.timestamp -1, (float) 0.3 * prevValveState);   // setting to 0.3 to make a better visualisation
                     values[i++] = x;
                 }
-                DataPoint v = new DataPoint(post.timestamp, (float) 0.3 * post.valveState);
+                DataPoint v = new DataPoint(post.timestamp, (float) 0.3 * post.vlvState);
                 values[i++] = v;
-                prevValveState = post.valveState;
+                prevValveState = post.vlvState;
             }
             Log.d("data fetch", "i=" + Integer.toString(i) + "  count=" + Integer.toString(count*2));
             while (i < count*2) {
@@ -474,10 +482,10 @@ public class DeviceActivity extends AppCompatActivity {
                         values[i++] = v;
                     }
                     break;
-                case "lastAnalogueReading":  // NORMALIZED HERE
+                case "lastAnalog":  // NORMALIZED HERE
                     for (DataSnapshot postSnapshot : teledataSnapshot.getChildren()) {
                         post = postSnapshot.getValue(IrrDeviceTelemetry.class);
-                        DataPoint v = new DataPoint(post.timestamp, (float) post.lastAnalogueReading / 1024.0);  // normalize to 1
+                        DataPoint v = new DataPoint(post.timestamp, (float) post.lastAnalog / 1024.0);  // normalize to 1
                         values[i++] = v;
                     }
                     break;
@@ -593,9 +601,10 @@ public class DeviceActivity extends AppCompatActivity {
     private void DisplayDeviceData() {
         Log.d("HomeX", "mSelectedIrrDeviceK=" + Integer.toString(mSelectedIrrDeviceK));
 
-        tvDeviceID.setText(mIrrDevice[mSelectedIrrDeviceK].metadata.deviceID);
+        tvDeviceID.setText(mIrrDevice[mSelectedIrrDeviceK].metadata.device);
         updateUIBasedOnMetadata(mIrrDevice[mSelectedIrrDeviceK].metadata);
         updateUIBasedOnState(mIrrDevice[mSelectedIrrDeviceK].state);
+        updateUIBasedOnSettings(mIrrDevice[mSelectedIrrDeviceK].settings);
         updateUIBasedOnTelemetry(mIrrDevice[mSelectedIrrDeviceK].telemetry_current);
         graph.removeAllSeries();
         // primary Y-axis:
@@ -610,38 +619,36 @@ public class DeviceActivity extends AppCompatActivity {
     }
 
     private void updateUIBasedOnMetadata(IrrDeviceMetadata meta) {
-
-        tvDeviceID.setText(meta.deviceID);
-        tvLocation.setText(meta.location);
-        tvMacAddr.setText(meta.macAddr);
+        tvDeviceID.setText(meta.device);
+        tvLocation.setText(meta.loc);
+        tvMacAddr.setText(meta.mac);
     }
 
     private void updateUIBasedOnState(IrrDeviceState state) {
-
         tvMeasureMode.setText(state.mode);
-        tvdeepSleepEnabled.setText(String.format("%b", state.deepSleepEnabled));
-        tvSecsToSleep.setText(String.format("%d", state.secsToSleep));
-        tvMaxSlpCycles.setText(String.format("%d", state.maxSlpCycles));
-        tvCurrentSleepCycle.setText(String.format("%d", state.curSleepCycle));
+        tvMaxSlpCycles.setText(String.format("%d", state.slpMxCyc));
+        tvCurrentSleepCycle.setText(String.format("%d", state.slpCurCyc));
         tvWifiSSID.setText(state.SSID);
         SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-        tvTimestampState.setText(sfd.format(new Date(state.timestamp)));
-        tvMainLoopDelay.setText(String.format("%d", state.mainLoopDelay));
-        tvOpenDuration.setText(String.format("%d", state.openDur));
-        tvSoakTime.setText(String.format("%d", state.soakTime));
+        tvTimestampState.setText(sfd.format(new Date(state.ts)));
+    }
 
+    private void updateUIBasedOnSettings(IrrDeviceSettings settings) {
+        tvdeepSleepEnabled.setText(String.format("%b", settings.slpEnabl));
+        tvSecsToSleep.setText(String.format("%d", settings.totSlp));
+        tvMainLoopDelay.setText(String.format("%d", settings.loopSec));
+        tvOpenDuration.setText(String.format("%d", settings.vlvOpen));
+        tvSoakTime.setText(String.format("%d", settings.vlvSoak));
     }
 
     @SuppressLint("DefaultLocale")
     private void updateUIBasedOnTelemetry(IrrDeviceTelemetry tele) {
-
-        tvLastAnalogueReading.setText(String.format("%d", tele.lastAnalogueReading));
+        tvLastAnalogueReading.setText(String.format("%d", tele.lastAnalog));
         tvVcc.setText(String.format("%.2f", tele.Vcc));
-        tvLastOpenTimestamp.setText(tele.lastOpenTimestamp);
-        tvWifi.setText(String.format("%d", tele.wifi));
+        tvLastOpenTimestamp.setText(tele.lastOpen);
+        tvWifi.setText(String.format("%d", tele.Wifi));
         SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         tvTimestampTelemetryTime.setText(sfd.format(new Date(tele.timestamp)));
-
     }
 
     private void showToast(String message) {

@@ -87,6 +87,7 @@
                 android:text="device ID"
                 android:textSize="14sp" />
         </TableRow>
+
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -104,6 +105,130 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="60"
                 android:text="MacAddr" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvdeepSleepEnabledTxt"
+                android:layout_width="0dip"
+                android:layout_gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:layout_weight="40"
+                android:text="Deep sleep enabled" />
+
+            <EditText
+                android:id="@+id/tvdeepSleepEnabled"
+                android:layout_width="0dip"
+                android:layout_height="match_parent"
+                android:layout_weight="60"
+                android:backgroundTint="@android:color/holo_blue_bright"
+                android:inputType="text"
+                android:padding="0dp"
+                android:text=""
+                android:textSize="14sp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvSecsToSleepTxt"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="40"
+                android:text="Total secs to sleep" />
+
+            <EditText
+                android:id="@+id/tvSecsToSleep"
+                android:layout_width="0dip"
+                android:layout_height="match_parent"
+                android:layout_weight="60"
+                android:backgroundTint="@android:color/holo_blue_bright"
+                android:inputType="number"
+                android:padding="0dp"
+                android:text=""
+                android:textSize="14sp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvMainLoopDelayTxt"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="40"
+                android:text="Main loop delay" />
+
+            <EditText
+                android:id="@+id/tvMainLoopDelay"
+                android:layout_width="0dip"
+                android:layout_height="match_parent"
+                android:layout_weight="60"
+                android:backgroundTint="@android:color/holo_blue_bright"
+                android:inputType="number"
+                android:padding="0dp"
+                android:text=""
+                android:textSize="14sp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvOpenDurationTxt"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="40"
+                android:text="Valve open duration" />
+
+            <EditText
+                android:id="@+id/tvOpenDuration"
+                android:layout_width="0dip"
+                android:layout_height="match_parent"
+                android:layout_weight="60"
+                android:backgroundTint="@android:color/holo_blue_bright"
+                android:inputType="number"
+                android:padding="0dp"
+                android:text=""
+                android:textSize="14sp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvSoakTimeTxt"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="40"
+                android:text="Soak time" />
+
+            <EditText
+                android:id="@+id/tvSoakTime"
+                android:layout_width="0dip"
+                android:layout_height="match_parent"
+                android:layout_weight="60"
+                android:backgroundTint="@android:color/holo_blue_bright"
+                android:inputType="number"
+                android:padding="0dp"
+                android:text=""
+                android:textSize="14sp" />
+
         </TableRow>
 
     </TableLayout>
@@ -147,53 +272,6 @@
                 android:text="TextView" />
         </TableRow>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/tvdeepSleepEnabledTxt"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="40"
-                android:text="Deep sleep enabled" />
-
-            <EditText
-                android:id="@+id/tvdeepSleepEnabled"
-                android:layout_width="0dip"
-                android:layout_height="match_parent"
-                android:layout_weight="60"
-                android:backgroundTint="@android:color/holo_blue_dark"
-                android:inputType="text"
-                android:padding="0dp"
-                android:text=""
-                android:textSize="14sp" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/tvSecsToSleepTxt"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="40"
-                android:text="Secs to sleep" />
-
-            <EditText
-                android:id="@+id/tvSecsToSleep"
-                android:layout_width="0dip"
-                android:layout_height="match_parent"
-                android:layout_weight="60"
-                android:backgroundTint="@android:color/holo_blue_dark"
-                android:inputType="number"
-                android:padding="0dp"
-                android:text=""
-                android:textSize="14sp" />
-
-        </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
@@ -207,16 +285,12 @@
                 android:layout_weight="40"
                 android:text="Max sleep cycles" />
 
-            <EditText
+            <TextView
                 android:id="@+id/tvMaxSlpCycles"
                 android:layout_width="0dip"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="60"
-                android:backgroundTint="@android:color/holo_blue_dark"
-                android:inputType="number"
-                android:padding="0dp"
-                android:text=""
-                android:textSize="14sp" />
+                android:text="TextView" />
 
         </TableRow>
 
@@ -239,80 +313,6 @@
                 android:text="Name" />
         </TableRow>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/tvMainLoopDelayTxt"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="40"
-                android:text="Main loop delay" />
-
-            <EditText
-                android:id="@+id/tvMainLoopDelay"
-                android:layout_width="0dip"
-                android:layout_height="match_parent"
-                android:layout_weight="60"
-                android:backgroundTint="@android:color/holo_blue_dark"
-                android:inputType="number"
-                android:padding="0dp"
-                android:text=""
-                android:textSize="14sp" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/tvOpenDurationTxt"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="40"
-                android:text="Valve open duration" />
-
-            <EditText
-                android:id="@+id/tvOpenDuration"
-                android:layout_width="0dip"
-                android:layout_height="match_parent"
-                android:layout_weight="60"
-                android:backgroundTint="@android:color/holo_blue_dark"
-                android:inputType="number"
-                android:padding="0dp"
-                android:text=""
-                android:textSize="14sp" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/tvSoakTimeTxt"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="40"
-                android:text="Soak time" />
-
-            <EditText
-                android:id="@+id/tvSoakTime"
-                android:layout_width="0dip"
-                android:layout_height="match_parent"
-                android:layout_weight="60"
-                android:backgroundTint="@android:color/holo_blue_dark"
-                android:inputType="number"
-                android:padding="0dp"
-                android:text=""
-                android:textSize="14sp" />
-
-        </TableRow>
 
         <TableRow
             android:layout_width="match_parent"

@@ -4,14 +4,8 @@
     Author:     Nikolaj Nøhr-Rasmussen
 */
 
-
 #define HARDWARE_DESCRIPTION "WeMOS D1 r2, 5V/12V valve switch"
 #define DEVICE_ID "prototype"
-
-//#define MEASURE_INTERNAL_VCC      // When enabling, we cannot use analogue reading of sensor. They are mutually exclusive. 
-#define MEASURE_EXTERNAL_VCC        // When enabling, we use A0 as external voltmeter. This disables sensing water level (by hardware). 
-#define SIMULATE_WATERING false      // open the valve in every loop
-// See also SIMULATE_SENSORS in SensorHandler.h
 
 #define USE_WIFI
 
@@ -27,6 +21,10 @@
 #define NBR_OF_LOOPS_BEFORE_SLEEP 1
 #define LOOP_DELAY 1 //secs
 #define FORCE_NEW_VALUES false          // Will overwrite all values in persistent memory. Enable once, disable and recompile
+//#define MEASURE_INTERNAL_VCC      // When enabling, we cannot use analogue reading of sensor. They are mutually exclusive. 
+#define MEASURE_EXTERNAL_VCC        // When enabling, we use A0 as external voltmeter. This disables sensing water level (by hardware). 
+#define SIMULATE_WATERING true      // open the valve in every loop
+// See also SIMULATE_SENSORS in SensorHandler.h
 
 #ifdef USE_WIFI
 #include <ArduinoJson.hpp>
@@ -54,6 +52,7 @@
 #include <FirebaseCloudMessaging.h>
 #include <FirebaseArduino.h>
 #include <Firebase.h>
+#include "FirebaseModel.h"
 #endif
 
 #ifdef USE_GOOGLE_CLOUD
@@ -184,7 +183,7 @@ void setup() {
 		FB_BasePath = FB_DEVICE_PATH + PersistentMemory.GetmacAddress();
 		Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);  
 		UploadLog_("Setup(): Alive");
-		ConnectAndUploadToCloud(UploadState);
+		ConnectAndUploadToCloud(UploadStateAndSettings);
 	#endif
 }
 
@@ -195,7 +194,7 @@ void loop() {
 	int del;
 	float vccTmp;
 	
-	ConnectAndUploadToCloud(GetState);  // maybe the user has changed values via the app
+	ConnectAndUploadToCloud(GetSettings);  // maybe the user has changed values via the app
 
 	#if defined(MEASURE_INTERNAL_VCC) || defined(MEASURE_EXTERNAL_VCC)
 		vccTmp = externalVoltMeter.ReadVoltage();
@@ -256,18 +255,19 @@ void ConnectAndUploadToCloud(UploadType uploadType) {
 			String jsonStr;
 			// Indents correspond to hierachy
 			JsonObject& jsoStatic = jsonBufferRoot.createObject();
-				JsonObject& jsoMetadata = jsoStatic.createNestedObject("metadata");
-				JsonObject& jsoState = jsoStatic.createNestedObject("state");
-					JsonObject& stateTime = jsoState.createNestedObject("timestamp");
+				JsonObject& jsoMetadata		= jsoStatic.createNestedObject("metadata");
+				JsonObject& jsoSettings		= jsoStatic.createNestedObject("settings");
+				JsonObject& jsoState		= jsoStatic.createNestedObject("state");
+					JsonObject& stateTime			= jsoState.createNestedObject("timestamp");
 				JsonObject& jsoTelemetryCur = jsoStatic.createNestedObject("telemetry_current");
-				JsonObject& jsoTelemetry = jsoStatic.createNestedObject("telemetry");
-					JsonObject& jsoTeleTimestamp = jsoTelemetry.createNestedObject("timestamp");
-				JsonObject& jsoLog = jsoStatic.createNestedObject("log");
+				JsonObject& jsoTelemetry	= jsoStatic.createNestedObject("telemetry");
+					JsonObject& jsoTeleTimestamp	= jsoTelemetry.createNestedObject("timestamp");
+				JsonObject& jsoLog			= jsoStatic.createNestedObject("log");
 
 			switch (uploadType) {
-				case GetState:			GetState_(); break;
-				case UploadState:		UploadState_(stateTime, jsoStatic, jsoMetadata, jsoState, jsoTelemetryCur, jsoTelemetry, jsoLog);			break;
-				case UploadTelemetry:	UploadTelemetry_(jsoTelemetry, jsoTeleTimestamp);			break;
+				case GetSettings:				GetSettings_(); break;
+				case UploadStateAndSettings:	UploadStateAndSettings_(stateTime, jsoStatic, jsoMetadata, jsoState, jsoSettings, jsoTelemetryCur, jsoTelemetry, jsoLog);			break;
+				case UploadTelemetry:			UploadTelemetry_(jsoTelemetry, jsoTeleTimestamp);			break;
 				default:
 					LogLine(0, __FUNCTION__, "Error - JSON Command not defined");
 					break;
@@ -284,11 +284,11 @@ void ConnectAndUploadToCloud(UploadType uploadType) {
 								LogLine(1, __FUNCTION__, "** SEND TELEMETRY");
 								requestResult = sendHttpMsg(uploadType, CreateTelemetryJson());
 								break;
-							case UploadState:
+							case UploadStateAndSettings:
 								LogLine(1, __FUNCTION__, "** UPLOAD STATE");
 								requestResult = sendHttpMsg(uploadType, PersistentMemory.GetStateJson());
 								break;
-							case GetState:
+							case GetSettings:
 								LogLine(1, __FUNCTION__, "** GET CONFIG");
 								requestResult = sendHttpMsg(uploadType, "");
 								break;
@@ -367,23 +367,23 @@ void InitPersistentMemoryIfNeeded() {
 
 #ifdef USE_FIREBASE
 
-boolean IsStateDataUpdatedByUser() {
-	boolean res = Firebase.getBool(FB_BasePath + "/state/UserUpdate");
+boolean IsSettingsDataUpdatedByUser() {
+	boolean res = Firebase.getBool(FB_BasePath + "/settings/" + fb.UserUpdate);
 	if (res) {
-		LogLine(3, __FUNCTION__, "true");
+		LogLine(4, __FUNCTION__, "true");
 	}
 	else {
-		LogLine(3, __FUNCTION__, "false");
+		LogLine(4, __FUNCTION__, "false");
 	}
 	return res;
 }
 
 boolean DeviceExistsInFirebase() {
-	String fbTestIfExists = Firebase.getString(FB_BasePath + "/state/SSID");
+	String fbTestIfExists = Firebase.getString(FB_BasePath + "/state/" + fb.SSID);
 	if (fbTestIfExists.length() == 0) {
 		UploadLog_("Device seems not to exist. Double checking.");
 		delay(1000);
-		fbTestIfExists = Firebase.getString(FB_BasePath + "/metadata/macAddr");
+		fbTestIfExists = Firebase.getString(FB_BasePath + "/metadata/" + fb.macAddr);
 		LogLine(2, __FUNCTION__, "** CREATE BASIC DEVICE:  " + FB_BasePath + " returns: |" + fbTestIfExists + "|");
 		if (fbTestIfExists.length() == 0) {
 			LogLine(0, __FUNCTION__, "** Still zero. Device does not exist");
@@ -406,27 +406,27 @@ void RemoveDummiesFromFirebase() {
 	}
 }
 
-void GetState_() {
+void GetSettings_() {
 	LogLine(4, __FUNCTION__, "begin");
-	if (IsStateDataUpdatedByUser()) {
-		PersistentMemory.SetdeviceLocation(Firebase.getString(FB_BasePath + "/metadata/location"));
-		PersistentMemory.SetdeviceID(Firebase.getString(FB_BasePath + "/metadata/deviceID"));
-		PersistentMemory.SetmainLoopDelay(Firebase.getInt(FB_BasePath + "/state/mainLoopDelay"));
-		PersistentMemory.SetdeepSleepEnabled(Firebase.getBool(FB_BasePath + "/state/deepSleepEnabled"));
-		PersistentMemory.SettotalSecondsToSleep(Firebase.getInt(FB_BasePath + "/state/totSlpSec"));
+	if (IsSettingsDataUpdatedByUser()) {
+		PersistentMemory.SetdeviceLocation(Firebase.getString(FB_BasePath + "/metadata/" + fb.location));
+		PersistentMemory.SetdeviceID(Firebase.getString(FB_BasePath + "/metadata/" + fb.deviceID));
+		PersistentMemory.SetmainLoopDelay(Firebase.getInt(FB_BasePath + "/settings/" + fb.mainLoopDelay));
+		PersistentMemory.SetdeepSleepEnabled(Firebase.getBool(FB_BasePath + "/settings/" + fb.deepSleepEnabled));
+		PersistentMemory.SettotalSecondsToSleep(Firebase.getInt(FB_BasePath + "/settings/" + fb.totalSecondsToSleep));
 		DeepSleepHandler.SetDeepSleepPeriod(PersistentMemory.GettotalSecondsToSleep());
 
-		int val = Firebase.getInt(FB_BasePath + "/state/openDur");
+		int val = Firebase.getInt(FB_BasePath + "/settings/" + fb.openDur);
 		PersistentMemory.SetvalveOpenDuration(val);
 		waterValveA.SetvalveOpenDuration(val);
 
-		val = Firebase.getInt(FB_BasePath + "/state/soakTime");
+		val = Firebase.getInt(FB_BasePath + "/settings/" + fb.soakTime);
 		PersistentMemory.SetvalveSoakTime(val);
 		waterValveA.SetvalveSoakTime(val);
 
-		Firebase.setBool(FB_BasePath + "/state/UserUpdate", false);
+		Firebase.setBool(FB_BasePath + "/settings/" + fb.UserUpdate, false);
 		PersistentMemory.Printps();
-		UploadLog_("New state read");
+		UploadLog_("New settings read");
 	}
 }
 
@@ -436,8 +436,8 @@ void CreateNewDevice(
 
 	InitPersistentMemoryIfNeeded();
 
-	jsoMetadata["macAddr"] = PersistentMemory.GetmacAddress();
-	jsoState["SSID"] = PersistentMemory.GetwifiSSID();
+	jsoMetadata[fb.macAddr] = PersistentMemory.GetmacAddress();
+	jsoState[fb.SSID] = PersistentMemory.GetwifiSSID();
 	jsoTelemetryCur["x"] = "-";   
 	jsoTelemetry["x"] = "-";	
 	jsoLog["x"] = "-";
@@ -447,9 +447,9 @@ void CreateNewDevice(
 	if (Firebase.failed()) { LogLine(0, __FUNCTION__, "** CREATE BASIC DEVICE FAILED:  " + FB_BasePath + " - Firebase error msg: " + Firebase.error()); }
 }
 
-void UploadState_(
+void UploadStateAndSettings_(
 	JsonObject& stateTime, JsonObject& jsoStatic, JsonObject& jsoMetadata, 
-	JsonObject& jsoState, JsonObject& jsoTelemetryCur, JsonObject& jsoTelemetry, 
+	JsonObject& jsoState, JsonObject& jsoSettings, JsonObject& jsoTelemetryCur, JsonObject& jsoTelemetry,
 	JsonObject& jsoLog) {
 
 	LogLine(4, __FUNCTION__, "begin");
@@ -463,65 +463,67 @@ void UploadState_(
 		UploadLog_(FB_BasePath + " created");
 	}
 	else {
-		ConnectAndUploadToCloud(GetState);
+		ConnectAndUploadToCloud(GetSettings);
 		RemoveDummiesFromFirebase();
 	}
 
-	if (IsStateDataUpdatedByUser()) {
-		ConnectAndUploadToCloud(GetState);
+	if (IsSettingsDataUpdatedByUser()) {
+		ConnectAndUploadToCloud(GetSettings);
 	}
 
 	// update values in persistent memory and write them back to Firebase
 	stateTime[".sv"] = "timestamp";
 
-	jsoMetadata["macAddr"] = PersistentMemory.GetmacAddress();
-	jsoMetadata["location"] = PersistentMemory.GetdeviceLocation();
-	jsoMetadata["deviceID"] = PersistentMemory.GetDeviceID();
-	jsoMetadata["softwareVersion"] = SOFTWARE_VERSION;
-	jsoMetadata["hardware"] = HARDWARE_DESCRIPTION;
+	jsoMetadata[fb.macAddr] = PersistentMemory.GetmacAddress();
+	jsoMetadata[fb.location] = PersistentMemory.GetdeviceLocation();
+	jsoMetadata[fb.deviceID] = PersistentMemory.GetDeviceID();
+	jsoMetadata[fb.softwareVersion] = SOFTWARE_VERSION;
+	jsoMetadata[fb.hardware] = HARDWARE_DESCRIPTION;
 	SendToFirebase("set", "metadata", jsoMetadata);
 
-	jsoState["UserUpdate"] = false;
-	jsoState["SSID"] = PersistentMemory.GetwifiSSID();
-	jsoState["totSlpSec"] = PersistentMemory.GettotalSecondsToSleep();
-	jsoState["slpSec"] = PersistentMemory.GetsecondsToSleep();
-	jsoState["maxSlpCyc"] = PersistentMemory.GetmaxSleepCycles();
-	jsoState["curSlpCyc"] = PersistentMemory.GetcurrentSleepCycle();
-	jsoState["openDur"] = PersistentMemory.GetvalveOpenDuration();
-	jsoState["soakTime"] = PersistentMemory.GetvalveSoakTime();
-	jsoState["mainLoopDelay"] = PersistentMemory.GetmainLoopDelay();
-	if (PersistentMemory.GetdeepSleepEnabled()) {  // It only works if using "true" or "false". ??
-		jsoState["deepSleepEnabled"] = true;
-	}
-	else {
-		jsoState["deepSleepEnabled"] = false;
-	}
+	jsoState[fb.SSID] = PersistentMemory.GetwifiSSID();
+	jsoState[fb.secsToSleep] = PersistentMemory.GetsecondsToSleep();
+	jsoState[fb.maxSlpCycles] = PersistentMemory.GetmaxSleepCycles();
+	jsoState[fb.curSleepCycle] = PersistentMemory.GetcurrentSleepCycle();
 	#if defined(MEASURE_INTERNAL_VCC) || defined(MEASURE_EXTERNAL_VCC)
-		jsoState["mode"] = "Battery Voltage";
+		jsoState[fb.mode] = "Battery Voltage";
 	#else
-		jsoState["mode"] = "Soil humidity";
+		jsoState[fb.mode] = "Soil humidity";
 	#endif
 	#ifdef RUN_ONCE
-		jsoState["runOnce"] = true;
+		jsoState[fb.runOnce] = true;
 	#else
-		jsoState["runOnce"] = false;
+		jsoState[fb.runOnce] = false;
 	#endif
 
+	jsoSettings[fb.UserUpdate] = false;
+	jsoSettings[fb.totalSecondsToSleep] = PersistentMemory.GettotalSecondsToSleep();
+	jsoSettings[fb.openDur] = PersistentMemory.GetvalveOpenDuration();
+	jsoSettings[fb.soakTime] = PersistentMemory.GetvalveSoakTime();
+	jsoSettings[fb.mainLoopDelay] = PersistentMemory.GetmainLoopDelay();
+	if (PersistentMemory.GetdeepSleepEnabled()) {  // It only works if using "true" or "false". ??
+		jsoSettings[fb.deepSleepEnabled] = true;
+	}
+	else {
+		jsoSettings[fb.deepSleepEnabled] = false;
+	}
+
 	SendToFirebase("set", "state", jsoState);
+	SendToFirebase("set", "settings", jsoSettings);
 }
 
 void UploadTelemetry_(JsonObject& jsoTelemetry, JsonObject& jsoTeleTimestamp) {
 	LogLine(4, __FUNCTION__, "begin");
 
 	jsoTeleTimestamp[".sv"] = "timestamp";
-	jsoTelemetry["wifi"] = WiFi.RSSI(); // signal strength
-	jsoTelemetry["lastOpenTimestamp"] = waterValveA.lastOpenTimestamp;
-	jsoTelemetry["humidity"] = waterSensorA.lastAnalogueReading;
-	jsoTelemetry["valveState"] = waterValveA.valveState;
+	jsoTelemetry[fb.wifi] = WiFi.RSSI(); // signal strength
+	jsoTelemetry[fb.lastOpenTimestamp] = waterValveA.lastOpenTimestamp;
+	jsoTelemetry[fb.humidity] = waterSensorA.lastAnalogueReading;
+	jsoTelemetry[fb.valveState] = waterValveA.valveState;
 
 #if defined(MEASURE_INTERNAL_VCC) || defined(MEASURE_EXTERNAL_VCC)
-	jsoTelemetry["Vcc"] = externalVoltMeter.ReadVoltage();
-	jsoTelemetry["lastAnalogueReading"] = externalVoltMeter.lastAnalogueReading;
+	jsoTelemetry[fb.Vcc] = externalVoltMeter.ReadVoltage();
+	jsoTelemetry[fb.lastAnalogueReading] = externalVoltMeter.lastAnalogueReading;
 #endif
 	SendToFirebase("push", "telemetry", jsoTelemetry);
 	SendToFirebase("set", "telemetry_current", jsoTelemetry);
@@ -534,7 +536,7 @@ void UploadLog_(String _txt) {
 	JsonObject& jsoLogTimestamp = jsoLog.createNestedObject("timestamp");
 
 	jsoLogTimestamp[".sv"] = "timestamp";
-	jsoLog["txt"] = _txt;
+	jsoLog[fb.text] = _txt;
 	//jsoLog.prettyPrintTo(Serial);
 	SendToFirebase("push", "log", jsoLog);
 }
@@ -641,7 +643,7 @@ void SendToFirebase(String cmd, String subPath, JsonObject& jso) {
 
 		LogLine(2, __FUNCTION__, "data (before encoding)=" + data);
 		switch (uploadType) {
-		case UploadState:
+		case UploadStateAndSettings:
 			header0 = String("POST  ") + device->getSetStatePath() + String(" HTTP/1.1");
 			header2 = "method: post\n";
 
@@ -665,7 +667,7 @@ void SendToFirebase(String cmd, String subPath, JsonObject& jso) {
 				"content-length:" + postdata.length() + "\n\n" +
 				postdata + "\n\n\n";
 			break;
-		case GetState:
+		case GetSettings:
 			header0 = String("GET ") + device->getLastConfigPath().c_str() + String(" HTTP/1.1");
 			header2 = "method: get\n";
 			header4 = authstring + "\n" +
@@ -718,7 +720,7 @@ void SendToFirebase(String cmd, String subPath, JsonObject& jso) {
 		while (wifiClient.available()) {
 			String line = wifiClient.readStringUntil('\n');
 
-			if (uploadType == GetState) {
+			if (uploadType == GetSettings) {
 				if (line.indexOf("binaryData") > 0) {
 					String val = line.substring(line.indexOf(": ") + 3, line.indexOf("\","));
 					LogLine(2, __FUNCTION__, "Config received:" + val);
