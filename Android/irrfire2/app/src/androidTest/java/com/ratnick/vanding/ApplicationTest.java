@@ -1,4 +1,4 @@
-package com.dycodex.vanding;
+package com.ratnick.vanding;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

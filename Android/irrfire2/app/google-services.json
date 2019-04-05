@@ -13,27 +13,20 @@
           "package_name": "com.dycodex.vanding"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "500849866596-783qr3gtnc3pe9hgu8e4rb94hi2i4i0d.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyAqLaNz91EOQixGZraCpdvbFL9oo999R6A"
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
+          "other_platform_oauth_client": [
+            {
+              "client_id": "500849866596-783qr3gtnc3pe9hgu8e4rb94hi2i4i0d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     },
@@ -44,27 +37,44 @@
           "package_name": "com.google.firebase.quickstart.database"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "500849866596-783qr3gtnc3pe9hgu8e4rb94hi2i4i0d.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyAqLaNz91EOQixGZraCpdvbFL9oo999R6A"
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
+          "other_platform_oauth_client": [
+            {
+              "client_id": "500849866596-783qr3gtnc3pe9hgu8e4rb94hi2i4i0d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:500849866596:android:e9cfd6022b374357",
+        "android_client_info": {
+          "package_name": "com.ratnick.vanding"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqLaNz91EOQixGZraCpdvbFL9oo999R6A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "500849866596-783qr3gtnc3pe9hgu8e4rb94hi2i4i0d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     },
@@ -75,27 +85,20 @@
           "package_name": "com.vanding.irrigation"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "500849866596-783qr3gtnc3pe9hgu8e4rb94hi2i4i0d.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyAqLaNz91EOQixGZraCpdvbFL9oo999R6A"
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
+          "other_platform_oauth_client": [
+            {
+              "client_id": "500849866596-783qr3gtnc3pe9hgu8e4rb94hi2i4i0d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

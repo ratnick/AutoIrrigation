@@ -1,4 +1,4 @@
-package com.dycodex.vanding.model;
+package com.ratnick.vanding.model;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.jjoe64.graphview.series.DataPoint;

@@ -1,4 +1,4 @@
-package com.dycodex.vanding;
+package com.ratnick.vanding;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -21,11 +21,11 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.dycodex.vanding.model.IrrDevice;
-import com.dycodex.vanding.model.IrrDeviceMetadata;
-import com.dycodex.vanding.model.IrrDeviceSettings;
-import com.dycodex.vanding.model.IrrDeviceState;
-import com.dycodex.vanding.model.IrrDeviceTelemetry;
+import com.ratnick.vanding.model.IrrDevice;
+import com.ratnick.vanding.model.IrrDeviceMetadata;
+import com.ratnick.vanding.model.IrrDeviceSettings;
+import com.ratnick.vanding.model.IrrDeviceState;
+import com.ratnick.vanding.model.IrrDeviceTelemetry;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -545,11 +545,11 @@ public class DeviceActivity extends AppCompatActivity {
         maxY2 = (long) mIrrDevice[mSelectedIrrDeviceK].xSeriesVcc.getHighestValueY();
         //graph.getSecondScale().setMinY(minY2);
         //graph.getSecondScale().setMaxY(maxY2);
-        graph.getSecondScale().setMinY(2.75);  // Use this in production when voltage is aligned between 2.5 and 5V
-        graph.getSecondScale().setMaxY(4.75);
+        graph.getSecondScale().setMinY(3.5);
+        graph.getSecondScale().setMaxY(4.1);
         graph.getGridLabelRenderer().setVerticalLabelsSecondScaleColor(Color.MAGENTA);
         graph.getGridLabelRenderer().setSecondScaleLabelVerticalWidth(30);
-        graph.getGridLabelRenderer().setNumVerticalLabels(9);
+        graph.getGridLabelRenderer().setNumVerticalLabels(7);
         graph.getGridLabelRenderer().setVerticalLabelsSecondScaleAlign(Paint.Align.RIGHT);
 
         // X-axis auto date labels

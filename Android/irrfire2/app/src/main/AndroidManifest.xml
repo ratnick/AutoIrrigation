@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.dycodex.vanding" >
+    package="com.ratnick.vanding" >
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:allowBackup="true"
-        android:name="com.dycodex.vanding.irrfire2"
+        android:name="com.ratnick.vanding.irrfire2"
         android:icon="@mipmap/water_drop"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.dycodex.vanding.DeviceActivity"
+            android:name="com.ratnick.vanding.DeviceActivity"
             android:label="@string/app_name"
             android:theme="@style/Theme.AppCompat.Light"
             android:screenOrientation="portrait">
