@@ -4,19 +4,23 @@
 
 #include "globals.h"
 #include "VoltMeter.h"
+#include "AnalogMux.h"
+#include "LogLib.h"
 
-const float MAX_VOLTAGE = 4.2;
+const float MAX_VOLTAGE = 4.0;
 const float factor = MAX_VOLTAGE / 1024.0;  // 3.3 = max voltage on A0, https://arduinodiy.wordpress.com/2016/12/25/monitoring-lipo-battery-voltage-with-wemos-d1-minibattery-shield-and-thingspeak/
 //const float factor = MAX_VOLTAGE * ((4.3 + 6.8) / 6.8) / 1023.0;  // 3.2 = max voltage on A0
 														  // 4.3 and 6.8 are resistor values
 
 // init called during setup(), i.e. after deep sleep and boot
-void VoltMeterClass::init(int _pinNbr, char _name[], SensorHandlerClass::SensorType _sensorType, float _lastSummarizedReading)
+void VoltMeterClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType, float _lastSummarizedReading)
 {
 	strcpy(name, _name);
-	int pinNbr = _pinNbr;
+	pinNbr = _pinNbr;
+	muxChannel = _muxChannel;
+
 	SensorHandlerClass::SensorType sensorType = _sensorType;
-	lastAnalogueReading = 0.0;
+	lastAnalogueReadingVoltage = 0.0;
 	currentCnt = 0;
 	if (_lastSummarizedReading > 0) {
 		lastSummarizedReading = _lastSummarizedReading;
@@ -25,7 +29,7 @@ void VoltMeterClass::init(int _pinNbr, char _name[], SensorHandlerClass::SensorT
 	}
 
 	pinMode(pinNbr, INPUT);
-	Serial.printf("\VoltMeterClass::init: pin:%d name:%s lastRead:%f \n", pinNbr, name, lastSummarizedReading);
+	LogLine(2, __FUNCTION__, "MUX channel:" + String(muxChannel) + " analog pin:" + String(pinNbr) + " name:" + String(name) + " lastSummarizedReading:" + String(lastSummarizedReading));
 	for (int i = 0; i < bufSize; i++) {
 		readBuffer[i] = lastSummarizedReading;  //res;
 	}
@@ -33,29 +37,37 @@ void VoltMeterClass::init(int _pinNbr, char _name[], SensorHandlerClass::SensorT
 
 float VoltMeterClass::ReadVoltage() {
 	float sumRes = 0.0;
+	LogLine(2, __FUNCTION__, "READING FROM analog MUX channel " + String(muxChannel));
+	AnalogMux.OpenChannel(muxChannel);
 	float res = analogRead(pinNbr);
-	//Serial.printf("\VoltMeterClass::ReadVoltage: last analogue read:%f\n", res);
-	lastAnalogueReading = res;
+	AnalogMux.CloseMUXpwr();
+
+	LogLine(2, __FUNCTION__, "Value: " + String(res) + "  converted:" + String(res*factor));
+	this->lastAnalogueReadingVoltage = res;
 	res = res * factor;
 	readBuffer[currentCnt] = res;
 	for (int i=0; i < bufSize; i++) {
 		sumRes += readBuffer[i];
 	}
-	lastSummarizedReading = sumRes / bufSize;
+	this->lastSummarizedReading = sumRes / bufSize;
 
 	currentCnt++;
 	if (currentCnt >= bufSize) {
 		currentCnt = 0;
 	}
 
-	return (lastSummarizedReading);
+	return (this->lastSummarizedReading);
 }
 
-float VoltMeterClass::GetlastAnalogueReading() {
-	return lastAnalogueReading;
+float VoltMeterClass::GetlastAnalogueReadingVoltage() {
+	return this->lastAnalogueReadingVoltage;
 }
 float VoltMeterClass::GetlastSummarizedReading() {
-	return lastSummarizedReading;
+	return this->lastSummarizedReading;
+}
+
+float VoltMeterClass::TestSensor() {
+	return this->ReadVoltage();
 }
 
 

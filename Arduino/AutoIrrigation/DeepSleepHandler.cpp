@@ -1,7 +1,3 @@
-// 
-// 
-// 
-
 #include "DeepSleepHandler.h"
 #include "PersistentMemory.h"
 #include "LogLib.h"
@@ -28,6 +24,12 @@ void DeepSleepHandlerClass::SetDeepSleepPeriod(int _secondsToSleep) {
 
 	Serial.println("max deep sleep: " + uint64ToString(ESP.deepSleepMax()));
 
+	if (PersistentMemory.GetdeepSleepEnabled()) {
+		if (_secondsToSleep < MIN_SLEEP_TIME_SECS) {
+			_secondsToSleep = MIN_SLEEP_TIME_SECS;
+			LogLine(0, __FUNCTION__, "_secondsToSleep too low: " + String(_secondsToSleep) );
+		}
+	} 
 	int secondsToSleep = _secondsToSleep % MAX_DEEP_SLEEP_SECS;
 	int maxSleepCycles = _secondsToSleep / MAX_DEEP_SLEEP_SECS;
 	PersistentMemory.SetsecondsToSleep(secondsToSleep);
@@ -56,13 +58,12 @@ void DeepSleepHandlerClass::GoToDeepSleep() {
 	LogLine(1, __FUNCTION__, "deepSleepPeriod=" + String(secs) + " secs    DeepSleepEnabled:" + String(PersistentMemory.GetdeepSleepEnabled()));
 	if (PersistentMemory.GetdeepSleepEnabled()) {
 		LogLine(1, __FUNCTION__, "Go to deep sleep");
-		if (deepSleepPeriod > 0) {
-			ESP.deepSleep(deepSleepPeriod);
-		}
+		ESP.deepSleep(deepSleepPeriod);
+	}
+	else {
+		LogLine(1, __FUNCTION__, "Skip deep sleep (not enabled)");
 	}
 }
-
-
 
 DeepSleepHandlerClass DeepSleepHandler;
 

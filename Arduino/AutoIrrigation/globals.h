@@ -32,6 +32,7 @@ struct PersistentDataStruct {
 	int valveSoakTime;
 	int mainLoopDelay;
 	boolean deepSleepEnabled;
+	char runMode[20];
 
 //TODO	boolean stopInstantly;   /* if the sensor thinks something is wrong, this bit is flipped, and it will never open the valve until reset*/
 //TODO	time_t lastValveopenTimeStamp;

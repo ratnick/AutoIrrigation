@@ -7,7 +7,7 @@ struct FirebaseModelStruct {
 	const String hardware = "hw";
 	const String softwareVersion = "sw";
 	const String SSID = "SSID";
-	const String mode = "mode";
+	const String runMode = "runMode";
 	const String runOnce = "runOnce";
 	const String timestamp = "timestamp";
 	const String curSleepCycle = "slpCurCyc";

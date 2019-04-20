@@ -13,7 +13,7 @@ public class IrrDevice {
     public IrrDeviceTelemetry telemetry;
     public LineGraphSeries<DataPoint> xSeriesVcc;
     public LineGraphSeries<DataPoint> xSeriesValveState;
-    public LineGraphSeries<DataPoint> xSerieslastAnalogueReading;
+    public LineGraphSeries<DataPoint> xSeriesHumidity;
 
     public IrrDevice() {
         // Default constructor required for calls to DataSnapshot.getValue(Comment.class)
@@ -23,7 +23,7 @@ public class IrrDevice {
         this.telemetry_current = new IrrDeviceTelemetry();
         xSeriesVcc = new LineGraphSeries();
         xSeriesValveState =new LineGraphSeries();
-        xSerieslastAnalogueReading = new LineGraphSeries();
+        xSeriesHumidity = new LineGraphSeries();
 
     }
 

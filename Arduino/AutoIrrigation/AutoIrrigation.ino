@@ -4,6 +4,8 @@
     Author:     Nikolaj Nøhr-Rasmussen
 */
 
+#include "LEDHandler.h"
+#include "AnalogMux.h"
 #define HARDWARE_DESCRIPTION "WeMOS D1 r2, 5V/12V valve switch"
 #define DEVICE_ID "prototype"
 
@@ -17,13 +19,11 @@
 // Program control:
 //#define RUN_ONCE
 #define USE_DEEP_SLEEP				// When enabling, connect D0 to RST (on Wemos D1 mini)
-#define DEEP_SLEEP_DURATION_SECS 20
 #define NBR_OF_LOOPS_BEFORE_SLEEP 1
-#define LOOP_DELAY 1 //secs
-#define FORCE_NEW_VALUES false          // Will overwrite all values in persistent memory. Enable once, disable and recompile
-//#define MEASURE_INTERNAL_VCC      // When enabling, we cannot use analogue reading of sensor. They are mutually exclusive. 
-#define MEASURE_EXTERNAL_VCC        // When enabling, we use A0 as external voltmeter. This disables sensing water level (by hardware). 
-#define SIMULATE_WATERING true      // open the valve in every loop
+#define LOOP_DELAY 10 //secs
+#define FORCE_NEW_VALUES false // Will overwrite all values in persistent memory. Enable once, disable and recompile
+//#define MEASURE_INTERNAL_VCC      // When enabling, we cannot use analogue reading of sensor. 
+#define SIMULATE_WATERING false      // open the valve in every loop
 // See also SIMULATE_SENSORS in SensorHandler.h
 
 #ifdef USE_WIFI
@@ -81,8 +81,8 @@
 #include "WaterSensor.h"
 #include "VoltMeter.h"
 #include "DeepSleepHandler.h"
+#include "LEDHandler.h"
 #include "PersistentMemory.h"
-
 #ifdef USE_AZURE
 #include "AzureCloudHandler.h"
 #endif
@@ -94,12 +94,21 @@ WiFiClientSecure wifiClient;
 byte macAddr[6];
 //WiFiClient wifiClient;
 
+//Hardware pin configuration on WeMOS D1
+const int MUX_S0 = D8; // S0 = Pin A on schematic
+const int MUX_S1 = D7; // S1 = Pin B on schematic
+const int HUM_SENSOR_PWR_CTRL = D1;
+const int VALVE_CTRL = D5;
+const int ANALOG_INPUT = A0;
+const int CHANNEL_HUM = 0;
+const int CHANNEL_BATT = 1;
+
 // Sensors and actuators
 WaterSensorClass waterSensorA;
 WaterValveClass waterValveA;
 VoltMeterClass externalVoltMeter;
 const int VALVE_OPEN_DURATION = 2;   // time a valve can be open in one run-time cycle, i.e. between deepsleeps
-const int VALVE_SOAK_TIME     = 1;   // time between two valve openings
+const int VALVE_SOAK_TIME     = 30;   // time between two valve openings
 
 // General control
 int loopCount = 0;  // used in conjunction with NBR_OF_LOOPS_BEFORE_SLEEP
@@ -112,24 +121,14 @@ CloudIoTCoreDevice *device;
 
 #ifdef USE_FIREBASE
 #define FIREBASE_HOST "irrfire.firebaseio.com" 
-#define FIREBASE_AUTH "w3Q5F3zWG3RkudEjGUJZVi2wiVDvZCKY3VkVywkC"
+#define FIREBASE_AUTH "6Wo4b1wKZ0l5dUvVTxr37rqT4CNHM9u5zOrvznUp"
+// new?? #define FIREBASE_AUTH "AIzaSyBTr7zi9ZTDFMWdCJ61NHd2zn9JpurufyU"
 #define FB_DEVICE_PATH "/irrdevices/"
 String FB_BasePath;
 #endif
 const int JSON_BUFFER_LENGTH = 250;
 
-void test() {
-	pinMode(D3, OUTPUT);
-	digitalWrite(D3, LOW);
-/*	for (int i = 0; i < 5; i++) {
-		digitalWrite(D3, LOW);
-		delay(2000);
-		digitalWrite(D3, HIGH);
-		delay(2000);
-	}
-	delay(20000);
-*/
-}
+void ConnectAndUploadToCloud(UploadType uploadType, boolean firstRun = false);
 
 void setup() {
 	Serial.begin(115200);
@@ -146,14 +145,12 @@ void setup() {
 		DeepSleepHandler.GoToDeepSleep();
 	}
 
-	#if defined(MEASURE_INTERNAL_VCC) || defined(MEASURE_EXTERNAL_VCC)
-		externalVoltMeter.lastSummarizedReading = PersistentMemory.ps.lastVccSummarizedReading;
-		externalVoltMeter.init(A0, "5V voltmeter", SensorHandlerClass::ExternalVoltMeter, PersistentMemory.ps.lastVccSummarizedReading);
-	#else
-		waterSensorA.init(A0, "humidity sensor A", SensorHandlerClass::SoilHumiditySensor, D1, HIGH);
-	#endif
-	waterValveA.init(D5, "water valve A", VALVE_OPEN_DURATION, VALVE_SOAK_TIME);
-
+	initFlashLED();
+	AnalogMux.init(MUX_S1, MUX_S0, HUM_SENSOR_PWR_CTRL, HIGH);
+	externalVoltMeter.lastSummarizedReading = PersistentMemory.ps.lastVccSummarizedReading;
+	externalVoltMeter.init(ANALOG_INPUT, "5V voltmeter", CHANNEL_BATT, SensorHandlerClass::ExternalVoltMeter, PersistentMemory.ps.lastVccSummarizedReading);
+	waterSensorA.init(ANALOG_INPUT, "humidity sensor A", CHANNEL_HUM, SensorHandlerClass::SoilHumiditySensor);
+	waterValveA.init(VALVE_CTRL, "water valve A", PersistentMemory.ps.valveOpenDuration, PersistentMemory.ps.valveSoakTime);
 	#ifdef USE_WIFI 
 		initWifi();
 		PrintIPAddress();
@@ -182,29 +179,24 @@ void setup() {
 	#ifdef USE_FIREBASE
 		FB_BasePath = FB_DEVICE_PATH + PersistentMemory.GetmacAddress();
 		Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);  
-		UploadLog_("Setup(): Alive");
+		//RemoveTelemetryFromFirebase(); UploadLog_("Setup(): ALL TELEMETRY REMOVED");
 		ConnectAndUploadToCloud(UploadStateAndSettings);
 	#endif
 }
 
-int wifiIndex = 0;
-
-void loop() {
+void OneNormalCycle() {
 	int cnt = 0;
 	int del;
 	float vccTmp;
-	
-	ConnectAndUploadToCloud(GetSettings);  // maybe the user has changed values via the app
 
-	#if defined(MEASURE_INTERNAL_VCC) || defined(MEASURE_EXTERNAL_VCC)
-		vccTmp = externalVoltMeter.ReadVoltage();
-		LogLine(0, __FUNCTION__, "Voltage reading" + String(vccTmp));
-	#endif
+	vccTmp = externalVoltMeter.ReadVoltage();
+	LogLine(0, __FUNCTION__, "Voltage reading" + String(vccTmp));
 
 	// enter control loop (sensor reading and actuator control)
-	while (cnt++ < 2) {
-		if ((waterSensorA.CheckIfWater() == WaterSensor.NO_WATER) || SIMULATE_WATERING) {
-			LogLine(1, __FUNCTION__, "Low water detected");
+	while (cnt < 2) {
+		LED_Flashes(1, 300);
+		if ((waterSensorA.CheckIfWater() == WaterSensor.DRY) || SIMULATE_WATERING) {
+			LogLine(1, __FUNCTION__, "Low water detected. Watering and soaking. Loop #" + String(cnt));
 			waterValveA.OpenValve();
 			ConnectAndUploadToCloud(UploadTelemetry);
 			waterValveA.KeepOpen();
@@ -214,17 +206,52 @@ void loop() {
 		}
 		else {
 			if (cnt == 0) {
+				LogLine(1, __FUNCTION__, "cnt==0 and high water detected. ");
 				ConnectAndUploadToCloud(UploadTelemetry);  // this is to ensure we send a telemetry at least once
+				waterValveA.WaitToSoak();
 			}
 		}
+		cnt++;
+	}
+	cnt = 0;
+}
+
+int wifiIndex = 0;
+boolean firstRun = false; // TODO REMOVE  true;
+void loop() {
+	String rm;
+
+	ConnectAndUploadToCloud(GetSettings, firstRun);  // maybe the user has changed values via the app
+	firstRun = false;
+
+	rm = PersistentMemory.GetrunMode();
+	LogLine(4, __FUNCTION__, "runmode = " + rm);
+	if (rm.equals("normal")) {
+		OneNormalCycle();
+		// update persistent memory in case something has changed
+		PersistentMemory.ps.lastVccSummarizedReading = externalVoltMeter.lastSummarizedReading;
+		PersistentMemory.WritePersistentMemory();
+		if (loopCount++ >= NBR_OF_LOOPS_BEFORE_SLEEP) {
+			DeepSleepHandler.GoToDeepSleep();
+		}
+	}
+	else if (rm.equals("soil")) {
+		waterSensorA.TestSensor();
+		ConnectAndUploadToCloud(UploadTelemetry);
+	}
+	else if (rm.equals("batt")) {
+		externalVoltMeter.TestSensor();
+		ConnectAndUploadToCloud(UploadTelemetry);
+	}
+	else if (rm.equals("testhw")) {
+		testHardware();
+	}
+	else {
+		LogLine(0, __FUNCTION__, "Illegal option chosen: " + rm + " Resetting runMode to normal");
+		PersistentMemory.SetrunMode("normal");
+		LED_Flashes(200, 100);
 	}
 
-	// update persistent memory in case something has changed
-	PersistentMemory.ps.lastVccSummarizedReading = externalVoltMeter.lastSummarizedReading;
-	PersistentMemory.WritePersistentMemory();
-	if (loopCount++ >= NBR_OF_LOOPS_BEFORE_SLEEP) {
-		DeepSleepHandler.GoToDeepSleep();
-	}
 
 	#ifdef RUN_ONCE
 		while (true) {
@@ -232,12 +259,13 @@ void loop() {
 			LogLine(1, __FUNCTION__, "wait forever");
 		}
 	#else
-		LogLine(3, __FUNCTION__, "waiting mainLoopDelay");
-		delay(PersistentMemory.GetmainLoopDelay() * 1000);
+	int d = PersistentMemory.GetmainLoopDelay();
+		LogLine(2, __FUNCTION__, "waiting mainLoopDelay: " + String(d));
+		delay(d * 1000);
 	#endif
 }
 
-void ConnectAndUploadToCloud(UploadType uploadType) {
+void ConnectAndUploadToCloud(UploadType uploadType, boolean firstRun) {
 	HTTPRequestReturnType requestResult;
 	String logTxt = "";
 
@@ -265,7 +293,7 @@ void ConnectAndUploadToCloud(UploadType uploadType) {
 				JsonObject& jsoLog			= jsoStatic.createNestedObject("log");
 
 			switch (uploadType) {
-				case GetSettings:				GetSettings_(); break;
+				case GetSettings:				GetSettings_(firstRun); break;
 				case UploadStateAndSettings:	UploadStateAndSettings_(stateTime, jsoStatic, jsoMetadata, jsoState, jsoSettings, jsoTelemetryCur, jsoTelemetry, jsoLog);			break;
 				case UploadTelemetry:			UploadTelemetry_(jsoTelemetry, jsoTeleTimestamp);			break;
 				default:
@@ -397,7 +425,7 @@ boolean DeviceExistsInFirebase() {
 void RemoveDummiesFromFirebase() {
 	String s = FB_BasePath + "/telemetry/x";
 	String res = Firebase.getString(s);
-	if (res.length()>0) {
+	if (res.length() > 0) {
 		LogLine(2, __FUNCTION__, "true");
 		Firebase.remove(s);
 	}
@@ -406,13 +434,20 @@ void RemoveDummiesFromFirebase() {
 	}
 }
 
-void GetSettings_() {
+void RemoveTelemetryFromFirebase() {
+	String s = FB_BasePath + "/telemetry";
+	LogLine(2, __FUNCTION__, "	removing telemetry");
+	Firebase.remove(s);
+}
+
+void GetSettings_(boolean firstRun) {
 	LogLine(4, __FUNCTION__, "begin");
-	if (IsSettingsDataUpdatedByUser()) {
+	if (firstRun || IsSettingsDataUpdatedByUser()) {
 		PersistentMemory.SetdeviceLocation(Firebase.getString(FB_BasePath + "/metadata/" + fb.location));
 		PersistentMemory.SetdeviceID(Firebase.getString(FB_BasePath + "/metadata/" + fb.deviceID));
 		PersistentMemory.SetmainLoopDelay(Firebase.getInt(FB_BasePath + "/settings/" + fb.mainLoopDelay));
 		PersistentMemory.SetdeepSleepEnabled(Firebase.getBool(FB_BasePath + "/settings/" + fb.deepSleepEnabled));
+		PersistentMemory.SetrunMode(Firebase.getString(FB_BasePath + "/settings/" + fb.runMode));
 		PersistentMemory.SettotalSecondsToSleep(Firebase.getInt(FB_BasePath + "/settings/" + fb.totalSecondsToSleep));
 		DeepSleepHandler.SetDeepSleepPeriod(PersistentMemory.GettotalSecondsToSleep());
 
@@ -421,6 +456,7 @@ void GetSettings_() {
 		waterValveA.SetvalveOpenDuration(val);
 
 		val = Firebase.getInt(FB_BasePath + "/settings/" + fb.soakTime);
+		LogLine(3, __FUNCTION__, fb.soakTime + "=" + String(val));
 		PersistentMemory.SetvalveSoakTime(val);
 		waterValveA.SetvalveSoakTime(val);
 
@@ -431,20 +467,37 @@ void GetSettings_() {
 }
 
 void CreateNewDevice(
-	JsonObject& jsoStatic, JsonObject& jsoMetadata, JsonObject& jsoState, 
+	JsonObject& jsoStatic, JsonObject& jsoMetadata, JsonObject& jsoState, JsonObject& jsoSettings,
 	JsonObject& jsoTelemetryCur, JsonObject& jsoTelemetry, JsonObject& jsoLog) {
 
 	InitPersistentMemoryIfNeeded();
 
+	jsoTelemetryCur["x"] = "-";
+	jsoTelemetry["x"] = "-";
+	jsoLog["x"] = "-";
+
 	jsoMetadata[fb.macAddr] = PersistentMemory.GetmacAddress();
 	jsoState[fb.SSID] = PersistentMemory.GetwifiSSID();
-	jsoTelemetryCur["x"] = "-";   
-	jsoTelemetry["x"] = "-";	
-	jsoLog["x"] = "-";
+//	jsoSettings[fb.runMode] = "normal";
+	jsoSettings[fb.mainLoopDelay] = PersistentMemory.GetmainLoopDelay();
+	jsoSettings[fb.totalSecondsToSleep] = PersistentMemory.GettotalSecondsToSleep();
+	jsoSettings[fb.UserUpdate] = false;
+	jsoSettings[fb.openDur] = PersistentMemory.GetvalveOpenDuration();
+	jsoSettings[fb.soakTime] = PersistentMemory.GetvalveSoakTime();
+	if (PersistentMemory.GetdeepSleepEnabled()) {  // It only works if using "true" or "false". ??
+		jsoSettings[fb.deepSleepEnabled] = true;
+	}
+	else {
+		jsoSettings[fb.deepSleepEnabled] = false;
+	}
 
 	jsoStatic.prettyPrintTo(Serial);
 	Firebase.set(FB_BasePath, jsoStatic);
-	if (Firebase.failed()) { LogLine(0, __FUNCTION__, "** CREATE BASIC DEVICE FAILED:  " + FB_BasePath + " - Firebase error msg: " + Firebase.error()); }
+
+	SendToFirebase("set", "metadata", jsoMetadata);
+	SendToFirebase("set", "state", jsoState);
+	SendToFirebase("set", "settings", jsoSettings);
+//	if (Firebase.failed()) { LogLine(0, __FUNCTION__, "** CREATE BASIC DEVICE FAILED:  " + FB_BasePath + " - Firebase error msg: " + Firebase.error()); }
 }
 
 void UploadStateAndSettings_(
@@ -458,7 +511,7 @@ void UploadStateAndSettings_(
 	// If not, create it. 
 	// If it exists, read current state values from Firebase into persistent memory
 	if ( !DeviceExistsInFirebase() ) {
-		CreateNewDevice(jsoStatic, jsoMetadata, jsoState, jsoTelemetryCur, jsoTelemetry, jsoLog);
+		CreateNewDevice(jsoStatic, jsoMetadata, jsoState, jsoSettings, jsoTelemetryCur, jsoTelemetry, jsoLog);
 		LogLine(3, __FUNCTION__, FB_BasePath + " created");
 		UploadLog_(FB_BasePath + " created");
 	}
@@ -485,31 +538,33 @@ void UploadStateAndSettings_(
 	jsoState[fb.secsToSleep] = PersistentMemory.GetsecondsToSleep();
 	jsoState[fb.maxSlpCycles] = PersistentMemory.GetmaxSleepCycles();
 	jsoState[fb.curSleepCycle] = PersistentMemory.GetcurrentSleepCycle();
-	#if defined(MEASURE_INTERNAL_VCC) || defined(MEASURE_EXTERNAL_VCC)
-		jsoState[fb.mode] = "Battery Voltage";
-	#else
-		jsoState[fb.mode] = "Soil humidity";
-	#endif
 	#ifdef RUN_ONCE
 		jsoState[fb.runOnce] = true;
 	#else
 		jsoState[fb.runOnce] = false;
 	#endif
+	SendToFirebase("set", "state", jsoState);
 
-	jsoSettings[fb.UserUpdate] = false;
+	// Is there a need to update settings at all?
+/*	jsoSettings[fb.UserUpdate] = false;
 	jsoSettings[fb.totalSecondsToSleep] = PersistentMemory.GettotalSecondsToSleep();
+
 	jsoSettings[fb.openDur] = PersistentMemory.GetvalveOpenDuration();
 	jsoSettings[fb.soakTime] = PersistentMemory.GetvalveSoakTime();
 	jsoSettings[fb.mainLoopDelay] = PersistentMemory.GetmainLoopDelay();
+	#if defined(MEASURE_INTERNAL_VCC) 
+		jsoSettings[fb.runMode] = "Internal Voltage";
+	#else
+		jsoSettings[fb.runMode] = PersistentMemory.GetrunMode();
+	#endif
 	if (PersistentMemory.GetdeepSleepEnabled()) {  // It only works if using "true" or "false". ??
 		jsoSettings[fb.deepSleepEnabled] = true;
 	}
 	else {
 		jsoSettings[fb.deepSleepEnabled] = false;
 	}
-
-	SendToFirebase("set", "state", jsoState);
-	SendToFirebase("set", "settings", jsoSettings);
+*/
+//	SendToFirebase("set", "settings", jsoSettings);
 }
 
 void UploadTelemetry_(JsonObject& jsoTelemetry, JsonObject& jsoTeleTimestamp) {
@@ -518,15 +573,15 @@ void UploadTelemetry_(JsonObject& jsoTelemetry, JsonObject& jsoTeleTimestamp) {
 	jsoTeleTimestamp[".sv"] = "timestamp";
 	jsoTelemetry[fb.wifi] = WiFi.RSSI(); // signal strength
 	jsoTelemetry[fb.lastOpenTimestamp] = waterValveA.lastOpenTimestamp;
-	jsoTelemetry[fb.humidity] = waterSensorA.lastAnalogueReading;
+	jsoTelemetry[fb.humidity] = waterSensorA.GetHumidity();
 	jsoTelemetry[fb.valveState] = waterValveA.valveState;
+	jsoTelemetry[fb.Vcc] = externalVoltMeter.GetlastSummarizedReading();
+	jsoTelemetry[fb.lastAnalogueReading] = externalVoltMeter.GetlastAnalogueReadingVoltage();
 
-#if defined(MEASURE_INTERNAL_VCC) || defined(MEASURE_EXTERNAL_VCC)
-	jsoTelemetry[fb.Vcc] = externalVoltMeter.ReadVoltage();
-	jsoTelemetry[fb.lastAnalogueReading] = externalVoltMeter.lastAnalogueReading;
-#endif
-	SendToFirebase("push", "telemetry", jsoTelemetry);
 	SendToFirebase("set", "telemetry_current", jsoTelemetry);
+	if (PersistentMemory.GetrunMode().equals("normal")) {
+		SendToFirebase("push", "telemetry", jsoTelemetry);
+	}
 }
 
 void UploadLog_(String _txt) {
@@ -594,10 +649,8 @@ void SendToFirebase(String cmd, String subPath, JsonObject& jso) {
 		float dur = (1.0 * waterValveA.openSeconds);
 		root["openDuration"] = dur;
 		root["macAddress"] = WiFi.macAddress();
-#if defined(MEASURE_INTERNAL_VCC) || defined(MEASURE_EXTERNAL_VCC)
 		root["Vcc"] = externalVoltMeter.ReadVoltage();
-		root["lastAnalogueReading"] = externalVoltMeter.lastAnalogueReading;
-#endif
+		root["lastAnalogueReading"] = externalVoltMeter.lastAnalogueReadingVoltage;
 		root.printTo(jsonStr);
 		return jsonStr;
 	}
@@ -951,6 +1004,36 @@ void SendToFirebase(String cmd, String subPath, JsonObject& jso) {
 
 #endif
 
+void TestLoop(String logStr, int LEDflash, int LEDblinkdelay) {
+	UploadLog_(logStr);
+	LogLine(3, __FUNCTION__, logStr);
+	LED_Flashes(LEDflash, LEDblinkdelay);
+}
+
+void testHardware() {
+	TestLoop("testHardware: begin", 1, 500);
+
+	AnalogMux.OpenChannel(0);
+	TestLoop("testHardware: open OpenChannel", 1, 3000);
+
+	AnalogMux.CloseMUXpwr();
+	TestLoop("testHardware: CloseMUXpwr", 1, 3000);
+
+	float f = externalVoltMeter.ReadVoltage();
+	TestLoop("testHardware: ReadVoltage", 1, 3000);
+
+	boolean b = waterSensorA.CheckIfWater();
+	TestLoop("testHardware: CheckIfWater", 1, 3000);
+
+	waterValveA.OpenValve();
+	TestLoop("testHardware: OpenValve", 1, 1000);
+
+	waterValveA.CloseValve();
+	TestLoop("testHardware: CloseValve", 1, 3000);
+
+	LED_Flashes(500, 100);
+
+}
 
 void SOFT_RESET_ARDUINO() {
 	LogLine(0, __FUNCTION__, "\n**************************************************\n**************************************************\n\nRESETTING ARDUINO WHEN BLINKING IS DONE\n\n**************************************************\n**************************************************\n");

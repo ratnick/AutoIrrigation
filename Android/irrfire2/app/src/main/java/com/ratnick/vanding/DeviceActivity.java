@@ -65,6 +65,7 @@ public class DeviceActivity extends AppCompatActivity {
     @BindView(R.id.tvTimestampState)            TextView tvTimestampState;
 
     @BindView(R.id.tvVcc)                       TextView tvVcc;
+    @BindView(R.id.tvHum)                       TextView tvHum;
     @BindView(R.id.tvLastAnalogueReading)       TextView tvLastAnalogueReading;
     @BindView(R.id.tvLastOpenTimestamp)         TextView tvLastOpenTimestamp;
     @BindView(R.id.tvWifi)                      TextView tvWifi;
@@ -311,7 +312,7 @@ public class DeviceActivity extends AppCompatActivity {
                         mIrrDevice[i].state = dataSnapshot.child("state").getValue(IrrDeviceState.class);
                         mIrrDevice[i].settings = dataSnapshot.child("settings").getValue(IrrDeviceSettings.class);
                         mIrrDevice[i].xSeriesVcc.resetData(readAllData(dataSnapshot, "Vcc"));
-                        mIrrDevice[i].xSerieslastAnalogueReading.resetData(readAllData(dataSnapshot, "lastAnalog"));
+                        mIrrDevice[i].xSeriesHumidity.resetData(readAllData(dataSnapshot, "Hum"));
                         mIrrDevice[i].xSeriesValveState.resetData(readAllData(dataSnapshot, "vlvState"));
 
 //                        if (dsKey == INITIAL_DEVICE_ID) {
@@ -388,7 +389,7 @@ public class DeviceActivity extends AppCompatActivity {
                     if (deviceKey == mSelectedDeviceId) {
                         Log.e("Count ", "" + dataSnapshot.getChildrenCount());
                         mIrrDevice[k].xSeriesVcc.resetData(readAllData(dataSnapshot, "Vcc"));
-                        mIrrDevice[k].xSerieslastAnalogueReading.resetData(readAllData(dataSnapshot, "lastAnalog"));
+                        mIrrDevice[k].xSeriesHumidity.resetData(readAllData(dataSnapshot, "Hum"));
                         mIrrDevice[k].xSeriesValveState.resetData(readAllData(dataSnapshot, "vlvState"));
                     }
                 }
@@ -456,7 +457,7 @@ public class DeviceActivity extends AppCompatActivity {
                     DataPoint x = new DataPoint(post.timestamp -1, (float) 0.3 * prevValveState);   // setting to 0.3 to make a better visualisation
                     values[i++] = x;
                 }
-                DataPoint v = new DataPoint(post.timestamp, (float) 0.3 * post.vlvState);
+                DataPoint v = new DataPoint(post.timestamp, (float) 20 * post.vlvState);
                 values[i++] = v;
                 prevValveState = post.vlvState;
             }
@@ -482,10 +483,10 @@ public class DeviceActivity extends AppCompatActivity {
                         values[i++] = v;
                     }
                     break;
-                case "lastAnalog":  // NORMALIZED HERE
+                case "Hum":
                     for (DataSnapshot postSnapshot : teledataSnapshot.getChildren()) {
                         post = postSnapshot.getValue(IrrDeviceTelemetry.class);
-                        DataPoint v = new DataPoint(post.timestamp, (float) post.lastAnalog / 1024.0);  // normalize to 1
+                        DataPoint v = new DataPoint(post.timestamp, (float) post.Hum);
                         values[i++] = v;
                     }
                     break;
@@ -499,10 +500,10 @@ public class DeviceActivity extends AppCompatActivity {
     private void FormatSeries(GraphView graph) {
 
         // Raw
-        mIrrDevice[mSelectedIrrDeviceK].xSerieslastAnalogueReading.setTitle("Raw reading");
-        mIrrDevice[mSelectedIrrDeviceK].xSerieslastAnalogueReading.setThickness(2);
-        mIrrDevice[mSelectedIrrDeviceK].xSerieslastAnalogueReading.setColor(Color.WHITE);
-        mIrrDevice[mSelectedIrrDeviceK].xSerieslastAnalogueReading.setDrawDataPoints(true);
+        mIrrDevice[mSelectedIrrDeviceK].xSeriesHumidity.setTitle("Humidity %");
+        mIrrDevice[mSelectedIrrDeviceK].xSeriesHumidity.setThickness(2);
+        mIrrDevice[mSelectedIrrDeviceK].xSeriesHumidity.setColor(Color.WHITE);
+        mIrrDevice[mSelectedIrrDeviceK].xSeriesHumidity.setDrawDataPoints(false);
 
         // Valve position
         mIrrDevice[mSelectedIrrDeviceK].xSeriesValveState.setTitle("Valve");
@@ -535,7 +536,7 @@ public class DeviceActivity extends AppCompatActivity {
         // Primary Y-axis (Y1) scale
         graph.getViewport().setYAxisBoundsManual(true);
         graph.getViewport().setMinY(0);
-        graph.getViewport().setMaxY(1);
+        graph.getViewport().setMaxY(95);
         graph.getGridLabelRenderer().setVerticalLabelsColor(Color.WHITE);
         graph.getGridLabelRenderer().setLabelsSpace(20);
 
@@ -548,7 +549,7 @@ public class DeviceActivity extends AppCompatActivity {
         graph.getSecondScale().setMinY(3.5);
         graph.getSecondScale().setMaxY(4.1);
         graph.getGridLabelRenderer().setVerticalLabelsSecondScaleColor(Color.MAGENTA);
-        graph.getGridLabelRenderer().setSecondScaleLabelVerticalWidth(30);
+        graph.getGridLabelRenderer().setSecondScaleLabelVerticalWidth(70);
         graph.getGridLabelRenderer().setNumVerticalLabels(7);
         graph.getGridLabelRenderer().setVerticalLabelsSecondScaleAlign(Paint.Align.RIGHT);
 
@@ -609,7 +610,7 @@ public class DeviceActivity extends AppCompatActivity {
         graph.removeAllSeries();
         // primary Y-axis:
         graph.addSeries(mIrrDevice[mSelectedIrrDeviceK].xSeriesValveState);
-        graph.addSeries(mIrrDevice[mSelectedIrrDeviceK].xSerieslastAnalogueReading);
+        graph.addSeries(mIrrDevice[mSelectedIrrDeviceK].xSeriesHumidity);
 
         // secondary Y-axis:
         graph.getSecondScale().addSeries(mIrrDevice[mSelectedIrrDeviceK].xSeriesVcc);
@@ -645,6 +646,7 @@ public class DeviceActivity extends AppCompatActivity {
     private void updateUIBasedOnTelemetry(IrrDeviceTelemetry tele) {
         tvLastAnalogueReading.setText(String.format("%d", tele.lastAnalog));
         tvVcc.setText(String.format("%.2f", tele.Vcc));
+        tvHum.setText(String.format("%.0f", tele.Hum));
         tvLastOpenTimestamp.setText(tele.lastOpen);
         tvWifi.setText(String.format("%d", tele.Wifi));
         SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");

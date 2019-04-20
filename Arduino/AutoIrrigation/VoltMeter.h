@@ -16,21 +16,24 @@ class VoltMeterClass
  protected:
 
  public:
-	 int pinNbr;
-	 char name[15];
 	 SensorHandlerClass::SensorType sensorType;
 
-	 void init(int _pinNbr, char _name[], SensorHandlerClass::SensorType _sensorType, float _lastSummarizedReading);
+	 void init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType, float _lastSummarizedReading);
 	 float ReadVoltage();
-	 float GetlastAnalogueReading();
+	 float GetlastAnalogueReadingVoltage();
 	 float GetlastSummarizedReading();
-	 float lastAnalogueReading;
 	 float lastSummarizedReading;
+	 float TestSensor();
 
 private:
+	int muxChannel;
+	int pinNbr;
+	char name[15];
 	static const int bufSize = 10;
 	float readBuffer[bufSize];
 	int currentCnt = 0;
+	float lastAnalogueReadingVoltage;
+
 };
 
 extern VoltMeterClass VoltMeter;

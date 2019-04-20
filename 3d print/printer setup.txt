@@ -1,6 +1,6 @@
 Tape:
 helt ud i hjørnerne
-midt ingenting
+midt ingenting (to strimler på skrå)
 
 Heat:
 150W halogene lamp
@@ -11,15 +11,21 @@ Rotate:
  x 270 deg
  z 90 deg
 
-Print setup
-Quality: Good
+Print setup:
+print type: high detail
 Rim: no
 Raft: no
 Support: no
 Layer height: 0.3
 Speeed: slow
 Temp: -5
+retract len: 4
+retract speed: 30
+surface ironing: NO
 
-Est time: 2:30
+No supports
+
+Est time: 4:30 (beregnet). Genberegnes til 3 timer
+filmaent usage: 8,4m
 
 

@@ -13,7 +13,12 @@
           "package_name": "com.dycodex.vanding"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "500849866596-783qr3gtnc3pe9hgu8e4rb94hi2i4i0d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAqLaNz91EOQixGZraCpdvbFL9oo999R6A"
@@ -37,7 +42,12 @@
           "package_name": "com.google.firebase.quickstart.database"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "500849866596-783qr3gtnc3pe9hgu8e4rb94hi2i4i0d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAqLaNz91EOQixGZraCpdvbFL9oo999R6A"
@@ -61,7 +71,12 @@
           "package_name": "com.ratnick.vanding"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "500849866596-783qr3gtnc3pe9hgu8e4rb94hi2i4i0d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAqLaNz91EOQixGZraCpdvbFL9oo999R6A"
@@ -85,7 +100,12 @@
           "package_name": "com.vanding.irrigation"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "500849866596-783qr3gtnc3pe9hgu8e4rb94hi2i4i0d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAqLaNz91EOQixGZraCpdvbFL9oo999R6A"

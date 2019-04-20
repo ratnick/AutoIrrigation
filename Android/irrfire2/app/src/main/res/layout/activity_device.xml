@@ -377,6 +377,26 @@
             android:layout_height="match_parent">
 
             <TextView
+                android:id="@+id/tvHumTxt"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="40"
+                android:text="Humidity %" />
+
+            <TextView
+                android:id="@+id/tvHum"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="60"
+                android:text="0.00" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
                 android:id="@+id/tvVccTxt"
                 android:layout_width="0dip"
                 android:layout_height="wrap_content"

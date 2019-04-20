@@ -36,6 +36,7 @@ class PersistentMemoryClass
 	 String GetmacAddress();
 	 String GetwifiSSID();
 	 String GetCloudUsername();
+	 String GetrunMode();
 	 int GettotalSecondsToSleep();
 	 int GetsecondsToSleep();
 	 int GetmaxSleepCycles();
@@ -47,6 +48,7 @@ class PersistentMemoryClass
 
 	 void SetdeviceID(String id_);
 	 void SetdeviceLocation(String location_);
+	 void SetrunMode(String runMode_);
 	 void SetmacAddress(byte* mac);
 	 void SettotalSecondsToSleep(int totalSecondsToSleep_);
 	 void SetsecondsToSleep(int secondsToSleep_);

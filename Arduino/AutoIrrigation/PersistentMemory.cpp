@@ -24,7 +24,8 @@ void PersistentMemoryClass::init(
 		strcpy(ps.wifiPwd, "RASMUSSEN");
 		strcpy(ps.cloudUserName, "initial value");
 		strcpy(ps.cloudPwd, "not used");
-		ps.secondsToSleep = _totalSecondsToSleep; 
+		strcpy(ps.runMode, "normal");
+		ps.secondsToSleep = _totalSecondsToSleep;
 		ps.currentSleepCycle = 0; // counts which sleep cycle we are at right now.
 		ps.valveOpenDuration = _valveOpenDuration;
 		ps.valveSoakTime = _valveSoakTime;
@@ -81,6 +82,7 @@ String PersistentMemoryClass::GetdeviceLocation()	{ return String(ps.deviceLocat
 String PersistentMemoryClass::GetmacAddress()		{ return String(ps.macAddress); }
 String PersistentMemoryClass::GetwifiSSID()			{ return String(ps.wifiSSID); }
 String PersistentMemoryClass::GetCloudUsername()	{ return String(ps.cloudUserName); }
+String PersistentMemoryClass::GetrunMode()			{ return String(ps.runMode); }
 int PersistentMemoryClass::GettotalSecondsToSleep() { return ps.totalSecondsToSleep; }
 int PersistentMemoryClass::GetsecondsToSleep()		{ return ps.secondsToSleep; }
 int PersistentMemoryClass::GetmaxSleepCycles()		{ return ps.maxSleepCycles;}
@@ -109,32 +111,30 @@ void PersistentMemoryClass::SetmacAddress(byte mac[]) {
 	strcpy(ps.macAddress, s.c_str());
 	WritePersistentMemory();
 }
-
 void PersistentMemoryClass::SetdeviceID(String deviceID_) {
 	strcpy(ps.deviceID, deviceID_.c_str());
 	WritePersistentMemory();
 }
-
 void PersistentMemoryClass::SetdeviceLocation(String deviceLocation_) {
 	strcpy(ps.deviceLocation, deviceLocation_.c_str());
 	WritePersistentMemory();
 }
-
+void PersistentMemoryClass::SetrunMode(String runMode_) {
+	strcpy(ps.runMode, runMode_.c_str());
+	WritePersistentMemory();
+}
 void PersistentMemoryClass::SettotalSecondsToSleep(int totalSecondsToSleep_) {
 	ps.totalSecondsToSleep = totalSecondsToSleep_;
 	WritePersistentMemory();
 }
-
 void PersistentMemoryClass::SetsecondsToSleep(int secondsToSleep_) {
 	ps.secondsToSleep = secondsToSleep_;
 	WritePersistentMemory();
 }
-
 void PersistentMemoryClass::SetmaxSleepCycles(int maxSleepCycles_) {
 	ps.maxSleepCycles = maxSleepCycles_;
 	WritePersistentMemory();
 }
-
 void PersistentMemoryClass::SetvalveOpenDuration(int valveOpenDuration_) {
 	ps.valveOpenDuration = valveOpenDuration_;
 	WritePersistentMemory();
@@ -147,7 +147,6 @@ void PersistentMemoryClass::SetmainLoopDelay(int mainLoopDelay_) {
 	ps.mainLoopDelay = mainLoopDelay_;
 	WritePersistentMemory();
 }
-
 void PersistentMemoryClass::SetdeepSleepEnabled(boolean deepSleepEnabled_) {
 	ps.deepSleepEnabled = deepSleepEnabled_;
 	WritePersistentMemory();
@@ -161,6 +160,7 @@ void PersistentMemoryClass::Printps() {
 	LogLine(2, __FUNCTION__, "wifiPwd           " + String(ps.wifiPwd));
 	LogLine(2, __FUNCTION__, "cloudUserName     " + String(ps.cloudUserName));
 	LogLine(2, __FUNCTION__, "cloudPwd          " + String(ps.cloudPwd));
+	LogLine(2, __FUNCTION__, "runMode           " + String(ps.runMode));
 	LogLine(2, __FUNCTION__, "totalSecondsToSleep " + String(ps.totalSecondsToSleep));
 	LogLine(2, __FUNCTION__, "secondsToSleep    " + String(ps.secondsToSleep));
 	LogLine(2, __FUNCTION__, "maxSleepCycles    " + String(ps.maxSleepCycles));
@@ -175,7 +175,6 @@ void PersistentMemoryClass::Printps() {
 //		LogLine(2, __FUNCTION__, "Logline " + String(i) + ":" + String(ps.logLines[i]));
 //	}
 }
-
 void PersistentMemoryClass::UnitTest() {
 	InitDebugLevel(3);
 
