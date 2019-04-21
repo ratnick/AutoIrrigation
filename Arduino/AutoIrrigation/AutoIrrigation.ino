@@ -29,29 +29,33 @@
 #ifdef USE_WIFI
 #include <ArduinoJson.hpp>
 #include <ArduinoJson.h>
-#include <WiFiServerSecureBearSSL.h>
-#include <WiFiServerSecureAxTLS.h>
-#include <WiFiServerSecure.h>
-#include <ESP8266WiFiType.h>
-#include <ESP8266WiFiSTA.h>
-#include <ESP8266WiFiScan.h>
-#include <ESP8266WiFiMulti.h>
-#include <ESP8266WiFiGeneric.h>
-#include <ESP8266WiFiAP.h>
-#include <ESP8266WiFi.h>
+//#include <WiFiServerSecureBearSSL.h>
+//#include <WiFiServerSecureAxTLS.h>
+//#include <WiFiServerSecure.h>
+//#include <ESP8266WiFiType.h>
+//#include <ESP8266WiFiSTA.h>
+//#include <ESP8266WiFiScan.h>
+//#include <ESP8266WiFiMulti.h>
+//#include <ESP8266WiFiGeneric.h>
+//#include <ESP8266WiFiAP.h>
+//#include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #include <WiFiServer.h>
 #include <WiFiClient.h>
 #endif
 
 #ifdef USE_FIREBASE
-#include <ESP8266HTTPClient.h>
-#include <FirebaseObject.h>
-#include <FirebaseHttpClient.h>
-#include <FirebaseError.h>
-#include <FirebaseCloudMessaging.h>
-#include <FirebaseArduino.h>
-#include <Firebase.h>
+//#include <ESP8266HTTPClient.h>
+//#include <FirebaseObject.h>
+//#include <FirebaseHttpClient.h>
+//#include <FirebaseError.h>
+//#include <FirebaseCloudMessaging.h>
+//#include <FirebaseArduino.h>
+//#include <Firebase.h>
+#include <SD.h>
+#include <SPI.h>
+#include "FirebaseESP8266.h"
+#include <ESP8266WiFi.h>
 #include "FirebaseModel.h"
 #endif
 
@@ -121,10 +125,10 @@ CloudIoTCoreDevice *device;
 
 #ifdef USE_FIREBASE
 #define FIREBASE_HOST "irrfire.firebaseio.com" 
-#define FIREBASE_AUTH "6Wo4b1wKZ0l5dUvVTxr37rqT4CNHM9u5zOrvznUp"
-// new?? #define FIREBASE_AUTH "AIzaSyBTr7zi9ZTDFMWdCJ61NHd2zn9JpurufyU"
+#define FIREBASE_AUTH "w3Q5F3zWG3RkudEjGUJZVi2wiVDvZCKY3VkVywkC"
 #define FB_DEVICE_PATH "/irrdevices/"
 String FB_BasePath;
+FirebaseData firebaseData; // FirebaseESP8266 data object
 #endif
 const int JSON_BUFFER_LENGTH = 250;
 
@@ -396,71 +400,82 @@ void InitPersistentMemoryIfNeeded() {
 #ifdef USE_FIREBASE
 
 boolean IsSettingsDataUpdatedByUser() {
-	boolean res = Firebase.getBool(FB_BasePath + "/settings/" + fb.UserUpdate);
-	if (res) {
-		LogLine(4, __FUNCTION__, "true");
+	if (Firebase.getBool(firebaseData, FB_BasePath + "/settings/" + fb.UserUpdate)) {
+		if (firebaseData.boolData()) {
+			LogLine(4, __FUNCTION__, "true");
+			return true;
+		}
+		else {
+			LogLine(4, __FUNCTION__, "false (not set by user)");
+		}
 	}
 	else {
-		LogLine(4, __FUNCTION__, "false");
+		LogLine(4, __FUNCTION__, "false (data does not exist in Firebase)");
 	}
-	return res;
+	return false;
 }
 
 boolean DeviceExistsInFirebase() {
-	String fbTestIfExists = Firebase.getString(FB_BasePath + "/state/" + fb.SSID);
-	if (fbTestIfExists.length() == 0) {
+	if (!Firebase.getString(firebaseData, FB_BasePath + "/state/" + fb.SSID)) {
 		UploadLog_("Device seems not to exist. Double checking.");
-		delay(1000);
-		fbTestIfExists = Firebase.getString(FB_BasePath + "/metadata/" + fb.macAddr);
-		LogLine(2, __FUNCTION__, "** CREATE BASIC DEVICE:  " + FB_BasePath + " returns: |" + fbTestIfExists + "|");
-		if (fbTestIfExists.length() == 0) {
-			LogLine(0, __FUNCTION__, "** Still zero. Device does not exist");
-			delay(1000);
+		if (!Firebase.getString(firebaseData, FB_BasePath + "/metadata/" + fb.macAddr)) {
+			LogLine(0, __FUNCTION__, "** Device does not exist");
 			return false;
 		}
 	}
 	return true;
 }
 
-void RemoveDummiesFromFirebase() {
-	String s = FB_BasePath + "/telemetry/x";
-	String res = Firebase.getString(s);
-	if (res.length() > 0) {
-		LogLine(2, __FUNCTION__, "true");
-		Firebase.remove(s);
+void RemoveDummiesFromFirebase(String path) {
+	String s = FB_BasePath + path;   // "/telemetry/x";
+	String res;
+	if (Firebase.getString(firebaseData, s)) {
+		LogLine(2, __FUNCTION__, "dummy exists. Will remove it. " + s);
+		Firebase.deleteNode(firebaseData, s);
 	}
 	else {
-		LogLine(2, __FUNCTION__, "false");
+		LogLine(2, __FUNCTION__, "dummy did not exist");
 	}
 }
 
 void RemoveTelemetryFromFirebase() {
 	String s = FB_BasePath + "/telemetry";
 	LogLine(2, __FUNCTION__, "	removing telemetry");
-	Firebase.remove(s);
+	Firebase.deleteNode(firebaseData, s);
 }
 
 void GetSettings_(boolean firstRun) {
+	int val;
 	LogLine(4, __FUNCTION__, "begin");
 	if (firstRun || IsSettingsDataUpdatedByUser()) {
-		PersistentMemory.SetdeviceLocation(Firebase.getString(FB_BasePath + "/metadata/" + fb.location));
-		PersistentMemory.SetdeviceID(Firebase.getString(FB_BasePath + "/metadata/" + fb.deviceID));
-		PersistentMemory.SetmainLoopDelay(Firebase.getInt(FB_BasePath + "/settings/" + fb.mainLoopDelay));
-		PersistentMemory.SetdeepSleepEnabled(Firebase.getBool(FB_BasePath + "/settings/" + fb.deepSleepEnabled));
-		PersistentMemory.SetrunMode(Firebase.getString(FB_BasePath + "/settings/" + fb.runMode));
-		PersistentMemory.SettotalSecondsToSleep(Firebase.getInt(FB_BasePath + "/settings/" + fb.totalSecondsToSleep));
-		DeepSleepHandler.SetDeepSleepPeriod(PersistentMemory.GettotalSecondsToSleep());
+		if (Firebase.getString(firebaseData, FB_BasePath + "/metadata/" + fb.location)) { 
+			PersistentMemory.SetdeviceLocation(firebaseData.stringData()); }
+		if (Firebase.getString(firebaseData, FB_BasePath + "/metadata/" + fb.deviceID)) { 
+			PersistentMemory.SetdeviceID(firebaseData.stringData()); }
+		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.mainLoopDelay)) {
+			PersistentMemory.SetmainLoopDelay(firebaseData.intData()); }
+		if (Firebase.getBool(firebaseData, FB_BasePath + "/settings/" + fb.deepSleepEnabled)) {
+			PersistentMemory.SetdeepSleepEnabled(firebaseData.boolData());	}
+		if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + fb.runMode)) {
+			PersistentMemory.SetrunMode(firebaseData.stringData()); }
+		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.totalSecondsToSleep)) {
+			PersistentMemory.SettotalSecondsToSleep(firebaseData.intData());
+			DeepSleepHandler.SetDeepSleepPeriod(PersistentMemory.GettotalSecondsToSleep());
+		}
+		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.openDur)) {
+			val = firebaseData.intData();
+			PersistentMemory.SetvalveOpenDuration(val);
+			waterValveA.SetvalveOpenDuration(val);
+		}
 
-		int val = Firebase.getInt(FB_BasePath + "/settings/" + fb.openDur);
-		PersistentMemory.SetvalveOpenDuration(val);
-		waterValveA.SetvalveOpenDuration(val);
+		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.soakTime)) {
+			val = firebaseData.intData();
+			LogLine(3, __FUNCTION__, fb.soakTime + "=" + String(val));
+			PersistentMemory.SetvalveSoakTime(val);
+			waterValveA.SetvalveSoakTime(val);
+		}
 
-		val = Firebase.getInt(FB_BasePath + "/settings/" + fb.soakTime);
-		LogLine(3, __FUNCTION__, fb.soakTime + "=" + String(val));
-		PersistentMemory.SetvalveSoakTime(val);
-		waterValveA.SetvalveSoakTime(val);
-
-		Firebase.setBool(FB_BasePath + "/settings/" + fb.UserUpdate, false);
+		Firebase.setBool(firebaseData, FB_BasePath + "/settings/" + fb.UserUpdate, false);
 		PersistentMemory.Printps();
 		UploadLog_("New settings read");
 	}
@@ -492,12 +507,11 @@ void CreateNewDevice(
 	}
 
 	jsoStatic.prettyPrintTo(Serial);
-	Firebase.set(FB_BasePath, jsoStatic);
+	Firebase.setJSON(firebaseData, FB_BasePath, ConvertJsonToString(jsoStatic));
 
 	SendToFirebase("set", "metadata", jsoMetadata);
 	SendToFirebase("set", "state", jsoState);
 	SendToFirebase("set", "settings", jsoSettings);
-//	if (Firebase.failed()) { LogLine(0, __FUNCTION__, "** CREATE BASIC DEVICE FAILED:  " + FB_BasePath + " - Firebase error msg: " + Firebase.error()); }
 }
 
 void UploadStateAndSettings_(
@@ -517,7 +531,7 @@ void UploadStateAndSettings_(
 	}
 	else {
 		ConnectAndUploadToCloud(GetSettings);
-		RemoveDummiesFromFirebase();
+		RemoveDummiesFromFirebase("/telemetry/x");
 	}
 
 	if (IsSettingsDataUpdatedByUser()) {
@@ -596,8 +610,15 @@ void UploadLog_(String _txt) {
 	SendToFirebase("push", "log", jsoLog);
 }
 
+String ConvertJsonToString(JsonObject& jso) {
+	String jsonStr;
+	jso.printTo(jsonStr);
+	return jsonStr;
+}
+
 void SendToFirebase(String cmd, String subPath, JsonObject& jso) {
 
+	boolean res = true;
 	// NOTE: If Firebase makes error apparantly without reason, try to update the fingerprint in FirebaseHttpClient.h. See https://github.com/FirebaseExtended/firebase-arduino/issues/328
 
 	String s = FB_BasePath + "/" + subPath + "/";
@@ -606,11 +627,11 @@ void SendToFirebase(String cmd, String subPath, JsonObject& jso) {
 
 	if (jso.measureLength() < JSON_BUFFER_LENGTH) {
 
-		if (cmd.equals("set")) { Firebase.set(s, jso); }
-		if (cmd.equals("push")) { Firebase.push(s, jso); }
+		if (cmd.equals("set")) { res = Firebase.setJSON(firebaseData, s, ConvertJsonToString(jso)); }
+		if (cmd.equals("push")) { res = Firebase.pushJSON(firebaseData, s, ConvertJsonToString(jso)); }
 
-		if (Firebase.failed()) {
-			LogLine(0, __FUNCTION__, "** SET/PUSH FAILED:  " + s + " - Firebase error msg: " + Firebase.error());
+		if (res == false) {
+			LogLine(0, __FUNCTION__, "** SET/PUSH FAILED:  " + s + " - Firebase error msg: " + firebaseData.errorReason());
 		}
 	}
 	else {
