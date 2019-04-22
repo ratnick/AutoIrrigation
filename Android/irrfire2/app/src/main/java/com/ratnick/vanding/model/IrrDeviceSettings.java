@@ -11,6 +11,7 @@ public class IrrDeviceSettings {
     public int vlvSoak;   // Setting
     public int loopSec;   // Setting
     public boolean slpEnabl;   // Setting
+    public String runMode;   // Setting
 
     public IrrDeviceSettings() {
         // Default constructor required for calls to DataSnapshot.getValue(Comment.class)

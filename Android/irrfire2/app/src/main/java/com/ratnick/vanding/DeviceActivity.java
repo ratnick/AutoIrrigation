@@ -57,6 +57,7 @@ public class DeviceActivity extends AppCompatActivity {
     @BindView(R.id.tvMainLoopDelay)             EditText tvMainLoopDelay;
     @BindView(R.id.tvOpenDuration)              EditText tvOpenDuration;
     @BindView(R.id.tvSoakTime)                  EditText tvSoakTime;
+    @BindView(R.id.tvrunMode)                   EditText tvrunMode;
     @BindView(R.id.tvMacAddr)                   TextView tvMacAddr;
     @BindView(R.id.tvMeasureMode)               TextView tvMeasureMode;
     @BindView(R.id.tvMaxSlpCycles)              TextView tvMaxSlpCycles;
@@ -116,6 +117,7 @@ public class DeviceActivity extends AppCompatActivity {
                 mIrrDevice[mSelectedIrrDeviceK].settings.loopSec = Integer.valueOf(tvMainLoopDelay.getText().toString());
                 mIrrDevice[mSelectedIrrDeviceK].settings.vlvOpen = Integer.valueOf(tvOpenDuration.getText().toString());
                 mIrrDevice[mSelectedIrrDeviceK].settings.vlvSoak = Integer.valueOf(tvSoakTime.getText().toString());
+                mIrrDevice[mSelectedIrrDeviceK].settings.runMode = tvrunMode.getText().toString();
                 mIrrDevice[mSelectedIrrDeviceK].settings.Updated = true;
                 writeStateToFirebase();
             }
@@ -640,6 +642,7 @@ public class DeviceActivity extends AppCompatActivity {
         tvMainLoopDelay.setText(String.format("%d", settings.loopSec));
         tvOpenDuration.setText(String.format("%d", settings.vlvOpen));
         tvSoakTime.setText(String.format("%d", settings.vlvSoak));
+        tvrunMode.setText(settings.runMode);
     }
 
     @SuppressLint("DefaultLocale")
