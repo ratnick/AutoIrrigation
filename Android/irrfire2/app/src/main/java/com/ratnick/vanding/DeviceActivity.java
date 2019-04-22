@@ -57,6 +57,7 @@ public class DeviceActivity extends AppCompatActivity {
     @BindView(R.id.tvMainLoopDelay)             EditText tvMainLoopDelay;
     @BindView(R.id.tvOpenDuration)              EditText tvOpenDuration;
     @BindView(R.id.tvSoakTime)                  EditText tvSoakTime;
+    @BindView(R.id.tvhumLim)                    EditText tvhumLim;
     @BindView(R.id.tvrunMode)                   EditText tvrunMode;
     @BindView(R.id.tvMacAddr)                   TextView tvMacAddr;
     @BindView(R.id.tvMeasureMode)               TextView tvMeasureMode;
@@ -117,6 +118,7 @@ public class DeviceActivity extends AppCompatActivity {
                 mIrrDevice[mSelectedIrrDeviceK].settings.loopSec = Integer.valueOf(tvMainLoopDelay.getText().toString());
                 mIrrDevice[mSelectedIrrDeviceK].settings.vlvOpen = Integer.valueOf(tvOpenDuration.getText().toString());
                 mIrrDevice[mSelectedIrrDeviceK].settings.vlvSoak = Integer.valueOf(tvSoakTime.getText().toString());
+                mIrrDevice[mSelectedIrrDeviceK].settings.humLim = Integer.valueOf(tvhumLim.getText().toString());
                 mIrrDevice[mSelectedIrrDeviceK].settings.runMode = tvrunMode.getText().toString();
                 mIrrDevice[mSelectedIrrDeviceK].settings.Updated = true;
                 writeStateToFirebase();
@@ -133,6 +135,7 @@ public class DeviceActivity extends AppCompatActivity {
         mDeviceReference[mSelectedIrrDeviceK].child("settings").child("loopSec").setValue(mIrrDevice[mSelectedIrrDeviceK].settings.loopSec);
         mDeviceReference[mSelectedIrrDeviceK].child("settings").child("vlvOpen").setValue(mIrrDevice[mSelectedIrrDeviceK].settings.vlvOpen);
         mDeviceReference[mSelectedIrrDeviceK].child("settings").child("vlvSoak").setValue(mIrrDevice[mSelectedIrrDeviceK].settings.vlvSoak);
+        mDeviceReference[mSelectedIrrDeviceK].child("settings").child("humLim").setValue(mIrrDevice[mSelectedIrrDeviceK].settings.humLim);
         mDeviceReference[mSelectedIrrDeviceK].child("state").child("slpDura").setValue(mIrrDevice[mSelectedIrrDeviceK].state.slpDura);
         mDeviceReference[mSelectedIrrDeviceK].child("settings").child("Updated").setValue(true);
     }
@@ -454,12 +457,13 @@ public class DeviceActivity extends AppCompatActivity {
 
             float prevValveState = 0;
             for (DataSnapshot postSnapshot : teledataSnapshot.getChildren()) {
+                float factor = 20;
                 post = postSnapshot.getValue(IrrDeviceTelemetry.class);
                 if (prevValveState != post.vlvState) {  // insert extra point before real point to make a sharp edge on the graph
-                    DataPoint x = new DataPoint(post.timestamp -1, (float) 0.3 * prevValveState);   // setting to 0.3 to make a better visualisation
+                    DataPoint x = new DataPoint(post.timestamp -1, (float) factor * prevValveState);
                     values[i++] = x;
                 }
-                DataPoint v = new DataPoint(post.timestamp, (float) 20 * post.vlvState);
+                DataPoint v = new DataPoint(post.timestamp, (float) factor * post.vlvState);
                 values[i++] = v;
                 prevValveState = post.vlvState;
             }
@@ -642,6 +646,7 @@ public class DeviceActivity extends AppCompatActivity {
         tvMainLoopDelay.setText(String.format("%d", settings.loopSec));
         tvOpenDuration.setText(String.format("%d", settings.vlvOpen));
         tvSoakTime.setText(String.format("%d", settings.vlvSoak));
+        tvhumLim.setText(String.format("%d", settings.humLim));
         tvrunMode.setText(settings.runMode);
     }
 

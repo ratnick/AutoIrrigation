@@ -21,6 +21,7 @@ struct FirebaseModelStruct {
 	const String mainLoopDelay = "loopSec";
 	const String Vcc = "Vcc";
 	const String humidity = "Hum";
+	const String humLimit = "humLim";
 	const String lastAnalogueReading = "lastAnalog";
 	const String lastOpenTimestamp = "lastOpen";
 	const String valveState = "vlvState";

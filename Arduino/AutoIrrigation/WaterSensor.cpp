@@ -7,16 +7,23 @@
 #include "AnalogMux.h"
 #include "LogLib.h"
 
-void WaterSensorClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType)
+void WaterSensorClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType, int _humLimit)
 {
 	strcpy(name, _name);
 	pinNbr = _pinNbr;
 	muxChannel = _muxChannel;
 	sensorType = _sensorType;
 	lastAnalogueReadingWater = 0.0;
+	humLimitPct = _humLimit;
+	humLimit = WATER_VALUE + humLimitPct * (DRY_VALUE - WATER_VALUE) / 100.0;
 
 	pinMode(pinNbr, INPUT);
 	LogLine(2, __FUNCTION__, "MUX channel:" + String(muxChannel) + " analog pin:" + String(pinNbr) + " name:" + String(name));
+}
+
+void WaterSensorClass::SethumLimitPct(int _humLimitPct) {
+	this->humLimitPct = _humLimitPct;
+	this->humLimit = this->WATER_VALUE + this->humLimitPct * (DRY_VALUE - WATER_VALUE) / 100.0;
 }
 
 float WaterSensorClass::ReadSensor() {
@@ -24,16 +31,33 @@ float WaterSensorClass::ReadSensor() {
 	float res = 0;
 
 	LogLine(4, __FUNCTION__, "READING HUMIDITY FROM analog MUX channel " + String(muxChannel));
+	delay(500);  // allow voltage to settle after valve open
 	AnalogMux.OpenChannel(muxChannel);
 	for (int i = 0; i < 8; i++) {
+		delay(50);  
 		raw = analogRead(pinNbr);
-		LogLine(4, __FUNCTION__, "RAW HUM: " + String(raw));
 		res += raw;
 	}
 	AnalogMux.CloseMUXpwr();
 	res /= 8;
 	LogLine(2, __FUNCTION__, "Value: " + String(res));
 	return res;
+}
+
+float WaterSensorClass::GetHumidityPct() {
+	float hum;
+	hum = ((DRY_VALUE - this->lastAnalogueReadingWater) / (DRY_VALUE - WATER_VALUE) * 100.0);
+	if (hum < 0) { hum = 0; }
+	if (hum > 100) { hum = 100; }
+	LogLine(3, __FUNCTION__,
+		"  water=" + String(WATER_VALUE) +
+		"  lastAna=" + String(this->lastAnalogueReadingWater) +
+		"  dry=" + String(DRY_VALUE) +
+		"  lastAna-water=" + String(this->lastAnalogueReadingWater - WATER_VALUE) +
+		"  dry-water=" + String(DRY_VALUE - WATER_VALUE) +
+		"  hum=" + String(hum) +
+		"  humLimPct=" + String(this->humLimitPct));
+	return hum;
 }
 
 boolean WaterSensorClass::CheckIfWater() {
@@ -47,16 +71,16 @@ boolean WaterSensorClass::CheckIfWater() {
 		this->lastAnalogueReadingWater = res;
 		switch (sensorType) {
 			case SensorHandlerClass::SoilHumiditySensor:
-				if (res > HUMIDITY_THRESHOLD) {
-					Serial.println("  Return DRY");
+				if (GetHumidityPct() >= this->humLimitPct) {
+					LogLine(3, __FUNCTION__, "  Return WET");
+					val = WET;
 				}
 				else {
-					Serial.println("  Return WET");
-					val = WET;
+					LogLine(3, __FUNCTION__, "  Return DRY");
 				}
 				break;
 			case SensorHandlerClass::WaterSensor:
-				Serial.println("*** ERROR: WaterSensor type is not yet implemented");
+				LogLine(0, __FUNCTION__, "*** ERROR: WaterSensor type is not yet implemented");
 				break;
 		}
 	}
@@ -65,13 +89,6 @@ boolean WaterSensorClass::CheckIfWater() {
 
 float WaterSensorClass::GetlastAnalogueReadingWater() {
 	return this->lastAnalogueReadingWater;
-}
-
-float WaterSensorClass::GetHumidity() {
-	LogLine(1, __FUNCTION__, "values: " + String(WATER_VALUE) + "  " + String(this->lastAnalogueReadingWater) + 
-							 "  " + String(DRY_VALUE) + "  " + String(this->lastAnalogueReadingWater - WATER_VALUE) +
-							 "  " + String(DRY_VALUE - WATER_VALUE));
-	return ((DRY_VALUE - this->lastAnalogueReadingWater) / (DRY_VALUE - WATER_VALUE) * 100.0);
 }
 
 float WaterSensorClass::TestSensor() {

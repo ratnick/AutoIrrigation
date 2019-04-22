@@ -31,6 +31,7 @@ struct PersistentDataStruct {
 	float lastVccSummarizedReading;
 	int valveOpenDuration;
 	int valveSoakTime;
+	int humLimit;
 	int mainLoopDelay;
 	boolean deepSleepEnabled;
 

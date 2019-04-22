@@ -20,18 +20,19 @@ class WaterSensorClass
 	 char name[15];
 	 SensorHandlerClass::SensorType sensorType;
 
-	 void init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType);
+	 void init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType, int _humLimit);
 	 boolean CheckIfWater();
 	 float GetlastAnalogueReadingWater();
-	 float GetHumidity();
+	 float GetHumidityPct();
 	 float ReadSensor();
 	 float TestSensor();
+	 void SethumLimitPct(int _humLimitPct);
 
 private:
 	const float DRY_VALUE = 930.0; // above this value we have detected water
 	const float WATER_VALUE = 490.0; // above this value we have detected water
-	const float HUMIDITY_THRESHOLD_PCT = 50.0;
-	const float HUMIDITY_THRESHOLD = WATER_VALUE + HUMIDITY_THRESHOLD_PCT * (DRY_VALUE - WATER_VALUE) / 100.0;
+	float humLimitPct;
+	float humLimit;
 	int muxChannel;
 	int pinNbr;
 	float lastAnalogueReadingWater;

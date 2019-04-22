@@ -5,13 +5,14 @@ import com.google.firebase.database.IgnoreExtraProperties;
 @IgnoreExtraProperties
 public class IrrDeviceSettings {
 
-    public boolean Updated;   // Setting
-    public int vlvOpen;   // Setting
-    public int totSlp;   // Setting
-    public int vlvSoak;   // Setting
-    public int loopSec;   // Setting
-    public boolean slpEnabl;   // Setting
-    public String runMode;   // Setting
+    public boolean Updated;
+    public int vlvOpen;
+    public int totSlp;
+    public int vlvSoak;
+    public int humLim;
+    public int loopSec;
+    public boolean slpEnabl;
+    public String runMode;
 
     public IrrDeviceSettings() {
         // Default constructor required for calls to DataSnapshot.getValue(Comment.class)

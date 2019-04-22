@@ -43,10 +43,13 @@ class PersistentMemoryClass
 	 int GetcurrentSleepCycle();
 	 int GetvalveOpenDuration();
 	 int GetvalveSoakTime();
+	 int GethumLimit();
 	 int GetmainLoopDelay();
 	 boolean GetdeepSleepEnabled();
 
 	 void SetdeviceID(String id_);
+	 void SetwifiSSID(String wifiSSID_);
+	 void SetwifiPwd(String wifiPwd_);
 	 void SetdeviceLocation(String location_);
 	 void SetrunMode(String runMode_);
 	 void SetmacAddress(byte* mac);
@@ -55,6 +58,7 @@ class PersistentMemoryClass
 	 void SetmaxSleepCycles(int maxSleepCycles_);
 	 void SetvalveOpenDuration(int valveOpenDuration_);
 	 void SetvalveSoakTime(int valveSoakTime_);
+	 void SethumLimit(int humLimit_);
 	 void SetmainLoopDelay(int mainLoopDelay_);
 	 void SetdeepSleepEnabled(boolean deepSleepEnabled_);
 

@@ -29,6 +29,7 @@ void PersistentMemoryClass::init(
 		ps.currentSleepCycle = 0; // counts which sleep cycle we are at right now.
 		ps.valveOpenDuration = _valveOpenDuration;
 		ps.valveSoakTime = _valveSoakTime;
+		ps.humLimit = 50; //pct
 		ps.mainLoopDelay = _mainLoopDelay;
 		ps.deepSleepEnabled = true;
 		WritePersistentMemory();
@@ -58,7 +59,6 @@ void PersistentMemoryClass::WritePersistentMemory() {
 };
 
 String PersistentMemoryClass::GetStateJson() {
-	//StaticJsonBuffer<200> jsonBuffer;
 	DynamicJsonBuffer  jsonBuffer(200);
 	String jsonStr;
 	JsonObject& root = jsonBuffer.createObject();
@@ -66,9 +66,6 @@ String PersistentMemoryClass::GetStateJson() {
 	root["macAddr"] = ps.macAddress;
 	root["deviceLocation"] = ps.deviceLocation;
 	root["wifiSSID"] = ps.wifiSSID;
-//	root["wifiPwd"] = ps.wifiPwd;
-//	root["cloudUserName"] = ps.cloudUserName;
-//	root["cloudPwd"] = ps.cloudPwd;
 	root["secsToSleep"] = ps.secondsToSleep;
 	root["maxSlpCycles"] = ps.maxSleepCycles;
 	root["currentSleepCycle"] = ps.currentSleepCycle;
@@ -89,6 +86,7 @@ int PersistentMemoryClass::GetmaxSleepCycles()		{ return ps.maxSleepCycles;}
 int PersistentMemoryClass::GetcurrentSleepCycle()	{ return ps.currentSleepCycle;}
 int PersistentMemoryClass::GetvalveOpenDuration()	{ return ps.valveOpenDuration; }
 int PersistentMemoryClass::GetvalveSoakTime()		{ return ps.valveSoakTime; }
+int PersistentMemoryClass::GethumLimit()			{ return ps.humLimit; }
 int PersistentMemoryClass::GetmainLoopDelay()		{ return ps.mainLoopDelay; }
 boolean PersistentMemoryClass::GetdeepSleepEnabled() { return ps.deepSleepEnabled;  }
 
@@ -113,6 +111,14 @@ void PersistentMemoryClass::SetmacAddress(byte mac[]) {
 }
 void PersistentMemoryClass::SetdeviceID(String deviceID_) {
 	strcpy(ps.deviceID, deviceID_.c_str());
+	WritePersistentMemory();
+}
+void PersistentMemoryClass::SetwifiSSID(String wifiSSID_) {
+	strcpy(ps.wifiSSID, wifiSSID_.c_str());
+	WritePersistentMemory();
+}
+void PersistentMemoryClass::SetwifiPwd(String wifiPwd_) {
+	strcpy(ps.wifiPwd, wifiPwd_.c_str());
 	WritePersistentMemory();
 }
 void PersistentMemoryClass::SetdeviceLocation(String deviceLocation_) {
@@ -143,6 +149,10 @@ void PersistentMemoryClass::SetvalveSoakTime(int valveSoakTime_) {
 	ps.valveSoakTime = valveSoakTime_;
 	WritePersistentMemory();
 }
+void PersistentMemoryClass::SethumLimit(int humLimit_) {
+	ps.humLimit = humLimit_;
+	WritePersistentMemory();
+}
 void PersistentMemoryClass::SetmainLoopDelay(int mainLoopDelay_) {
 	ps.mainLoopDelay = mainLoopDelay_;
 	WritePersistentMemory();
@@ -167,8 +177,9 @@ void PersistentMemoryClass::Printps() {
 	LogLine(2, __FUNCTION__, "currentSleepCycle " + String(ps.currentSleepCycle));
 	LogLine(2, __FUNCTION__, "lastVccSummarizedReading " + String(ps.lastVccSummarizedReading));
 	LogLine(2, __FUNCTION__, "valveOpenDuration " + String(ps.valveOpenDuration));
-	LogLine(2, __FUNCTION__, "valveSoakTime " + String(ps.valveSoakTime));
-	LogLine(2, __FUNCTION__, "mainLoopDelay " + String(ps.mainLoopDelay));
+	LogLine(2, __FUNCTION__, "valveSoakTime "	+ String(ps.valveSoakTime));
+	LogLine(2, __FUNCTION__, "humLimit "		+ String(ps.humLimit));
+	LogLine(2, __FUNCTION__, "mainLoopDelay "	+ String(ps.mainLoopDelay));
 	LogLine(2, __FUNCTION__, "deepSleepEnabled " + String(ps.deepSleepEnabled));
 	
 	//	for (int i = 0; i < MAX_KEPT_LOGLINES; i++) {
