@@ -29,7 +29,7 @@ private:
 	int muxChannel;
 	int pinNbr;
 	char name[15];
-	static const int bufSize = 10;
+	static const int bufSize = 3;  // average over this amount of samples
 	float readBuffer[bufSize];
 	int currentCnt = 0;
 	float lastAnalogueReadingVoltage;
