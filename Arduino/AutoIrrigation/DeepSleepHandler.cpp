@@ -22,7 +22,7 @@ String uint64ToString(uint64_t input) {
 
 void DeepSleepHandlerClass::SetDeepSleepPeriod(int _secondsToSleep) {
 
-	Serial.println("max deep sleep: " + uint64ToString(ESP.deepSleepMax()));
+	//Serial.println("max deep sleep: " + uint64ToString(ESP.deepSleepMax()));
 
 	if (PersistentMemory.GetdeepSleepEnabled()) {
 		if (_secondsToSleep < MIN_SLEEP_TIME_SECS) {
@@ -34,20 +34,20 @@ void DeepSleepHandlerClass::SetDeepSleepPeriod(int _secondsToSleep) {
 	int maxSleepCycles = _secondsToSleep / MAX_DEEP_SLEEP_SECS;
 	PersistentMemory.SetsecondsToSleep(secondsToSleep);
 	PersistentMemory.SetmaxSleepCycles(maxSleepCycles);
-	LogLine(2, __FUNCTION__, "SetDeepSleepPeriod(): secondsToSleep = " + String(secondsToSleep) + "  maxSleepCycles =" + String(maxSleepCycles));
+	LogLine(3, __FUNCTION__, "SetDeepSleepPeriod(): secondsToSleep = " + String(secondsToSleep) + "  maxSleepCycles =" + String(maxSleepCycles));
 }
 
 void DeepSleepHandlerClass::GoToDeepSleep() {
 
 	uint64_t deepSleepPeriod = 0;
 
-	LogLine(2, __FUNCTION__, "currentSleepCycle = " + String(PersistentMemory.ps.currentSleepCycle ) + "  GetmaxSleepCycles = " + String(PersistentMemory.GetmaxSleepCycles()));
+	LogLine(3, __FUNCTION__, "currentSleepCycle = " + String(PersistentMemory.ps.currentSleepCycle ) + "  GetmaxSleepCycles = " + String(PersistentMemory.GetmaxSleepCycles()));
 	if (PersistentMemory.ps.currentSleepCycle < PersistentMemory.GetmaxSleepCycles() ) {
 		PersistentMemory.ps.currentSleepCycle++;
 		deepSleepPeriod = MAX_DEEP_SLEEP_SECS;
 	}
 	else {
-		LogLine(2, __FUNCTION__, "*** Resetting persistent memory (to reset counters)");
+		LogLine(4, __FUNCTION__, "*** Resetting persistent memory (to reset counters)");
 		PersistentMemory.ps.currentSleepCycle = 0;
 		deepSleepPeriod = PersistentMemory.GetsecondsToSleep();
 	}

@@ -20,6 +20,7 @@
 //#define RUN_ONCE
 #define USE_DEEP_SLEEP				// When enabling, connect D0 to RST (on Wemos D1 mini)
 #define NBR_OF_LOOPS_BEFORE_SLEEP 1
+#define DEEP_SLEEP_SOAK_THRESHOLD 20     // if soaking time exceeds this limit, we will use deep sleep instead of delay()
 #define LOOP_DELAY 10 //secs
 #define FORCE_NEW_VALUES false // Will overwrite all values in persistent memory. Enable once, disable and recompile
 //#define MEASURE_INTERNAL_VCC      // When enabling, we cannot use analogue reading of sensor. 
@@ -119,7 +120,7 @@ void ConnectAndUploadToCloud(UploadType uploadType, boolean firstRun = false);
 
 void setup() {
 	Serial.begin(115200);
-	InitDebugLevel(3);
+	InitDebugLevel(2);
 
 	// read persistent memory
 	PersistentMemory.init(false);   // false: read from memory.  true: initialize
@@ -169,36 +170,34 @@ void setup() {
 	#endif
 }
 
-void OneNormalCycle() {
-	int cnt = 0;
+boolean WaterIfNeeded() {
 	int del;
 	float vccTmp;
+	boolean valveWasOpened = false;
 
 	vccTmp = externalVoltMeter.ReadVoltage();
-	LogLine(0, __FUNCTION__, "Voltage reading" + String(vccTmp));
+	// update persistent memory in case something has changed
+	PersistentMemory.ps.lastVccSummarizedReading = externalVoltMeter.lastSummarizedReading;
+	PersistentMemory.WritePersistentMemory();
+	LogLine(1, __FUNCTION__, "Voltage reading" + String(vccTmp));
 
-	// enter control loop (sensor reading and actuator control)
-	while (cnt < 2) {
-		LED_Flashes(1, 300);
-		if ((waterSensorA.CheckIfWater() == WaterSensor.DRY) || SIMULATE_WATERING) {
-			LogLine(1, __FUNCTION__, "Low water detected. Watering and soaking. Loop #" + String(cnt));
-			waterValveA.OpenValve();
-			ConnectAndUploadToCloud(UploadTelemetry);
-			waterValveA.KeepOpen();
-			waterValveA.CloseValve();
-			ConnectAndUploadToCloud(UploadTelemetry);
-			waterValveA.WaitToSoak();
-		}
-		else {
-			if (cnt == 0) {
-				LogLine(1, __FUNCTION__, "cnt==0 and high water detected. ");
-				ConnectAndUploadToCloud(UploadTelemetry);  // this is to ensure we send a telemetry at least once
-				waterValveA.WaitToSoak();
-			}
-		}
-		cnt++;
+	LED_Flashes(1, 300);
+	if ((waterSensorA.CheckIfWater() == WaterSensor.DRY) || SIMULATE_WATERING) {
+		LogLine(1, __FUNCTION__, "Low water detected. Watering and soaking.");
+
+		waterValveA.OpenValve();
+		ConnectAndUploadToCloud(UploadTelemetry);
+		waterValveA.KeepOpen();
+
+		waterValveA.CloseValve();
+		ConnectAndUploadToCloud(UploadTelemetry);
+		valveWasOpened = true;
 	}
-	cnt = 0;
+	if (!valveWasOpened) {
+		LogLine(1, __FUNCTION__, "High water detected. Skip watering and soaking.");
+		ConnectAndUploadToCloud(UploadTelemetry);  // this is to ensure we send a telemetry at least once
+	}
+	return valveWasOpened;
 }
 
 int wifiIndex = 0;
@@ -212,11 +211,17 @@ void loop() {
 	rm = PersistentMemory.GetrunMode();
 	LogLine(4, __FUNCTION__, "runmode = " + rm);
 	if (rm.equals("normal")) {
-		OneNormalCycle();
-		// update persistent memory in case something has changed
-		PersistentMemory.ps.lastVccSummarizedReading = externalVoltMeter.lastSummarizedReading;
-		PersistentMemory.WritePersistentMemory();
+		if (WaterIfNeeded()) {
+			// use deep sleep if it's enabled and we want to soak for a longer period of time
+			if ( (waterValveA.soakSeconds <= DEEP_SLEEP_SOAK_THRESHOLD) || (!PersistentMemory.GetdeepSleepEnabled()) ) {
+				waterValveA.WaitToSoak();
+			} else {
+				DeepSleepHandler.SetDeepSleepPeriod(waterValveA.soakSeconds);
+				DeepSleepHandler.GoToDeepSleep();
+			}
+		}
 		if (loopCount++ >= NBR_OF_LOOPS_BEFORE_SLEEP) {
+			DeepSleepHandler.SetDeepSleepPeriod(PersistentMemory.GettotalSecondsToSleep());
 			DeepSleepHandler.GoToDeepSleep();
 		}
 	}

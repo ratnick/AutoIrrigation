@@ -33,7 +33,7 @@ void WaterValveClass::SetvalveSoakTime(int valveSoakTime_) {
 
 void WaterValveClass::OpenValve() {
 	lastOpenTimestamp = TimeString();
-	LogLine(1, __FUNCTION__, "");
+	LogLine(2, __FUNCTION__, "");
 	digitalWrite(pinNbr, OPEN_VALVE);
 	digitalWrite(LED_BUILTIN, LOW);
 	valveState = 1;
@@ -45,7 +45,7 @@ void WaterValveClass::KeepOpen() {
 }
 
 void WaterValveClass::CloseValve() {
-	LogLine(1, __FUNCTION__, "");
+	LogLine(2, __FUNCTION__, "");
 	digitalWrite(pinNbr, CLOSE_VALVE);
 	digitalWrite(LED_BUILTIN, HIGH);
 	valveState = 0;
