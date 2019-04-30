@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -21,6 +22,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.firebase.database.Query;
 import com.ratnick.vanding.model.IrrDevice;
 import com.ratnick.vanding.model.IrrDeviceMetadata;
 import com.ratnick.vanding.model.IrrDeviceSettings;
@@ -43,12 +46,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class DeviceActivity extends AppCompatActivity {
 
-    @BindView(R.id.setButton)                   Button setButton;
+    @BindView(R.id.executeButton)               Button executeButton;
 
     @BindView(R.id.tvDeviceID)                  EditText tvDeviceID;
     @BindView(R.id.tvLocation)                  EditText tvLocation;
@@ -109,7 +114,7 @@ public class DeviceActivity extends AppCompatActivity {
         graph = (GraphView) findViewById(R.id.graph);
         DetectDevicesAndLoadSpinner();
 
-        setButton.setOnClickListener(new OnClickListener() {
+        executeButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 mIrrDevice[mSelectedIrrDeviceK].metadata.loc = tvLocation.getText().toString();
                 mIrrDevice[mSelectedIrrDeviceK].metadata.device = tvDeviceID.getText().toString();
@@ -155,25 +160,26 @@ public class DeviceActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_purge_data) {
+
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Device");
+            builder.setTitle("Keep X days of telemetry:");
 
             // Set up the input
             final EditText input = new EditText(this);
             input.setTextColor(Color.BLACK);
-            input.setText(mSelectedDeviceId);
+            input.setText("21");
 
             // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
+            input.setInputType(InputType.TYPE_CLASS_NUMBER);
             builder.setView(input);
 
             // Set up the buttons
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    mSelectedDeviceId = input.getText().toString();
-                    //loadDevice();
+                    int keepXdays = Integer.valueOf(input.getText().toString());
+                    PurgeTelemetryData(keepXdays);
                 }
             });
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -186,6 +192,7 @@ public class DeviceActivity extends AppCompatActivity {
             builder.show();
 
             return true;
+
         } else if (id == R.id.action_refresh) {
             DisplayDeviceData();
         }
@@ -542,7 +549,7 @@ public class DeviceActivity extends AppCompatActivity {
         // Primary Y-axis (Y1) scale
         graph.getViewport().setYAxisBoundsManual(true);
         graph.getViewport().setMinY(0);
-        graph.getViewport().setMaxY(95);
+        graph.getViewport().setMaxY(99);
         graph.getGridLabelRenderer().setVerticalLabelsColor(Color.WHITE);
         graph.getGridLabelRenderer().setLabelsSpace(20);
 
@@ -552,7 +559,7 @@ public class DeviceActivity extends AppCompatActivity {
         maxY2 = (long) mIrrDevice[mSelectedIrrDeviceK].xSeriesVcc.getHighestValueY();
         //graph.getSecondScale().setMinY(minY2);
         //graph.getSecondScale().setMaxY(maxY2);
-        graph.getSecondScale().setMinY(3.5);
+        graph.getSecondScale().setMinY(3.3);
         graph.getSecondScale().setMaxY(4.1);
         graph.getGridLabelRenderer().setVerticalLabelsSecondScaleColor(Color.MAGENTA);
         graph.getGridLabelRenderer().setSecondScaleLabelVerticalWidth(70);
@@ -602,6 +609,43 @@ public class DeviceActivity extends AppCompatActivity {
         //graph.getViewport().setScrollableY(true);    // activate vertical scrolling
 
 //        graph.onDataChanged(true,false);
+    }
+
+
+    public static String getCurrentDate() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd", Locale.getDefault());
+        Date date = new Date();
+        return dateFormat.format(date);
+    }
+
+    private void PurgeTelemetryData(int daysToKeep) {
+
+        Date dateFilter = new Date(System.currentTimeMillis() - (daysToKeep * 1000 * 60 * 60 * 24));
+
+        final DatabaseReference allTele = mDeviceReference[mSelectedIrrDeviceK].child("telemetry");
+        allTele.orderByChild("timestamp").endAt(dateFilter.getTime()).addListenerForSingleValueEvent(new ValueEventListener() {
+            // .endAt(1556001761734)
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                int count = (int) dataSnapshot.getChildrenCount();
+                if (count > 0) {
+                    IrrDeviceTelemetry post;
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        post = postSnapshot.getValue(IrrDeviceTelemetry.class);
+                        //System.out.println(" timestamp " + post.timestamp + "  Vcc=" + post.Vcc);
+                        allTele.child(postSnapshot.getKey()).removeValue();
+                    }
+                }
+                showToast("Deleted " + count + " telemetry posts");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // ...
+            }
+        });
     }
 
     // Pure UI updates

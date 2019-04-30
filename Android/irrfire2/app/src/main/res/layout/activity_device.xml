@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -17,7 +18,7 @@
             android:layout_height="wrap_content">
 
             <Button
-                android:id="@+id/setButton"
+                android:id="@+id/executeButton"
                 android:layout_width="20dp"
                 android:layout_height="match_parent"
                 android:layout_weight="20"
@@ -298,7 +299,7 @@
     </LinearLayout>
 
     <TableLayout
-        android:id="@+id/tbState"
+        android:id="@+id/tbInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/holo_blue_dark"
