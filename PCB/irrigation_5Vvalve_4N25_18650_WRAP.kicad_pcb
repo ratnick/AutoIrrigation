@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 20)
+    (drawings 22)
     (tracks 121)
     (zones 0)
     (modules 14)
@@ -639,6 +639,12 @@
     )
   )
 
+  (gr_text - (at 95.377 27.686 180) (layer F.Fab) (tstamp 5CC6D6D8)
+    (effects (font (size 1.5 1.5) (thickness 0.3)))
+  )
+  (gr_text + (at 95.377 30.226) (layer F.Fab) (tstamp 5CC6D6D8)
+    (effects (font (size 1.5 1.5) (thickness 0.3)))
+  )
   (gr_text + (at 43.18 73.66) (layer F.Fab)
     (effects (font (size 3 3) (thickness 0.6)))
   )
@@ -654,7 +660,7 @@
     (effects (font (size 1 1) (thickness 0.15)))
   )
   (gr_circle (center 70.739 45.72) (end 70.866 46.228) (layer F.Fab) (width 0.2))
-  (gr_text - (at 95.377 25.4 90) (layer F.Fab)
+  (gr_text - (at 95.377 25.4 180) (layer F.Fab)
     (effects (font (size 1.5 1.5) (thickness 0.3)))
   )
   (gr_text + (at 95.377 22.606) (layer F.Fab)
