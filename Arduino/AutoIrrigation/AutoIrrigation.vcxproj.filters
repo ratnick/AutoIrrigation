@@ -23,16 +23,10 @@
     <ClInclude Include="__vm\.AutoIrrigation.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PersistentMemory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="test.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DeepSleepHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SensorHandler.h">
@@ -62,21 +56,21 @@
     <ClInclude Include="AnalogMux.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LEDHandler.h">
+    <ClInclude Include="FirebaseModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FirebaseModel.h">
+    <ClInclude Include="PersistentMemory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DeepSleepHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GasSensor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PersistentMemory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="test.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DeepSleepHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SensorHandler.cpp">
@@ -103,7 +97,13 @@
     <ClCompile Include="AnalogMux.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LEDHandler.cpp">
+    <ClCompile Include="PersistentMemory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DeepSleepHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GasSensor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

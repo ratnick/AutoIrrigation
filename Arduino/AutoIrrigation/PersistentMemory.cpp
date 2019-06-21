@@ -25,6 +25,7 @@ void PersistentMemoryClass::init(
 		strcpy(ps.cloudUserName, "initial value");
 		strcpy(ps.cloudPwd, "not used");
 		strcpy(ps.runMode, "normal");
+		strcpy(ps.wakeTime, "na");
 		ps.secondsToSleep = _totalSecondsToSleep;
 		ps.currentSleepCycle = 0; // counts which sleep cycle we are at right now.
 		ps.valveOpenDuration = _valveOpenDuration;
@@ -80,6 +81,7 @@ String PersistentMemoryClass::GetmacAddress()		{ return String(ps.macAddress); }
 String PersistentMemoryClass::GetwifiSSID()			{ return String(ps.wifiSSID); }
 String PersistentMemoryClass::GetCloudUsername()	{ return String(ps.cloudUserName); }
 String PersistentMemoryClass::GetrunMode()			{ return String(ps.runMode); }
+String PersistentMemoryClass::GetWakeTime()			{ return String(ps.wakeTime); }
 int PersistentMemoryClass::GettotalSecondsToSleep() { return ps.totalSecondsToSleep; }
 int PersistentMemoryClass::GetsecondsToSleep()		{ return ps.secondsToSleep; }
 int PersistentMemoryClass::GetmaxSleepCycles()		{ return ps.maxSleepCycles;}
@@ -129,6 +131,10 @@ void PersistentMemoryClass::SetrunMode(String runMode_) {
 	strcpy(ps.runMode, runMode_.c_str());
 	WritePersistentMemory();
 }
+void PersistentMemoryClass::SetWakeTime(String wakeTime_) {
+	strcpy(ps.wakeTime, wakeTime_.c_str());
+	WritePersistentMemory();
+}
 void PersistentMemoryClass::SettotalSecondsToSleep(int totalSecondsToSleep_) {
 	ps.totalSecondsToSleep = totalSecondsToSleep_;
 	WritePersistentMemory();
@@ -171,6 +177,7 @@ void PersistentMemoryClass::Printps() {
 	LogLine(2, __FUNCTION__, "cloudUserName     " + String(ps.cloudUserName));
 	LogLine(2, __FUNCTION__, "cloudPwd          " + String(ps.cloudPwd));
 	LogLine(2, __FUNCTION__, "runMode           " + String(ps.runMode));
+	LogLine(2, __FUNCTION__, "wakeTime          " + String(ps.wakeTime));
 	LogLine(2, __FUNCTION__, "totalSecondsToSleep " + String(ps.totalSecondsToSleep));
 	LogLine(2, __FUNCTION__, "secondsToSleep    " + String(ps.secondsToSleep));
 	LogLine(2, __FUNCTION__, "maxSleepCycles    " + String(ps.maxSleepCycles));

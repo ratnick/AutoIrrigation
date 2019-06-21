@@ -24,6 +24,7 @@ struct PersistentDataStruct {
 	char cloudUserName[30];
 	char cloudPwd[15];
 	char runMode[10];
+	char wakeTime[6];
 	int totalSecondsToSleep;
 	int secondsToSleep;  
 	int maxSleepCycles;  

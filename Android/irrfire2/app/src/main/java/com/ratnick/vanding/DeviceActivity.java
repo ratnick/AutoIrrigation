@@ -60,6 +60,7 @@ public class DeviceActivity extends AppCompatActivity {
     @BindView(R.id.tvdeepSleepEnabled)          EditText tvdeepSleepEnabled;
     @BindView(R.id.tvSecsToSleep)               EditText tvSecsToSleep;
     @BindView(R.id.tvMainLoopDelay)             EditText tvMainLoopDelay;
+    @BindView(R.id.tvWakeTime)                  EditText tvWakeTime;
     @BindView(R.id.tvOpenDuration)              EditText tvOpenDuration;
     @BindView(R.id.tvSoakTime)                  EditText tvSoakTime;
     @BindView(R.id.tvhumLim)                    EditText tvhumLim;
@@ -121,6 +122,7 @@ public class DeviceActivity extends AppCompatActivity {
                 mIrrDevice[mSelectedIrrDeviceK].settings.totSlp = Integer.valueOf(tvSecsToSleep.getText().toString());
                 mIrrDevice[mSelectedIrrDeviceK].settings.slpEnabl = Boolean.valueOf(tvdeepSleepEnabled.getText().toString());
                 mIrrDevice[mSelectedIrrDeviceK].settings.loopSec = Integer.valueOf(tvMainLoopDelay.getText().toString());
+                mIrrDevice[mSelectedIrrDeviceK].settings.wakeTime = tvWakeTime.getText().toString();
                 mIrrDevice[mSelectedIrrDeviceK].settings.vlvOpen = Integer.valueOf(tvOpenDuration.getText().toString());
                 mIrrDevice[mSelectedIrrDeviceK].settings.vlvSoak = Integer.valueOf(tvSoakTime.getText().toString());
                 mIrrDevice[mSelectedIrrDeviceK].settings.humLim = Integer.valueOf(tvhumLim.getText().toString());
@@ -141,6 +143,7 @@ public class DeviceActivity extends AppCompatActivity {
         mDeviceReference[mSelectedIrrDeviceK].child("settings").child("vlvOpen").setValue(mIrrDevice[mSelectedIrrDeviceK].settings.vlvOpen);
         mDeviceReference[mSelectedIrrDeviceK].child("settings").child("vlvSoak").setValue(mIrrDevice[mSelectedIrrDeviceK].settings.vlvSoak);
         mDeviceReference[mSelectedIrrDeviceK].child("settings").child("humLim").setValue(mIrrDevice[mSelectedIrrDeviceK].settings.humLim);
+        mDeviceReference[mSelectedIrrDeviceK].child("settings").child("runMode").setValue(mIrrDevice[mSelectedIrrDeviceK].settings.runMode);
         mDeviceReference[mSelectedIrrDeviceK].child("state").child("slpDura").setValue(mIrrDevice[mSelectedIrrDeviceK].state.slpDura);
         mDeviceReference[mSelectedIrrDeviceK].child("settings").child("Updated").setValue(true);
     }
@@ -688,6 +691,7 @@ public class DeviceActivity extends AppCompatActivity {
         tvdeepSleepEnabled.setText(String.format("%b", settings.slpEnabl));
         tvSecsToSleep.setText(String.format("%d", settings.totSlp));
         tvMainLoopDelay.setText(String.format("%d", settings.loopSec));
+        tvWakeTime.setText(settings.wakeTime);
         tvOpenDuration.setText(String.format("%d", settings.vlvOpen));
         tvSoakTime.setText(String.format("%d", settings.vlvSoak));
         tvhumLim.setText(String.format("%d", settings.humLim));

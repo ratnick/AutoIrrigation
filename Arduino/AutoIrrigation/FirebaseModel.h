@@ -4,6 +4,7 @@ struct FirebaseModelStruct {
 	const String macAddr = "mac";
 	const String location = "loc";
 	const String deviceID = "device";
+	const String sensorType = "sensor type";
 	const String hardware = "hw";
 	const String softwareVersion = "sw";
 	const String SSID = "SSID";
@@ -19,11 +20,13 @@ struct FirebaseModelStruct {
 	const String openDur = "vlvOpen";
 	const String soakTime = "vlvSoak";
 	const String mainLoopDelay = "loopSec";
+	const String wakeTime = "wakeTime";
 	const String Vcc = "Vcc";
 	const String humidity = "Hum";
 	const String humLimit = "humLim";
 	const String lastAnalogueReading = "lastAnalog";
 	const String lastOpenTimestamp = "lastOpen";
+	const String lastPPM = "lastPPM";
 	const String valveState = "vlvState";
 	const String wifi = "Wifi";
 	const String time = "timestamp";

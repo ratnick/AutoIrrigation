@@ -23,6 +23,7 @@ protected:
 
 
 public:
+	void GotoSleepAndWakeUpAtTime(String wakeupTime);
 	void SetDeepSleepPeriod(int secondsToSleep);
 	void GoToDeepSleep();
 

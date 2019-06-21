@@ -6,9 +6,11 @@
 
 #include "LEDHandler.h"
 #include "AnalogMux.h"
-#define HARDWARE_DESCRIPTION "WeMOS D1 r2, 5V/12V valve switch"
-#define DEVICE_ID "prototype"
 
+#define HARDWARE_DESCRIPTION "PCB v5.2 WeMOS D1 r2, 12V valve switch"
+#define DEVICE_ID "PCB v5.2 - #1"
+
+//#define USE_GAS_SENSOR
 #define USE_WIFI
 
 // Hmmm - which cloud to use:
@@ -67,6 +69,7 @@
 #include "ciotc_config.h" // Wifi configuration here
 #include "WaterValve.h"
 #include "WaterSensor.h"
+#include "GasSensor.h"
 #include "VoltMeter.h"
 #include "DeepSleepHandler.h"
 #include "LEDHandler.h"
@@ -94,6 +97,7 @@ const int CHANNEL_BATT = 1;
 // Sensors and actuators
 WaterSensorClass waterSensorA;
 WaterValveClass waterValveA;
+GasSensorClass gasSensor;
 VoltMeterClass externalVoltMeter;
 const int VALVE_OPEN_DURATION = 2;   // time a valve can be open in one run-time cycle, i.e. between deepsleeps
 const int VALVE_SOAK_TIME     = 30;   // time between two valve openings
@@ -120,7 +124,7 @@ void ConnectAndUploadToCloud(UploadType uploadType, boolean firstRun = false);
 
 void setup() {
 	Serial.begin(115200);
-	InitDebugLevel(2);
+	InitDebugLevel(3);
 
 	// read persistent memory
 	PersistentMemory.init(false);   // false: read from memory.  true: initialize
@@ -137,7 +141,12 @@ void setup() {
 	AnalogMux.init(MUX_S1, MUX_S0, HUM_SENSOR_PWR_CTRL, HIGH);
 	externalVoltMeter.lastSummarizedReading = PersistentMemory.ps.lastVccSummarizedReading;
 	externalVoltMeter.init(ANALOG_INPUT, "5V voltmeter", CHANNEL_BATT, SensorHandlerClass::ExternalVoltMeter, PersistentMemory.ps.lastVccSummarizedReading);
+#ifdef USE_GAS_SENSOR
+	gasSensor.init(ANALOG_INPUT, "gas senso", CHANNEL_HUM, SensorHandlerClass::GasSensor);
+#else
 	waterSensorA.init(ANALOG_INPUT, "humidity sensor A", CHANNEL_HUM, SensorHandlerClass::SoilHumiditySensor, PersistentMemory.ps.humLimit);
+#endif
+
 	waterValveA.init(VALVE_CTRL, "water valve A", PersistentMemory.ps.valveOpenDuration, PersistentMemory.ps.valveSoakTime);
 	#ifdef USE_WIFI 
 		ConnectToWifi();
@@ -179,7 +188,7 @@ boolean WaterIfNeeded() {
 	// update persistent memory in case something has changed
 	PersistentMemory.ps.lastVccSummarizedReading = externalVoltMeter.lastSummarizedReading;
 	PersistentMemory.WritePersistentMemory();
-	LogLine(1, __FUNCTION__, "Voltage reading" + String(vccTmp));
+	LogLine(2, __FUNCTION__, "Voltage reading" + String(vccTmp));
 
 	LED_Flashes(1, 300);
 	if ((waterSensorA.CheckIfWater() == WaterSensor.DRY) || SIMULATE_WATERING) {
@@ -221,8 +230,13 @@ void loop() {
 			}
 		}
 		if (loopCount++ >= NBR_OF_LOOPS_BEFORE_SLEEP) {
-			DeepSleepHandler.SetDeepSleepPeriod(PersistentMemory.GettotalSecondsToSleep());
-			DeepSleepHandler.GoToDeepSleep();
+			if (PersistentMemory.GetWakeTime().charAt(0) != 'n') {
+				DeepSleepHandler.GotoSleepAndWakeUpAtTime(PersistentMemory.GetWakeTime());
+			}
+			else {
+				DeepSleepHandler.SetDeepSleepPeriod(PersistentMemory.GettotalSecondsToSleep());
+				DeepSleepHandler.GoToDeepSleep();
+			}
 		}
 	}
 	else if (rm.equals("soil")) {
@@ -235,6 +249,20 @@ void loop() {
 	}
 	else if (rm.equals("testhw")) {
 		testHardware();
+	}
+	else if (rm.equals("gas")) {
+		if (!PersistentMemory.GetdeepSleepEnabled()) {
+			gasSensor.ReadSensor();
+			ConnectAndUploadToCloud(UploadTelemetry);
+		}
+		else {
+			DeepSleepHandler.SetDeepSleepPeriod(waterValveA.soakSeconds);
+			DeepSleepHandler.GoToDeepSleep();
+		}
+		if (loopCount++ >= NBR_OF_LOOPS_BEFORE_SLEEP) {
+			DeepSleepHandler.SetDeepSleepPeriod(PersistentMemory.GettotalSecondsToSleep());
+			DeepSleepHandler.GoToDeepSleep();
+		}
 	}
 	else {
 		LogLine(0, __FUNCTION__, "Illegal option chosen: " + rm + " Resetting runMode to normal");
@@ -261,7 +289,7 @@ void ConnectAndUploadToCloud(UploadType uploadType, boolean firstRun) {
 
 	requestResult = notCalledYet;
 #ifdef USE_WIFI
-	if (WiFi.status() == WL_CONNECTED) {
+	if ( (WiFi.status() == WL_CONNECTED) && IsWifiStrenghtOK() ) {   
 		LogLine(4, __FUNCTION__, "wifi connected OK");
 
 		#ifdef USE_FIREBASE
@@ -437,7 +465,12 @@ void GetSettings_(boolean firstRun) {
 			LogLine(3, __FUNCTION__, fb.deepSleepEnabled + "=" + String(b));
 			PersistentMemory.SetdeepSleepEnabled(b);	
 		}
+		if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + fb.wakeTime)) {
+			LogLine(3, __FUNCTION__, fb.wakeTime + "=" + firebaseData.stringData());
+			PersistentMemory.SetWakeTime(firebaseData.stringData());
+		}
 		if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + fb.runMode)) {
+			LogLine(3, __FUNCTION__, fb.runMode + "=" + firebaseData.stringData());
 			PersistentMemory.SetrunMode(firebaseData.stringData()); }
 		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.totalSecondsToSleep)) {
 			PersistentMemory.SettotalSecondsToSleep(firebaseData.intData());
@@ -484,6 +517,7 @@ void CreateNewDevice(
 	jsoSettings[fb.mainLoopDelay] = PersistentMemory.GetmainLoopDelay();
 	jsoSettings[fb.totalSecondsToSleep] = PersistentMemory.GettotalSecondsToSleep();
 	jsoSettings[fb.UserUpdate] = false;
+	jsoSettings[fb.wakeTime] = PersistentMemory.GetWakeTime();
 	jsoSettings[fb.openDur] = PersistentMemory.GetvalveOpenDuration();
 	jsoSettings[fb.soakTime] = PersistentMemory.GetvalveSoakTime();
 	jsoSettings[fb.humLimit] = PersistentMemory.GethumLimit();
@@ -533,6 +567,11 @@ void UploadStateAndSettings_(
 	jsoMetadata[fb.macAddr] = PersistentMemory.GetmacAddress();
 	jsoMetadata[fb.location] = PersistentMemory.GetdeviceLocation();
 	jsoMetadata[fb.deviceID] = PersistentMemory.GetDeviceID();
+	#ifdef USE_GAS_SENSOR
+		jsoMetadata[fb.sensorType] = "MQ-7 CO";
+	#else
+		jsoMetadata[fb.sensorType] = "Humidity";
+	#endif
 	jsoMetadata[fb.softwareVersion] = SOFTWARE_VERSION;
 	jsoMetadata[fb.hardware] = HARDWARE_DESCRIPTION;
 	SendToFirebase("set", "metadata", jsoMetadata);
@@ -574,10 +613,15 @@ void UploadTelemetry_(JsonObject& jsoTelemetry, JsonObject& jsoTeleTimestamp) {
 	LogLine(4, __FUNCTION__, "begin");
 
 	jsoTeleTimestamp[".sv"] = "timestamp";
-	jsoTelemetry[fb.wifi] = WiFi.RSSI(); // signal strength
+	int32_t wifiStrength = WiFi.RSSI();
+	jsoTelemetry[fb.wifi] = wifiStrength; // signal strength
+#ifdef USE_GAS_SENSOR
+	jsoTelemetry[fb.lastPPM] = gasSensor.GetlastPPM();
+#else
 	jsoTelemetry[fb.lastOpenTimestamp] = waterValveA.lastOpenTimestamp;
 	jsoTelemetry[fb.humidity] = waterSensorA.GetHumidityPct();
 	jsoTelemetry[fb.valveState] = waterValveA.valveState;
+#endif
 	jsoTelemetry[fb.Vcc] = externalVoltMeter.GetlastSummarizedReading();
 	jsoTelemetry[fb.lastAnalogueReading] = externalVoltMeter.GetlastAnalogueReadingVoltage();
 
@@ -612,7 +656,7 @@ void SendToFirebase(String cmd, String subPath, JsonObject& jso) {
 
 	String s = FB_BasePath + "/" + subPath + "/";
 	LogLine(3, __FUNCTION__, cmd + " to firebase: " + s);
-	//jso.prettyPrintTo(Serial);
+	jso.prettyPrintTo(Serial);
 
 	if (jso.measureLength() < JSON_BUFFER_LENGTH) {
 
@@ -1037,6 +1081,11 @@ void TestLoop(String logStr, int LEDflash, int LEDblinkdelay) {
 }
 
 void testHardware() {
+
+//	DeepSleepHandler.GotoSleepAndWakeUpAtTime(PersistentMemory.GetWakeTime());
+
+
+
 	TestLoop("testHardware: begin", 1, 500);
 
 	AnalogMux.OpenChannel(0);
@@ -1058,7 +1107,7 @@ void testHardware() {
 	TestLoop("testHardware: CloseValve", 1, 3000);
 
 	LED_Flashes(500, 100);
-
+	
 }
 
 void SOFT_RESET_ARDUINO() {

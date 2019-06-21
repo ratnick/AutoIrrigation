@@ -11,6 +11,7 @@ public class IrrDeviceSettings {
     public int vlvSoak;
     public int humLim;
     public int loopSec;
+    public String wakeTime;
     public boolean slpEnabl;
     public String runMode;
 
