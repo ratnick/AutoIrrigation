@@ -31,7 +31,7 @@ struct FirebaseModelStruct {
 	const String wifi = "Wifi";
 	const String time = "timestamp";
 	const String text = "txt";
-
+	const String fbDebugLevel = "db";
 };
 
 FirebaseModelStruct fb;

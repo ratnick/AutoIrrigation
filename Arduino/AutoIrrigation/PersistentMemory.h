@@ -26,7 +26,8 @@ class PersistentMemoryClass
 		 const char* _deviceID="n/a", 
 		 int _valveOpenDuration = 1, 
 		 int _valveSoakTime = 1, 
-		 int _mainLoopDelay = 600);
+		 int _mainLoopDelay = 600,
+		 int _fbDebugLevel = 0);
 	 void ReadPersistentMemory();
 	 void WritePersistentMemory();
 
@@ -45,7 +46,9 @@ class PersistentMemoryClass
 	 int GetvalveOpenDuration();
 	 int GetvalveSoakTime();
 	 int GethumLimit();
+	 int GetfbDebugLevel();
 	 int GetmainLoopDelay();
+
 	 boolean GetdeepSleepEnabled();
 
 	 void SetdeviceID(String id_);
@@ -62,6 +65,7 @@ class PersistentMemoryClass
 	 void SetvalveSoakTime(int valveSoakTime_);
 	 void SethumLimit(int humLimit_);
 	 void SetmainLoopDelay(int mainLoopDelay_);
+	 void SetfbDebugLevel(int fbDebugLevel_);
 	 void SetdeepSleepEnabled(boolean deepSleepEnabled_);
 
 	 void Printps();

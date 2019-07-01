@@ -11,7 +11,8 @@ void PersistentMemoryClass::init(
 	const char* _deviceID, 
 	int _valveOpenDuration, 
 	int _valveSoakTime,
-	int _mainLoopDelay)
+	int _mainLoopDelay, 
+	int _fbDebugLevel)
 {
 	EEPROM.begin(usedSize);
 	LogLine(2, __FUNCTION__, "EEPROM length: " + String(usedSize));
@@ -32,7 +33,9 @@ void PersistentMemoryClass::init(
 		ps.valveSoakTime = _valveSoakTime;
 		ps.humLimit = 50; //pct
 		ps.mainLoopDelay = _mainLoopDelay;
+		ps.fbDebugLevel = _fbDebugLevel;
 		ps.deepSleepEnabled = true;
+		ps.fbDebugLevel = _fbDebugLevel;
 		WritePersistentMemory();
 	}
 	else {
@@ -90,6 +93,7 @@ int PersistentMemoryClass::GetvalveOpenDuration()	{ return ps.valveOpenDuration;
 int PersistentMemoryClass::GetvalveSoakTime()		{ return ps.valveSoakTime; }
 int PersistentMemoryClass::GethumLimit()			{ return ps.humLimit; }
 int PersistentMemoryClass::GetmainLoopDelay()		{ return ps.mainLoopDelay; }
+int PersistentMemoryClass::GetfbDebugLevel()        { return ps.fbDebugLevel; }
 boolean PersistentMemoryClass::GetdeepSleepEnabled() { return ps.deepSleepEnabled;  }
 
 String mac2String(byte ar[]) {
@@ -159,6 +163,10 @@ void PersistentMemoryClass::SethumLimit(int humLimit_) {
 	ps.humLimit = humLimit_;
 	WritePersistentMemory();
 }
+void PersistentMemoryClass::SetfbDebugLevel(int fbDebugLevel_) {
+	ps.fbDebugLevel = fbDebugLevel_;
+	WritePersistentMemory();
+}
 void PersistentMemoryClass::SetmainLoopDelay(int mainLoopDelay_) {
 	ps.mainLoopDelay = mainLoopDelay_;
 	WritePersistentMemory();
@@ -186,7 +194,8 @@ void PersistentMemoryClass::Printps() {
 	LogLine(2, __FUNCTION__, "valveOpenDuration " + String(ps.valveOpenDuration));
 	LogLine(2, __FUNCTION__, "valveSoakTime "	+ String(ps.valveSoakTime));
 	LogLine(2, __FUNCTION__, "humLimit "		+ String(ps.humLimit));
-	LogLine(2, __FUNCTION__, "mainLoopDelay "	+ String(ps.mainLoopDelay));
+	LogLine(2, __FUNCTION__, "mainLoopDelay " + String(ps.mainLoopDelay));
+	LogLine(2, __FUNCTION__, "fbDebugLevel " + String(ps.fbDebugLevel));
 	LogLine(2, __FUNCTION__, "deepSleepEnabled " + String(ps.deepSleepEnabled));
 	
 	//	for (int i = 0; i < MAX_KEPT_LOGLINES; i++) {

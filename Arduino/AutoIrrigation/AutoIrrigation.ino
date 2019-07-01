@@ -22,8 +22,8 @@
 //#define RUN_ONCE
 #define USE_DEEP_SLEEP				// When enabling, connect D0 to RST (on Wemos D1 mini)
 #define NBR_OF_LOOPS_BEFORE_SLEEP 1
-#define DEEP_SLEEP_SOAK_THRESHOLD 20     // if soaking time exceeds this limit, we will use deep sleep instead of delay()
-#define LOOP_DELAY 10 //secs
+#define DEEP_SLEEP_SOAK_THRESHOLD 60     // if soaking time exceeds this limit, we will use deep sleep instead of delay()
+#define LOOP_DELAY 3 //secs
 #define FORCE_NEW_VALUES false // Will overwrite all values in persistent memory. Enable once, disable and recompile
 //#define MEASURE_INTERNAL_VCC      // When enabling, we cannot use analogue reading of sensor. 
 #define SIMULATE_WATERING false      // open the valve in every loop
@@ -100,7 +100,7 @@ WaterValveClass waterValveA;
 GasSensorClass gasSensor;
 VoltMeterClass externalVoltMeter;
 const int VALVE_OPEN_DURATION = 2;   // time a valve can be open in one run-time cycle, i.e. between deepsleeps
-const int VALVE_SOAK_TIME     = 30;   // time between two valve openings
+const int VALVE_SOAK_TIME     = 3;   // time between two valve openings
 
 // General control
 int loopCount = 0;  // used in conjunction with NBR_OF_LOOPS_BEFORE_SLEEP
@@ -124,7 +124,7 @@ void ConnectAndUploadToCloud(UploadType uploadType, boolean firstRun = false);
 
 void setup() {
 	Serial.begin(115200);
-	InitDebugLevel(3);
+	InitDebugLevel(4);
 
 	// read persistent memory
 	PersistentMemory.init(false);   // false: read from memory.  true: initialize
@@ -494,6 +494,12 @@ void GetSettings_(boolean firstRun) {
 			waterValveA.SetvalveSoakTime(val);
 		}
 
+		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.fbDebugLevel)) {
+			val = firebaseData.intData();
+			LogLine(3, __FUNCTION__, fb.fbDebugLevel + "=" + String(val));
+			PersistentMemory.SetfbDebugLevel(val);
+		}
+
 		Firebase.setBool(firebaseData, FB_BasePath + "/settings/" + fb.UserUpdate, false);
 
 		PersistentMemory.Printps();
@@ -506,6 +512,7 @@ void CreateNewDevice(
 	JsonObject& jsoTelemetryCur, JsonObject& jsoTelemetry, JsonObject& jsoLog) {
 
 	InitPersistentMemoryIfNeeded();
+	LogLine(4, __FUNCTION__, "begin");
 
 	jsoTelemetryCur["x"] = "-";
 	jsoTelemetry["x"] = "-";
@@ -521,6 +528,7 @@ void CreateNewDevice(
 	jsoSettings[fb.openDur] = PersistentMemory.GetvalveOpenDuration();
 	jsoSettings[fb.soakTime] = PersistentMemory.GetvalveSoakTime();
 	jsoSettings[fb.humLimit] = PersistentMemory.GethumLimit();
+	jsoSettings[fb.fbDebugLevel] = PersistentMemory.GetfbDebugLevel();
 	if (PersistentMemory.GetdeepSleepEnabled()) {  // It only works if using "true" or "false". ??
 		jsoSettings[fb.deepSleepEnabled] = true;
 	}
@@ -528,12 +536,15 @@ void CreateNewDevice(
 		jsoSettings[fb.deepSleepEnabled] = false;
 	}
 
+	LogLine(4, __FUNCTION__, "A");
 	jsoStatic.prettyPrintTo(Serial);
 	Firebase.setJSON(firebaseData, FB_BasePath, ConvertJsonToString(jsoStatic));
 
+	LogLine(4, __FUNCTION__, "B");
 	SendToFirebase("set", "metadata", jsoMetadata);
 	SendToFirebase("set", "state", jsoState);
 	SendToFirebase("set", "settings", jsoSettings);
+	LogLine(4, __FUNCTION__, "end");
 }
 
 void UploadStateAndSettings_(
@@ -678,6 +689,42 @@ void SendToFirebase(String cmd, String subPath, JsonObject& jso) {
 }
 
 #endif
+
+String LogLineFB(int dbgLevel, const char* fncName, const char* s) {
+	#ifdef USE_FIREBASE
+		if (dbgLevel <= PersistentMemory.GetfbDebugLevel()) {
+			String log = LogLine(dbgLevel, fncName, s);
+			//Serial.println(log);
+			//UploadLog_(log);
+
+		}
+		else {
+			LogLine(dbgLevel, fncName, s);
+
+		}
+	#else
+		LogLine(dbgLevel, fncName, s);
+	#endif
+}
+
+String LogLineFB(int dbgLevel, const char* fncName, String s) {
+	#ifdef USE_FIREBASE
+		if (dbgLevel <= PersistentMemory.GetfbDebugLevel()) {
+			Serial.println(s);
+			String log = LogLine(dbgLevel, fncName, s);
+			Serial.println(log);
+			//UploadLog_(log);
+
+		}
+		else {
+			LogLine(dbgLevel, fncName, s);
+
+		}
+	#else
+		LogLine(dbgLevel, fncName, s);
+	#endif
+}
+
 
 void ConnectToWifi() {
 	int wifiIndex = initWifi(PersistentMemory.ps.wifiSSID, PersistentMemory.ps.wifiPwd);

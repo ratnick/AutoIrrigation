@@ -34,6 +34,7 @@ struct PersistentDataStruct {
 	int valveSoakTime;
 	int humLimit;
 	int mainLoopDelay;
+	int fbDebugLevel;
 	boolean deepSleepEnabled;
 
 //TODO	boolean stopInstantly;   /* if the sensor thinks something is wrong, this bit is flipped, and it will never open the valve until reset*/
