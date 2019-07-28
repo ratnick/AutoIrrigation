@@ -15,11 +15,11 @@ class SensorHandlerClass
 {
  protected:
 
-
  public:
 	 enum SensorType {
 		 SoilHumiditySensor,
 		 WaterSensor,
+		 GasSensor,
 		 ExternalVoltMeter
 	 };
 

@@ -1,7 +1,7 @@
 // 
 // 
 // 
-
+ 
 #include "globals.h"
 #include "VoltMeter.h"
 #include "AnalogMux.h"
@@ -29,7 +29,7 @@ void VoltMeterClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHand
 	}
 
 	pinMode(pinNbr, INPUT);
-	LogLine(2, __FUNCTION__, "MUX channel:" + String(muxChannel) + " analog pin:" + String(pinNbr) + " name:" + String(name) + " lastSummarizedReading:" + String(lastSummarizedReading));
+	LogLinef(2, __FUNCTION__, "MUX channel:%d analog pin:%d   name:%s  lastSummarizedReading:%f", muxChannel, pinNbr, name, lastSummarizedReading);
 	for (int i = 0; i < bufSize; i++) {
 		readBuffer[i] = lastSummarizedReading;  //res;
 	}
@@ -37,12 +37,12 @@ void VoltMeterClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHand
 
 float VoltMeterClass::ReadVoltage() {
 	float sumRes = 0.0;
-	LogLine(3, __FUNCTION__, "READING FROM analog MUX channel " + String(muxChannel));
+	LogLinef(3, __FUNCTION__, "READING FROM analog MUX channel %d", muxChannel);
 	AnalogMux.OpenChannel(muxChannel);
 	float res = analogRead(pinNbr);
 	AnalogMux.CloseMUXpwr();
 
-	LogLine(2, __FUNCTION__, "Value: " + String(res) + "  converted:" + String(res*factor));
+	LogLinef(2, __FUNCTION__, "Value: %f   converted:%f", res, (res*factor));
 	this->lastAnalogueReadingVoltage = res;
 	res = res * factor;
 	readBuffer[currentCnt] = res;

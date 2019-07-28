@@ -39,11 +39,11 @@ void DeepSleepHandlerClass::GotoSleepAndWakeUpAtTime(String wakeupTime) {
 	int mm_now = 0;
 	int totalSecondsToWakeup = 0;
 
-	LogLine(1, __FUNCTION__, "Wake up at: " + wakeupTime);
+	LogLinef(1, __FUNCTION__, "Wake up at: %s", wakeupTime.c_str());
 
 	// check that input is OK and convert to time_t
 	if (!isValidNumber(wakeupTime)) {
-		LogLine(1, __FUNCTION__, "NOT SET TO SLEEP AS REQUESTED. WakeupTime is NOT in the format HHMM: " + wakeupTime);
+		LogLinef(1, __FUNCTION__, "NOT SET TO SLEEP AS REQUESTED. WakeupTime is NOT in the format HHMM: %s", wakeupTime.c_str());
 	}
 	else {
 		char str[3];
@@ -64,13 +64,13 @@ void DeepSleepHandlerClass::GotoSleepAndWakeUpAtTime(String wakeupTime) {
 			}
 			if (hh_diff < 0) { hh_diff += 24; }
 			totalSecondsToWakeup = hh_diff * 60 * 60 + mm_diff * 60;
-			LogLine(3, __FUNCTION__, "HHMM: " + String(hh) + ":" + String(mm) + " now=" + String(hh_now) + ":" + String(mm_now) + "   diff=" + String(hh_diff) + ":" + String(mm_diff));
-			LogLine(2, __FUNCTION__, "totalSecondsToWakeup =" + String(totalSecondsToWakeup));
+			LogLinef(3, __FUNCTION__, "HHMM: %d:%d   now=%d:%d   diff=%d:%d", hh, mm, hh_now, mm_now, hh_diff, mm_diff);
+			LogLinef(2, __FUNCTION__, "totalSecondsToWakeup = %d", totalSecondsToWakeup);
 			SetDeepSleepPeriod(totalSecondsToWakeup);
 			GoToDeepSleep();
 		}
 		else {
-			LogLine(1, __FUNCTION__, "NOT SET TO SLEEP AS REQUESTED. HH or MM is out of bound. Format is HHMM: " + String(hh) + " " + String(mm));
+			LogLinef(1, __FUNCTION__, "NOT SET TO SLEEP AS REQUESTED. HH or MM is out of bound. Format is HHMM: %d %d", hh, mm);
 		}
 	}
 }
@@ -82,21 +82,21 @@ void DeepSleepHandlerClass::SetDeepSleepPeriod(int _secondsToSleep) {
 	if (PersistentMemory.GetdeepSleepEnabled()) {
 		if (_secondsToSleep < MIN_SLEEP_TIME_SECS) {
 			_secondsToSleep = MIN_SLEEP_TIME_SECS;
-			LogLine(0, __FUNCTION__, "_secondsToSleep too low: " + String(_secondsToSleep));
+			LogLinef(0, __FUNCTION__, "_secondsToSleep too low: %d", _secondsToSleep);
 		}
 	}
 	int secondsToSleep = _secondsToSleep % MAX_DEEP_SLEEP_SECS;
 	int maxSleepCycles = _secondsToSleep / MAX_DEEP_SLEEP_SECS;
 	PersistentMemory.SetsecondsToSleep(secondsToSleep);
 	PersistentMemory.SetmaxSleepCycles(maxSleepCycles);
-	LogLine(3, __FUNCTION__, "SetDeepSleepPeriod(): secondsToSleep = " + String(secondsToSleep) + "  maxSleepCycles =" + String(maxSleepCycles));
+	LogLinef(3, __FUNCTION__, "SetDeepSleepPeriod(): secondsToSleep = %d  maxSleepCycles = %d", secondsToSleep, maxSleepCycles);
 }
 
 void DeepSleepHandlerClass::GoToDeepSleep() {
 
 	uint64_t deepSleepPeriod = 0;
 
-	LogLine(3, __FUNCTION__, "currentSleepCycle = " + String(PersistentMemory.ps.currentSleepCycle ) + "  GetmaxSleepCycles = " + String(PersistentMemory.GetmaxSleepCycles()));
+	LogLinef(3, __FUNCTION__, "currentSleepCycle = %d  GetmaxSleepCycles = %d", PersistentMemory.ps.currentSleepCycle, PersistentMemory.GetmaxSleepCycles());
 	if (PersistentMemory.ps.currentSleepCycle < PersistentMemory.GetmaxSleepCycles() ) {
 		PersistentMemory.ps.currentSleepCycle++;
 		deepSleepPeriod = MAX_DEEP_SLEEP_SECS;
@@ -110,7 +110,7 @@ void DeepSleepHandlerClass::GoToDeepSleep() {
 	PersistentMemory.WritePersistentMemory();
 	uint32_t secs = deepSleepPeriod;
 	deepSleepPeriod = deepSleepPeriod * 1000000;
-	LogLine(1, __FUNCTION__, "deepSleepPeriod=" + String(secs) + " secs    DeepSleepEnabled:" + String(PersistentMemory.GetdeepSleepEnabled()));
+	LogLinef(1, __FUNCTION__, "deepSleepPeriod=%d secs    DeepSleepEnabled:%d", secs, PersistentMemory.GetdeepSleepEnabled());
 	if (PersistentMemory.GetdeepSleepEnabled()) {
 		LogLine(1, __FUNCTION__, "Go to deep sleep");
 		ESP.deepSleep(deepSleepPeriod);

@@ -16,7 +16,7 @@ void GasSensorClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHand
 	lastAnalogueReading = 0.0;
 
 	pinMode(pinNbr, INPUT);
-	LogLine(2, __FUNCTION__, "MUX channel:" + String(muxChannel) + " analog pin:" + String(pinNbr) + " name:" + String(name));
+	//log	LogLine(2, __FUNCTION__, "MUX channel:" + String(muxChannel) + " analog pin:" + String(pinNbr) + " name:" + String(name));
 }
 
 float GasSensorClass::ReadSensor() {
@@ -25,19 +25,19 @@ float GasSensorClass::ReadSensor() {
 	int AVG_COUNT = 60;
 	float ppm = 0;
 
-	LogLine(4, __FUNCTION__, "READING GAS LEVEL FROM analog MUX channel " + String(muxChannel));
+	//log	LogLine(4, __FUNCTION__, "READING GAS LEVEL FROM analog MUX channel " + String(muxChannel));
 	delay(10);  // allow voltage to settle after valve open
 	AnalogMux.OpenChannel(muxChannel);
 	for (int i = 0; i < AVG_COUNT; i++) {
 		delay(1000);  
 		raw = analogRead(pinNbr);
 		res += raw;
-		LogLine(4, __FUNCTION__, "Raw Value: " + String(raw) );
+		//log 		LogLine(4, __FUNCTION__, "Raw Value: " + String(raw) );
 	}
 	AnalogMux.CloseMUXpwr();
 	res /= AVG_COUNT;
 	this->lastPPM = ConvertToPPM(res);
-	LogLine(1, __FUNCTION__, "Raw Value: " + String(res) + "  =  " + this->lastPPM + " ppm" );
+	//log LogLine(1, __FUNCTION__, "Raw Value: " + String(res) + "  =  " + this->lastPPM + " ppm" );
 	return res;
 }
 

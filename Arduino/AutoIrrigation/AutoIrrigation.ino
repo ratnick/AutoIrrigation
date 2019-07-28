@@ -4,13 +4,11 @@
     Author:     Nikolaj Nøhr-Rasmussen
 */
 
-#include "LEDHandler.h"
-#include "AnalogMux.h"
 
 #define HARDWARE_DESCRIPTION "PCB v5.2 WeMOS D1 r2, 12V valve switch"
 #define DEVICE_ID "PCB v5.2 - #1"
 
-//#define USE_GAS_SENSOR
+//#define USE_GAS_SENSOR 
 #define USE_WIFI
 
 // Hmmm - which cloud to use:
@@ -22,14 +20,20 @@
 //#define RUN_ONCE
 #define USE_DEEP_SLEEP				// When enabling, connect D0 to RST (on Wemos D1 mini)
 #define NBR_OF_LOOPS_BEFORE_SLEEP 1
-#define DEEP_SLEEP_SOAK_THRESHOLD 60     // if soaking time exceeds this limit, we will use deep sleep instead of delay()
-#define LOOP_DELAY 3 //secs
-#define FORCE_NEW_VALUES false // Will overwrite all values in persistent memory. Enable once, disable and recompile
+#define TOTAL_SECS_TO_SLEEP 20
+
+#define DEEP_SLEEP_SOAK_THRESHOLD 120     // if soaking time exceeds this limit, we will use deep sleep instead of delay()
+#define LOOP_DELAY 10 //secs
+#define FORCE_NEW_VALUES false      // Will overwrite all values in persistent memory. Enable once, disable and recompile
 //#define MEASURE_INTERNAL_VCC      // When enabling, we cannot use analogue reading of sensor. 
-#define SIMULATE_WATERING false      // open the valve in every loop
+#define SIMULATE_WATERING false     // open the valve in every loop
 // See also SIMULATE_SENSORS in SensorHandler.h
+#define DEBUGLEVEL 4
 
 #ifdef USE_WIFI
+#include <SD.h>
+#include <FirebaseESP8266.h>
+#include <ESP8266WiFi.h>
 #include <ArduinoJson.hpp>
 #include <ArduinoJson.h>
 #include <WiFiUdp.h>
@@ -38,10 +42,8 @@
 #endif
 
 #ifdef USE_FIREBASE
-#include <SD.h>
 #include <SPI.h>
-#include "FirebaseESP8266.h"
-#include <ESP8266WiFi.h>
+#include <FirebaseESP8266HTTPClient.h>
 #include "FirebaseModel.h"
 #endif
 
@@ -59,6 +61,8 @@
 #include "backoff.h"
 #endif
 
+#include "LEDHandler.h"
+#include "AnalogMux.h"
 #include "cli.h"
 #include <LogLib.h>
 #include <EEPROM.h>
@@ -68,7 +72,7 @@
 #include "globals.h"
 #include "ciotc_config.h" // Wifi configuration here
 #include "WaterValve.h"
-#include "WaterSensor.h"
+#include "SoilHumiditySensor.h"
 #include "GasSensor.h"
 #include "VoltMeter.h"
 #include "DeepSleepHandler.h"
@@ -93,14 +97,15 @@ const int VALVE_CTRL = D5;
 const int ANALOG_INPUT = A0;
 const int CHANNEL_HUM = 0;
 const int CHANNEL_BATT = 1;
+const int CHANNEL_WATER = 2;
 
 // Sensors and actuators
-WaterSensorClass waterSensorA;
+SoilHumiditySensorClass soilHumiditySensorA;
 WaterValveClass waterValveA;
 GasSensorClass gasSensor;
 VoltMeterClass externalVoltMeter;
 const int VALVE_OPEN_DURATION = 2;   // time a valve can be open in one run-time cycle, i.e. between deepsleeps
-const int VALVE_SOAK_TIME     = 3;   // time between two valve openings
+const int VALVE_SOAK_TIME     = 30;   // time between two valve openings
 
 // General control
 int loopCount = 0;  // used in conjunction with NBR_OF_LOOPS_BEFORE_SLEEP
@@ -121,18 +126,27 @@ FirebaseData firebaseData; // FirebaseESP8266 data object
 const int JSON_BUFFER_LENGTH = 250;
 
 void ConnectAndUploadToCloud(UploadType uploadType, boolean firstRun = false);
+void LogLineFB(int dbgLevel, const char* fncName, const char* s);
+void LogLinefFB(int dbgLevel, const char* fncName, const char* format, ...);
 
 void setup() {
+	delay(500);
 	Serial.begin(115200);
-	InitDebugLevel(4);
+
+	InitDebugLevel(DEBUGLEVEL);
+	PersistentMemory.SetdebugLevel(DEBUGLEVEL);
 
 	// read persistent memory
-	PersistentMemory.init(false);   // false: read from memory.  true: initialize
+	PersistentMemory.init(FORCE_NEW_VALUES, TOTAL_SECS_TO_SLEEP, DEVICE_ID, VALVE_OPEN_DURATION, VALVE_SOAK_TIME, LOOP_DELAY, DEBUGLEVEL);   // false: read from memory.  true: initialize
 	//PersistentMemory.Printps();
 	//PersistentMemory.UnitTest();  // just for testing
 	//PersistentMemory.Printps();
+//	PersistentMemory.SetdebugLevel(debuglevel);
+	Serial.printf("persisten mem debugLevel=%d (should be %d)\n", PersistentMemory.GetdebugLevel(), DEBUGLEVEL);
 
-	LogLine(1, __FUNCTION__, "\n\nSleep cycle " + String(PersistentMemory.ps.currentSleepCycle) + " of " + String(PersistentMemory.ps.maxSleepCycles) + "\n");
+	LogLine(1, __FUNCTION__, "BEGIN");
+
+	LogLinefFB(1, __FUNCTION__, "Sleep cycle %d of %d", PersistentMemory.ps.currentSleepCycle, PersistentMemory.ps.maxSleepCycles);
 	if (PersistentMemory.ps.currentSleepCycle != 0) {
 		DeepSleepHandler.GoToDeepSleep();
 	}
@@ -141,11 +155,17 @@ void setup() {
 	AnalogMux.init(MUX_S1, MUX_S0, HUM_SENSOR_PWR_CTRL, HIGH);
 	externalVoltMeter.lastSummarizedReading = PersistentMemory.ps.lastVccSummarizedReading;
 	externalVoltMeter.init(ANALOG_INPUT, "5V voltmeter", CHANNEL_BATT, SensorHandlerClass::ExternalVoltMeter, PersistentMemory.ps.lastVccSummarizedReading);
-#ifdef USE_GAS_SENSOR
-	gasSensor.init(ANALOG_INPUT, "gas senso", CHANNEL_HUM, SensorHandlerClass::GasSensor);
-#else
-	waterSensorA.init(ANALOG_INPUT, "humidity sensor A", CHANNEL_HUM, SensorHandlerClass::SoilHumiditySensor, PersistentMemory.ps.humLimit);
-#endif
+
+	String rm = PersistentMemory.GetrunMode();
+	if (rm.equals(RUNMODE_SOIL)) {
+		soilHumiditySensorA.init(ANALOG_INPUT, "humidity sensor A", CHANNEL_HUM, SensorHandlerClass::SoilHumiditySensor, PersistentMemory.ps.humLimit);
+	}
+	else if (rm.equals(RUNMODE_WATER)) {
+		soilHumiditySensorA.init(ANALOG_INPUT, "water sensor A", CHANNEL_WATER, SensorHandlerClass::WaterSensor, PersistentMemory.ps.humLimit);
+	}
+	else if (rm.equals(RUNMODE_GAS)) {
+		gasSensor.init(ANALOG_INPUT, "gas senso", CHANNEL_HUM, SensorHandlerClass::GasSensor);
+	}
 
 	waterValveA.init(VALVE_CTRL, "water valve A", PersistentMemory.ps.valveOpenDuration, PersistentMemory.ps.valveSoakTime);
 	#ifdef USE_WIFI 
@@ -159,8 +179,12 @@ void setup() {
 		while (time(nullptr) < 1510644967) {
 			delay(10);
 		}
-		getCurrentTime();
-		LogLine(1, __FUNCTION__, "Time fetched and adjusted");
+		if (getCurrentTimeB()) {
+			LogLine(2, __FUNCTION__, "Time fetched and adjusted");
+		}
+		else {
+			LogLine(0, __FUNCTION__, "Time NOT fetched and adjusted");
+		}
 	#endif
 
 	#ifdef USE_GOOGLE_CLOUD
@@ -188,11 +212,11 @@ boolean WaterIfNeeded() {
 	// update persistent memory in case something has changed
 	PersistentMemory.ps.lastVccSummarizedReading = externalVoltMeter.lastSummarizedReading;
 	PersistentMemory.WritePersistentMemory();
-	LogLine(2, __FUNCTION__, "Voltage reading" + String(vccTmp));
+	LogLinefFB(2, __FUNCTION__, "Voltage reading %f", vccTmp);
 
 	LED_Flashes(1, 300);
-	if ((waterSensorA.CheckIfWater() == WaterSensor.DRY) || SIMULATE_WATERING) {
-		LogLine(1, __FUNCTION__, "Low water detected. Watering and soaking.");
+	if ((soilHumiditySensorA.CheckIfWater() == SoilHumiditySensor.DRY) || SIMULATE_WATERING) {
+		LogLineFB(1, __FUNCTION__, "Low water detected. Watering and soaking.");
 
 		waterValveA.OpenValve();
 		ConnectAndUploadToCloud(UploadTelemetry);
@@ -203,14 +227,14 @@ boolean WaterIfNeeded() {
 		valveWasOpened = true;
 	}
 	if (!valveWasOpened) {
-		LogLine(1, __FUNCTION__, "High water detected. Skip watering and soaking.");
+		LogLineFB(1, __FUNCTION__, "High water detected. Skip watering and soaking.");
 		ConnectAndUploadToCloud(UploadTelemetry);  // this is to ensure we send a telemetry at least once
 	}
 	return valveWasOpened;
 }
 
 int wifiIndex = 0;
-boolean firstRun = false; // TODO REMOVE  true;
+boolean firstRun = true;
 void loop() {
 	String rm;
 
@@ -218,16 +242,16 @@ void loop() {
 	firstRun = false;
 
 	rm = PersistentMemory.GetrunMode();
-	LogLine(4, __FUNCTION__, "runmode = " + rm);
-	if (rm.equals("normal")) {
+	LogLinefFB(4, __FUNCTION__, "runmode = %s", rm.c_str());
+	if (rm.equals(RUNMODE_SOIL) || rm.equals(RUNMODE_WATER)) {
 		if (WaterIfNeeded()) {
 			// use deep sleep if it's enabled and we want to soak for a longer period of time
-			if ( (waterValveA.soakSeconds <= DEEP_SLEEP_SOAK_THRESHOLD) || (!PersistentMemory.GetdeepSleepEnabled()) ) {
-				waterValveA.WaitToSoak();
-			} else {
-				DeepSleepHandler.SetDeepSleepPeriod(waterValveA.soakSeconds);
-				DeepSleepHandler.GoToDeepSleep();
-			}
+			// if ( (waterValveA.soakSeconds <= DEEP_SLEEP_SOAK_THRESHOLD) || (!PersistentMemory.GetdeepSleepEnabled()) ) {
+			waterValveA.WaitToSoak();
+			//			} else {
+			//				DeepSleepHandler.SetDeepSleepPeriod(waterValveA.soakSeconds);
+			//				DeepSleepHandler.GoToDeepSleep();
+			//			}
 		}
 		if (loopCount++ >= NBR_OF_LOOPS_BEFORE_SLEEP) {
 			if (PersistentMemory.GetWakeTime().charAt(0) != 'n') {
@@ -239,18 +263,18 @@ void loop() {
 			}
 		}
 	}
-	else if (rm.equals("soil")) {
-		waterSensorA.TestSensor();
+	else if (rm.equals(RUNMODE_SENSORTEST)) {
+		soilHumiditySensorA.TestSensor();
 		ConnectAndUploadToCloud(UploadTelemetry);
 	}
-	else if (rm.equals("batt")) {
+	else if (rm.equals(RUNMODE_BATTERYTEST)) {
 		externalVoltMeter.TestSensor();
 		ConnectAndUploadToCloud(UploadTelemetry);
 	}
-	else if (rm.equals("testhw")) {
+	else if (rm.equals(RUNMODE_HARDWARETEST)) {
 		testHardware();
 	}
-	else if (rm.equals("gas")) {
+	else if (rm.equals(RUNMODE_GAS)) {
 		if (!PersistentMemory.GetdeepSleepEnabled()) {
 			gasSensor.ReadSensor();
 			ConnectAndUploadToCloud(UploadTelemetry);
@@ -265,8 +289,8 @@ void loop() {
 		}
 	}
 	else {
-		LogLine(0, __FUNCTION__, "Illegal option chosen: " + rm + " Resetting runMode to normal");
-		PersistentMemory.SetrunMode("normal");
+		LogLinefFB(0, __FUNCTION__, "Illegal option chosen: %s . Resetting runMode to normal", rm.c_str());
+		PersistentMemory.SetrunMode(RUNMODE_SOIL);
 		LED_Flashes(200, 100);
 	}
 
@@ -274,11 +298,11 @@ void loop() {
 	#ifdef RUN_ONCE
 		while (true) {
 			delay(10000);
-			LogLine(1, __FUNCTION__, "wait forever");
+			LogLineFB(1, __FUNCTION__, "wait forever");
 		}
 	#else
 	int d = PersistentMemory.GetmainLoopDelay();
-		LogLine(2, __FUNCTION__, "waiting mainLoopDelay: " + String(d));
+		LogLinefFB(2, __FUNCTION__, "waiting mainLoopDelay: %d", d);
 		delay(d * 1000);
 	#endif
 }
@@ -290,7 +314,7 @@ void ConnectAndUploadToCloud(UploadType uploadType, boolean firstRun) {
 	requestResult = notCalledYet;
 #ifdef USE_WIFI
 	if ( (WiFi.status() == WL_CONNECTED) && IsWifiStrenghtOK() ) {   
-		LogLine(4, __FUNCTION__, "wifi connected OK");
+		LogLineFB(4, __FUNCTION__, "wifi connected OK");
 
 		#ifdef USE_FIREBASE
 			String s;
@@ -315,7 +339,7 @@ void ConnectAndUploadToCloud(UploadType uploadType, boolean firstRun) {
 				case UploadStateAndSettings:	UploadStateAndSettings_(stateTime, jsoStatic, jsoMetadata, jsoState, jsoSettings, jsoTelemetryCur, jsoTelemetry, jsoLog);			break;
 				case UploadTelemetry:			UploadTelemetry_(jsoTelemetry, jsoTeleTimestamp);			break;
 				default:
-					LogLine(0, __FUNCTION__, "Error - JSON Command not defined");
+					LogLineFB(0, __FUNCTION__, "Error - JSON Command not defined");
 					break;
 			}
 		#endif
@@ -327,46 +351,46 @@ void ConnectAndUploadToCloud(UploadType uploadType, boolean firstRun) {
 
 							switch (uploadType) {
 							case UploadTelemetry:
-								LogLine(1, __FUNCTION__, "** SEND TELEMETRY");
+								LogLineFB(1, __FUNCTION__, "** SEND TELEMETRY");
 								requestResult = sendHttpMsg(uploadType, CreateTelemetryJson());
 								break;
 							case UploadStateAndSettings:
-								LogLine(1, __FUNCTION__, "** UPLOAD STATE");
+								LogLineFB(1, __FUNCTION__, "** UPLOAD STATE");
 								requestResult = sendHttpMsg(uploadType, PersistentMemory.GetStateJson());
 								break;
 							case GetSettings:
-								LogLine(1, __FUNCTION__, "** GET CONFIG");
+								LogLineFB(1, __FUNCTION__, "** GET CONFIG");
 								requestResult = sendHttpMsg(uploadType, "");
 								break;
 							default:
-								LogLine(0, __FUNCTION__, "Error - variant not defined");
+								LogLineFB(0, __FUNCTION__, "Error - variant not defined");
 								break;
 							}
 
 							switch (requestResult) {
 							case HTTPOK:
-								LogLine(1, __FUNCTION__, "Successful HTTP transmission");
+								LogLineFB(1, __FUNCTION__, "Successful HTTP transmission");
 								break;
 							case Auth401Error:
-								LogLine(0, __FUNCTION__, "HTTP / 1.1 401 Authorization Error");
+								LogLineFB(0, __FUNCTION__, "HTTP / 1.1 401 Authorization Error");
 								SOFT_RESET_ARDUINO();
 								break;
 							case Forbidden403Error:
-								LogLine(0, __FUNCTION__, "HTTP / 1.1 403 Forbidden Error");
+								LogLineFB(0, __FUNCTION__, "HTTP / 1.1 403 Forbidden Error");
 								SOFT_RESET_ARDUINO();
 								break;
 							case WifiTimeoutError:
-								LogLine(0, __FUNCTION__, "Wifi timeout");
+								LogLineFB(0, __FUNCTION__, "Wifi timeout");
 								break;
 							default:
-								LogLine(0, __FUNCTION__, "Unidentified error in HTTP request");
+								LogLineFB(0, __FUNCTION__, "Unidentified error in HTTP request");
 								break;
 							}
 						}
 						else {
 							delay(1000);
 						}
-						LogLine(3, __FUNCTION__, "Requestresult=" + String(requestResult));
+						LogLineFB(3, __FUNCTION__, "Requestresult=" + String(requestResult));
 					} while (requestResult != HTTPOK);
 
 					delay(10); // too fast
@@ -388,9 +412,8 @@ boolean IsPersistentMemorySet() {
 
 void InitPersistentMemoryIfNeeded() {
 	if (!IsPersistentMemorySet() || FORCE_NEW_VALUES) {
-		int totalSecondsToSleep = 20;
-		PersistentMemory.init(true, totalSecondsToSleep, DEVICE_ID, VALVE_OPEN_DURATION, VALVE_SOAK_TIME, LOOP_DELAY);   // false: read from memory.  true: initialize
-		DeepSleepHandler.SetDeepSleepPeriod(totalSecondsToSleep);
+		PersistentMemory.init(true, TOTAL_SECS_TO_SLEEP, DEVICE_ID, VALVE_OPEN_DURATION, VALVE_SOAK_TIME, LOOP_DELAY, DEBUGLEVEL);   // false: read from memory.  true: initialize
+		DeepSleepHandler.SetDeepSleepPeriod(TOTAL_SECS_TO_SLEEP);
 		WiFi.macAddress(macAddr);
 		PersistentMemory.SetmacAddress(macAddr);
 		#if defined (USE_DEEP_SLEEP)
@@ -407,24 +430,28 @@ boolean IsSettingsDataUpdatedByUser() {
 	String s = FB_BasePath + "/settings/" + fb.UserUpdate;
 	if (Firebase.getBool(firebaseData, s)) {
 		if (firebaseData.boolData()) {
-			LogLine(4, __FUNCTION__, "true - " + s);
+			LogLinefFB(4, __FUNCTION__, "true - %s" , s.c_str());
 			return true;
 		}
 		else {
-			LogLine(4, __FUNCTION__, "false (not set by user) - " + s);
+			LogLinefFB(4, __FUNCTION__, "false (not set by user) - %s", s.c_str());
 		}
 	}
 	else {
-		LogLine(4, __FUNCTION__, "false (data does not exist in Firebase) - " + s + " " + firebaseData.errorReason());
+		LogLinefFB(4, __FUNCTION__, "false (data does not exist in Firebase) - %s + %s", s.c_str(), firebaseData.errorReason().c_str());
 	}
+	LogLine(4, __FUNCTION__, "end");
 	return false;
 }
 
 boolean DeviceExistsInFirebase() {
 	if (!Firebase.getString(firebaseData, FB_BasePath + "/state/" + fb.SSID)) {
-		UploadLog_("Device seems not to exist. Double checking.");
+		//UploadLog_("Device seems not to exist. Double checking.");
+		Serial.println("XXXXXXXXXXXXXXXX");
+		PersistentMemory.PrintpsRAW();
+		Serial.println("XXXXXXXXXXXXXXXX");
 		if (!Firebase.getString(firebaseData, FB_BasePath + "/metadata/" + fb.macAddr)) {
-			LogLine(0, __FUNCTION__, "** Device does not exist");
+			LogLineFB(0, __FUNCTION__, "** Device does not exist");
 			return false;
 		}
 	}
@@ -435,7 +462,7 @@ void RemoveDummiesFromFirebase(String path) {
 	String s = FB_BasePath + path;   // "/telemetry/x";
 	String res;
 	if (Firebase.getString(firebaseData, s)) {
-		LogLine(2, __FUNCTION__, "dummy exists. Will remove it. " + s);
+		LogLinef(2, __FUNCTION__, "dummy exists. Will remove it. path=%s ", s.c_str());
 		Firebase.deleteNode(firebaseData, s);
 	}
 	else {
@@ -445,32 +472,38 @@ void RemoveDummiesFromFirebase(String path) {
 
 void RemoveTelemetryFromFirebase() {
 	String s = FB_BasePath + "/telemetry";
-	LogLine(2, __FUNCTION__, "	removing telemetry");
+	LogLineFB(2, __FUNCTION__, "	removing telemetry");
 	Firebase.deleteNode(firebaseData, s);
 }
 
 void GetSettings_(boolean firstRun) {
 	int val;
 	boolean b;
-	LogLine(4, __FUNCTION__, "begin");
+	LogLineFB(4, __FUNCTION__, "begin");
 	if (firstRun || IsSettingsDataUpdatedByUser()) {
 		if (Firebase.getString(firebaseData, FB_BasePath + "/metadata/" + fb.location)) { 
-			PersistentMemory.SetdeviceLocation(firebaseData.stringData()); }
+			PersistentMemory.SetdeviceLocation(firebaseData.stringData()); 
+		}
 		if (Firebase.getString(firebaseData, FB_BasePath + "/metadata/" + fb.deviceID)) { 
 			PersistentMemory.SetdeviceID(firebaseData.stringData()); }
 		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.mainLoopDelay)) {
-			PersistentMemory.SetmainLoopDelay(firebaseData.intData()); }
-		if (Firebase.getBool(firebaseData, FB_BasePath + "/settings/" + fb.deepSleepEnabled)) {
-			b = firebaseData.boolData();
-			LogLine(3, __FUNCTION__, fb.deepSleepEnabled + "=" + String(b));
-			PersistentMemory.SetdeepSleepEnabled(b);	
+			PersistentMemory.SetmainLoopDelay(firebaseData.intData());
+		}
+		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.debugLevel)) {
+			PersistentMemory.SetdebugLevel(firebaseData.intData());
 		}
 		if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + fb.wakeTime)) {
-			LogLine(3, __FUNCTION__, fb.wakeTime + "=" + firebaseData.stringData());
+			LogLinefFB(3, __FUNCTION__, "%s = %s", fb.wakeTime.c_str(), firebaseData.stringData().c_str());
 			PersistentMemory.SetWakeTime(firebaseData.stringData());
 		}
+		if (Firebase.getBool(firebaseData, FB_BasePath + "/settings/" + fb.deepSleepEnabled)) {
+			b = firebaseData.boolData();
+			LogLinefFB(3, __FUNCTION__, "%s = %b", fb.deepSleepEnabled.c_str(), b);
+			PersistentMemory.SetdeepSleepEnabled(b);
+		}
+		LogLineFB(4, __FUNCTION__, "D");
 		if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + fb.runMode)) {
-			LogLine(3, __FUNCTION__, fb.runMode + "=" + firebaseData.stringData());
+			LogLinefFB(3, __FUNCTION__, "%s = %s", fb.runMode.c_str(), firebaseData.stringData().c_str());
 			PersistentMemory.SetrunMode(firebaseData.stringData()); }
 		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.totalSecondsToSleep)) {
 			PersistentMemory.SettotalSecondsToSleep(firebaseData.intData());
@@ -484,26 +517,20 @@ void GetSettings_(boolean firstRun) {
 		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.humLimit)) {
 			val = firebaseData.intData();
 			PersistentMemory.SethumLimit(val);
-			waterSensorA.SethumLimitPct(val);
+			soilHumiditySensorA.SethumLimitPct(val);
 		}
 
 		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.soakTime)) {
 			val = firebaseData.intData();
-			LogLine(3, __FUNCTION__, fb.soakTime + "=" + String(val));
+			LogLinefFB(3, __FUNCTION__, "%s = %d", fb.soakTime.c_str(), val);
 			PersistentMemory.SetvalveSoakTime(val);
 			waterValveA.SetvalveSoakTime(val);
-		}
-
-		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.fbDebugLevel)) {
-			val = firebaseData.intData();
-			LogLine(3, __FUNCTION__, fb.fbDebugLevel + "=" + String(val));
-			PersistentMemory.SetfbDebugLevel(val);
 		}
 
 		Firebase.setBool(firebaseData, FB_BasePath + "/settings/" + fb.UserUpdate, false);
 
 		PersistentMemory.Printps();
-		UploadLog_("New settings read");
+		LogLineFB(2, __FUNCTION__, "New settings read");
 	}
 }
 
@@ -512,7 +539,6 @@ void CreateNewDevice(
 	JsonObject& jsoTelemetryCur, JsonObject& jsoTelemetry, JsonObject& jsoLog) {
 
 	InitPersistentMemoryIfNeeded();
-	LogLine(4, __FUNCTION__, "begin");
 
 	jsoTelemetryCur["x"] = "-";
 	jsoTelemetry["x"] = "-";
@@ -520,15 +546,15 @@ void CreateNewDevice(
 
 	jsoMetadata[fb.macAddr] = PersistentMemory.GetmacAddress();
 	jsoState[fb.SSID] = PersistentMemory.GetwifiSSID();
-	jsoSettings[fb.runMode] = "normal";
+	jsoSettings[fb.runMode] = RUNMODE_SOIL;
 	jsoSettings[fb.mainLoopDelay] = PersistentMemory.GetmainLoopDelay();
+	jsoSettings[fb.debugLevel] = PersistentMemory.GetdebugLevel();
 	jsoSettings[fb.totalSecondsToSleep] = PersistentMemory.GettotalSecondsToSleep();
 	jsoSettings[fb.UserUpdate] = false;
 	jsoSettings[fb.wakeTime] = PersistentMemory.GetWakeTime();
 	jsoSettings[fb.openDur] = PersistentMemory.GetvalveOpenDuration();
 	jsoSettings[fb.soakTime] = PersistentMemory.GetvalveSoakTime();
 	jsoSettings[fb.humLimit] = PersistentMemory.GethumLimit();
-	jsoSettings[fb.fbDebugLevel] = PersistentMemory.GetfbDebugLevel();
 	if (PersistentMemory.GetdeepSleepEnabled()) {  // It only works if using "true" or "false". ??
 		jsoSettings[fb.deepSleepEnabled] = true;
 	}
@@ -536,15 +562,12 @@ void CreateNewDevice(
 		jsoSettings[fb.deepSleepEnabled] = false;
 	}
 
-	LogLine(4, __FUNCTION__, "A");
 	jsoStatic.prettyPrintTo(Serial);
 	Firebase.setJSON(firebaseData, FB_BasePath, ConvertJsonToString(jsoStatic));
 
-	LogLine(4, __FUNCTION__, "B");
 	SendToFirebase("set", "metadata", jsoMetadata);
 	SendToFirebase("set", "state", jsoState);
 	SendToFirebase("set", "settings", jsoSettings);
-	LogLine(4, __FUNCTION__, "end");
 }
 
 void UploadStateAndSettings_(
@@ -560,14 +583,13 @@ void UploadStateAndSettings_(
 	// If it exists, read current state values from Firebase into persistent memory
 	if ( !DeviceExistsInFirebase() ) {
 		CreateNewDevice(jsoStatic, jsoMetadata, jsoState, jsoSettings, jsoTelemetryCur, jsoTelemetry, jsoLog);
-		LogLine(3, __FUNCTION__, FB_BasePath + " created");
-		UploadLog_(FB_BasePath + " created");
+		LogLinef(3, __FUNCTION__, "%s created", FB_BasePath.c_str());
+//		UploadLog_(FB_BasePath + " created");
 	}
 	else {
 		ConnectAndUploadToCloud(GetSettings);
 		RemoveDummiesFromFirebase("/telemetry/x");
 	}
-
 	if (IsSettingsDataUpdatedByUser()) {
 		ConnectAndUploadToCloud(GetSettings);
 	}
@@ -581,7 +603,7 @@ void UploadStateAndSettings_(
 	#ifdef USE_GAS_SENSOR
 		jsoMetadata[fb.sensorType] = "MQ-7 CO";
 	#else
-		jsoMetadata[fb.sensorType] = "Humidity";
+		jsoMetadata[fb.sensorType] = "Humidity"; //TODO: either "water", "soil" or "gas"
 	#endif
 	jsoMetadata[fb.softwareVersion] = SOFTWARE_VERSION;
 	jsoMetadata[fb.hardware] = HARDWARE_DESCRIPTION;
@@ -597,31 +619,10 @@ void UploadStateAndSettings_(
 		jsoState[fb.runOnce] = false;
 	#endif
 	SendToFirebase("set", "state", jsoState);
-
-	// Is there a need to update settings at all?
-/*	jsoSettings[fb.UserUpdate] = false;
-	jsoSettings[fb.totalSecondsToSleep] = PersistentMemory.GettotalSecondsToSleep();
-
-	jsoSettings[fb.openDur] = PersistentMemory.GetvalveOpenDuration();
-	jsoSettings[fb.soakTime] = PersistentMemory.GetvalveSoakTime();
-	jsoSettings[fb.mainLoopDelay] = PersistentMemory.GetmainLoopDelay();
-	#if defined(MEASURE_INTERNAL_VCC) 
-		jsoSettings[fb.runMode] = "Internal Voltage";
-	#else
-		jsoSettings[fb.runMode] = PersistentMemory.GetrunMode();
-	#endif
-	if (PersistentMemory.GetdeepSleepEnabled()) {  // It only works if using "true" or "false". ??
-		jsoSettings[fb.deepSleepEnabled] = true;
-	}
-	else {
-		jsoSettings[fb.deepSleepEnabled] = false;
-	}
-	SendToFirebase("set", "settings", jsoSettings);
-*/
 }
 
 void UploadTelemetry_(JsonObject& jsoTelemetry, JsonObject& jsoTeleTimestamp) {
-	LogLine(4, __FUNCTION__, "begin");
+	LogLineFB(4, __FUNCTION__, "begin");
 
 	jsoTeleTimestamp[".sv"] = "timestamp";
 	int32_t wifiStrength = WiFi.RSSI();
@@ -630,28 +631,16 @@ void UploadTelemetry_(JsonObject& jsoTelemetry, JsonObject& jsoTeleTimestamp) {
 	jsoTelemetry[fb.lastPPM] = gasSensor.GetlastPPM();
 #else
 	jsoTelemetry[fb.lastOpenTimestamp] = waterValveA.lastOpenTimestamp;
-	jsoTelemetry[fb.humidity] = waterSensorA.GetHumidityPct();
+	jsoTelemetry[fb.humidity] = soilHumiditySensorA.GetHumidityPct();
 	jsoTelemetry[fb.valveState] = waterValveA.valveState;
 #endif
 	jsoTelemetry[fb.Vcc] = externalVoltMeter.GetlastSummarizedReading();
 	jsoTelemetry[fb.lastAnalogueReading] = externalVoltMeter.GetlastAnalogueReadingVoltage();
 
 	SendToFirebase("set", "telemetry_current", jsoTelemetry);
-	if (PersistentMemory.GetrunMode().equals("normal")) {
+	if (PersistentMemory.GetrunMode().equals(RUNMODE_SOIL)) {
 		SendToFirebase("push", "telemetry", jsoTelemetry);
 	}
-}
-
-void UploadLog_(String _txt) {
-	DynamicJsonBuffer  jsonBufferRoot(JSON_BUFFER_LENGTH);
-	JsonObject& jsoStatic = jsonBufferRoot.createObject();
-	JsonObject& jsoLog = jsoStatic.createNestedObject("log");
-	JsonObject& jsoLogTimestamp = jsoLog.createNestedObject("timestamp");
-
-	jsoLogTimestamp[".sv"] = "timestamp";
-	jsoLog[fb.text] = _txt;
-	//jsoLog.prettyPrintTo(Serial);
-	SendToFirebase("push", "log", jsoLog);
 }
 
 String ConvertJsonToString(JsonObject& jso) {
@@ -666,63 +655,92 @@ void SendToFirebase(String cmd, String subPath, JsonObject& jso) {
 	// NOTE: If Firebase makes error apparantly without reason, try to update the fingerprint in FirebaseHttpClient.h. See https://github.com/FirebaseExtended/firebase-arduino/issues/328
 
 	String s = FB_BasePath + "/" + subPath + "/";
-	LogLine(3, __FUNCTION__, cmd + " to firebase: " + s);
+	LogLinef(3, __FUNCTION__, " Firebase command:%s    path: %s    length=%d", cmd.c_str(), s.c_str(), jso.measurePrettyLength());
 	jso.prettyPrintTo(Serial);
 
 	if (jso.measureLength() < JSON_BUFFER_LENGTH) {
-
 		if (cmd.equals("set"))    { res = Firebase.setJSON(firebaseData, s, ConvertJsonToString(jso)); }
 		if (cmd.equals("update")) { res = Firebase.updateNode(firebaseData, s, ConvertJsonToString(jso)); }
 		if (cmd.equals("push"))   { res = Firebase.pushJSON(firebaseData, s, ConvertJsonToString(jso)); }
+		LogLinef(4, __FUNCTION__, "res = %d", res);
 
 		if (res == false) {
-			LogLine(0, __FUNCTION__, "** SET/PUSH FAILED:  " + s + " - Firebase error msg: " + firebaseData.errorReason());
+			LogLinef(0, __FUNCTION__, "** SET/PUSH FAILED: %s - Firebase error msg:", s.c_str());
+			// will crash: Serial.println(firebaseData.errorReason());
 		}
 	}
 	else {
-		UploadLog_("**** ERROR SET/PUSH FAILED: JSON too long");
-		LogLine(0, __FUNCTION__, "**** ERROR SET/PUSH FAILED: JSON too long");
 		Serial.println(jso.measureLength());
 		jso.prettyPrintTo(Serial);
+		LogLine(0, __FUNCTION__, "**** ERROR SET/PUSH FAILED: JSON too long. CRASHING ON PURPOSE");
 		int i = 0 / 0;  // crash
 	}
 }
 
+char uploadStr[1024];
+void UploadLog_(int dbgLevel, const char* fncName, const char* _txt) {
+	DynamicJsonBuffer  jsonBufferRoot(JSON_BUFFER_LENGTH);
+	JsonObject& jsoStatic = jsonBufferRoot.createObject();
+	JsonObject& jsoLog = jsoStatic.createNestedObject("log");
+	sprintf(uploadStr, "%s *%d* - %s - %s\0", TimeString().c_str(), dbgLevel, fncName, _txt);
+	jsoLog[uploadStr] = " ";
+//	jsoLog.prettyPrintTo(Serial);
+	SendToFirebase("update", "log", jsoLog);
+}
+
 #endif
 
-String LogLineFB(int dbgLevel, const char* fncName, const char* s) {
-	#ifdef USE_FIREBASE
-		if (dbgLevel <= PersistentMemory.GetfbDebugLevel()) {
-			String log = LogLine(dbgLevel, fncName, s);
-			//Serial.println(log);
-			//UploadLog_(log);
 
+void LogLineFB(int dbgLevel, const char* fncName, const char* s) {
+	#ifdef USE_FIREBASE
+		if (dbgLevel <= PersistentMemory.GetdebugLevel()) {
+			LogLine(dbgLevel, fncName, s);
+			//Serial.println(log);
+			UploadLog_(dbgLevel, fncName, s);
 		}
 		else {
 			LogLine(dbgLevel, fncName, s);
-
 		}
-	#else
+	#else<
 		LogLine(dbgLevel, fncName, s);
 	#endif
 }
 
-String LogLineFB(int dbgLevel, const char* fncName, String s) {
-	#ifdef USE_FIREBASE
-		if (dbgLevel <= PersistentMemory.GetfbDebugLevel()) {
-			Serial.println(s);
-			String log = LogLine(dbgLevel, fncName, s);
-			Serial.println(log);
-			//UploadLog_(log);
+void LogLinefFB(int dbgLevel, const char* fncName, const char* format, ...) {
 
-		}
-		else {
-			LogLine(dbgLevel, fncName, s);
+	if (dbgLevel <= PersistentMemory.GetdebugLevel()) {
+		va_list arg;
+		String f = String(format);
+		int startStr = 0;
+		int startPar = 0;
+		int end = f.length();
+		String s = "";
+		char parFormat = ' ';
+		va_start(arg, format);
+		while ((startPar = f.indexOf("%", startPar + 1)) > 0) {
+			s += f.substring(startStr, startPar);
+			startStr = startPar + 2;
+			parFormat = f[startPar + 1];
+			//		Serial.printf("\nStartPar=%d, startStr=%d, parFormat=%c, s=%s  VALUE=", startPar, startStr, parFormat , s.c_str());
 
+			switch (parFormat) {
+			case 'd': s += va_arg(arg, int);
+				break;
+			case 'l': s += va_arg(arg, long);
+				break;
+			case 'f': s += va_arg(arg, double);
+				break;
+			case 'c': s += (char)va_arg(arg, int);
+				break;
+			case 's': s += va_arg(arg, char*);
+				break;
+			default:;
+			};
 		}
-	#else
-		LogLine(dbgLevel, fncName, s);
-	#endif
+		s += f.substring(startStr, end) + "\n\0";
+		va_end(arg);
+		LogLineFB(dbgLevel, fncName, s.c_str());
+	}
 }
 
 
@@ -740,6 +758,11 @@ void ConnectToWifi() {
 		PersistentMemory.SetwifiSSID(wifiDevice.currentSSID);
 		PersistentMemory.SetwifiPwd(wifiDevice.pwd);
 	}
+}
+
+void TestLoop(String logStr, int LEDflash, int LEDblinkdelay) {
+	LogLine(3, __FUNCTION__, logStr.c_str());
+	LED_Flashes(LEDflash, LEDblinkdelay);
 }
 
 #ifdef MEASURE_INTERNAL_VCC
@@ -1121,12 +1144,6 @@ void ConnectToWifi() {
 
 #endif
 
-void TestLoop(String logStr, int LEDflash, int LEDblinkdelay) {
-	UploadLog_(logStr);
-	LogLine(3, __FUNCTION__, logStr);
-	LED_Flashes(LEDflash, LEDblinkdelay);
-}
-
 void testHardware() {
 
 //	DeepSleepHandler.GotoSleepAndWakeUpAtTime(PersistentMemory.GetWakeTime());
@@ -1144,7 +1161,7 @@ void testHardware() {
 	float f = externalVoltMeter.ReadVoltage();
 	TestLoop("testHardware: ReadVoltage", 1, 3000);
 
-	boolean b = waterSensorA.CheckIfWater();
+	boolean b = soilHumiditySensorA.CheckIfWater();
 	TestLoop("testHardware: CheckIfWater", 1, 3000);
 
 	waterValveA.OpenValve();
@@ -1160,7 +1177,7 @@ void testHardware() {
 void SOFT_RESET_ARDUINO() {
 	LogLine(0, __FUNCTION__, "\n**************************************************\n**************************************************\n\nRESETTING ARDUINO WHEN BLINKING IS DONE\n\n**************************************************\n**************************************************\n");
 	for (int m = 30; m>0; m--) {
-		LogLine(0, __FUNCTION__, String(m) + " minutes to reset");
+		//log		LogLine(0, __FUNCTION__, String(m) + " minutes to reset");
 		for (int s = 0; s < 60; s++) {
 			digitalWrite(LED_BUILTIN, HIGH);
 			delay(500);

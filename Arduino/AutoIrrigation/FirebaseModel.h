@@ -20,6 +20,7 @@ struct FirebaseModelStruct {
 	const String openDur = "vlvOpen";
 	const String soakTime = "vlvSoak";
 	const String mainLoopDelay = "loopSec";
+	const String debugLevel = "db";
 	const String wakeTime = "wakeTime";
 	const String Vcc = "Vcc";
 	const String humidity = "Hum";
@@ -31,7 +32,7 @@ struct FirebaseModelStruct {
 	const String wifi = "Wifi";
 	const String time = "timestamp";
 	const String text = "txt";
-	const String fbDebugLevel = "db";
+
 };
 
 FirebaseModelStruct fb;
