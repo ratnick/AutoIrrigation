@@ -37,12 +37,12 @@ void VoltMeterClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHand
 
 float VoltMeterClass::ReadVoltage() {
 	float sumRes = 0.0;
-	LogLinef(3, __FUNCTION__, "READING FROM analog MUX channel %d", muxChannel);
+	LogLinef(2, __FUNCTION__, "READING FROM analog MUX channel %d", muxChannel);
 	AnalogMux.OpenChannel(muxChannel);
 	float res = analogRead(pinNbr);
 	AnalogMux.CloseMUXpwr();
-
-	LogLinef(2, __FUNCTION__, "Value: %f   converted:%f", res, (res*factor));
+	LogLinef(0, __FUNCTION__, "Value = %f   converted = %f", res, (res * factor));
+	
 	this->lastAnalogueReadingVoltage = res;
 	res = res * factor;
 	readBuffer[currentCnt] = res;

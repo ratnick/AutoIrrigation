@@ -178,26 +178,26 @@ void PersistentMemoryClass::SetdeepSleepEnabled(boolean deepSleepEnabled_) {
 
 void PersistentMemoryClass::Printps() {
 
-	LogLinef(2, __FUNCTION__, "deviceID          %s", ps.deviceID);
-	LogLinef(2, __FUNCTION__, "macAddress        %s", ps.macAddress);
-	LogLinef(2, __FUNCTION__, "deviceLocation    %s", ps.deviceLocation);
-	LogLinef(2, __FUNCTION__, "wifiSSID          %s", ps.wifiSSID);
-	LogLinef(2, __FUNCTION__, "wifiPwd           %s", ps.wifiPwd);
-	LogLinef(2, __FUNCTION__, "cloudUserName     %s", ps.cloudUserName);
-	LogLinef(2, __FUNCTION__, "cloudPwd          %s", ps.cloudPwd);
-	LogLinef(2, __FUNCTION__, "runMode           %s", ps.runMode);
-	LogLinef(2, __FUNCTION__, "wakeTime          %s", ps.wakeTime);
-	LogLinef(2, __FUNCTION__, "totalSecondsToSleep %d", ps.totalSecondsToSleep);
-	LogLinef(2, __FUNCTION__, "secondsToSleep    %d", ps.secondsToSleep);
-	LogLinef(2, __FUNCTION__, "maxSleepCycles    %d", ps.maxSleepCycles);
-	LogLinef(2, __FUNCTION__, "currentSleepCycle %d", ps.currentSleepCycle);
-	LogLinef(2, __FUNCTION__, "lastVccSummarizedReading %f", ps.lastVccSummarizedReading);
-	LogLinef(2, __FUNCTION__, "valveOpenDuration %d", ps.valveOpenDuration);
-	LogLinef(2, __FUNCTION__, "valveSoakTime %d", ps.valveSoakTime);
-	LogLinef(2, __FUNCTION__, "humLimit %d", ps.humLimit);
-	LogLinef(2, __FUNCTION__, "mainLoopDelay %d", ps.mainLoopDelay);
-	LogLinef(2, __FUNCTION__, "debugLevel %d", ps.debugLevel);
-	LogLinef(2, __FUNCTION__, "deepSleepEnabled %d", (int) ps.deepSleepEnabled);
+	LogLinef(3, __FUNCTION__, "deviceID          %s", ps.deviceID);
+	LogLinef(3, __FUNCTION__, "macAddress        %s", ps.macAddress);
+	LogLinef(3, __FUNCTION__, "deviceLocation    %s", ps.deviceLocation);
+	LogLinef(3, __FUNCTION__, "wifiSSID          %s", ps.wifiSSID);
+	LogLinef(3, __FUNCTION__, "wifiPwd           %s", ps.wifiPwd);
+	LogLinef(3, __FUNCTION__, "cloudUserName     %s", ps.cloudUserName);
+	LogLinef(3, __FUNCTION__, "cloudPwd          %s", ps.cloudPwd);
+	LogLinef(3, __FUNCTION__, "runMode           %s", ps.runMode);
+	LogLinef(3, __FUNCTION__, "wakeTime          %s", ps.wakeTime);
+	LogLinef(3, __FUNCTION__, "totalSecondsToSleep %d", ps.totalSecondsToSleep);
+	LogLinef(3, __FUNCTION__, "secondsToSleep    %d", ps.secondsToSleep);
+	LogLinef(3, __FUNCTION__, "maxSleepCycles    %d", ps.maxSleepCycles);
+	LogLinef(3, __FUNCTION__, "currentSleepCycle %d", ps.currentSleepCycle);
+	LogLinef(3, __FUNCTION__, "lastVccSummarizedReading %f", ps.lastVccSummarizedReading);
+	LogLinef(3, __FUNCTION__, "valveOpenDuration %d", ps.valveOpenDuration);
+	LogLinef(3, __FUNCTION__, "valveSoakTime %d", ps.valveSoakTime);
+	LogLinef(3, __FUNCTION__, "humLimit %d", ps.humLimit);
+	LogLinef(3, __FUNCTION__, "mainLoopDelay %d", ps.mainLoopDelay);
+	LogLinef(3, __FUNCTION__, "debugLevel %d", ps.debugLevel);
+	LogLinef(3, __FUNCTION__, "deepSleepEnabled %d", (int) ps.deepSleepEnabled);
 	
 }
 
