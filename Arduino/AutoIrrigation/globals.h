@@ -14,17 +14,19 @@ const int LED_PIN = LED_BUILTIN;
 #define MAX_DEEP_SLEEP 3600000000   // micro seconds
 //#define MAX_KEPT_LOGLINES 5
 //#define MAX_LINE_LENGTH 100
+#define MAX_WAKEUPTIMES 4
 
 struct PersistentDataStruct {
 	char deviceID[20];
-	char macAddress[30];
-	char deviceLocation[30];
+	char macAddress[28];
+	char deviceLocation[28];
 	char wifiSSID[20];
-	char wifiPwd[15];
-	char cloudUserName[30];
-	char cloudPwd[15];
-	char runMode[10];
-	char wakeTime[6];
+	char wifiPwd[16];
+	char cloudUserName[16];
+	char cloudPwd[16];
+	char runMode[16];
+	char wakeupTime[MAX_WAKEUPTIMES][6];  // 4 sets of 6 chars. Format: HHMMSS
+	char pauseWakeTime[6];  // Format: HHMMSS
 	int totalSecondsToSleep;
 	int secondsToSleep;  
 	int maxSleepCycles;  
@@ -34,6 +36,7 @@ struct PersistentDataStruct {
 	int valveSoakTime;
 	int humLimit;
 	int mainLoopDelay;
+	int debugLevel;
 	boolean deepSleepEnabled;
 
 //TODO	boolean stopInstantly;   /* if the sensor thinks something is wrong, this bit is flipped, and it will never open the valve until reset*/
@@ -77,6 +80,12 @@ enum UploadType {
 	UploadLog
 };
 
+const String RUNMODE_SOIL = "soil";
+const String RUNMODE_WATER = "water";
+const String RUNMODE_GAS = "gas";
+const String RUNMODE_SENSORTEST = "sensor";
+const String RUNMODE_BATTERYTEST = "batt";
+const String RUNMODE_HARDWARETEST = "testhw";
 
 /*
 Google Cloud Names

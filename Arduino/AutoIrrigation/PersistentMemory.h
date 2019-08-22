@@ -37,7 +37,8 @@ class PersistentMemoryClass
 	 String GetwifiSSID();
 	 String GetCloudUsername();
 	 String GetrunMode();
-	 String GetWakeTime();
+	 String GetWakeTime(int i);
+	 String GetPauseWakeTime();
 	 int GettotalSecondsToSleep();
 	 int GetsecondsToSleep();
 	 int GetmaxSleepCycles();
@@ -53,7 +54,8 @@ class PersistentMemoryClass
 	 void SetwifiPwd(String wifiPwd_);
 	 void SetdeviceLocation(String location_);
 	 void SetrunMode(String runMode_);
-	 void SetWakeTime(String wakeTime_);
+	 void SetWakeTime(int i, String wakeTime_);
+	 void SetPauseWakeTime(String wakeTime_);
 	 void SetmacAddress(byte* mac);
 	 void SettotalSecondsToSleep(int totalSecondsToSleep_);
 	 void SetsecondsToSleep(int secondsToSleep_);
