@@ -65,11 +65,11 @@
     <ClInclude Include="GasSensor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SoilHumiditySensor.h">
+    <ClInclude Include="LEDHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LEDHandler.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="SoilHumiditySensor.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -106,10 +106,10 @@
     <ClCompile Include="GasSensor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SoilHumiditySensor.cpp">
+    <ClCompile Include="LEDHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LEDHandler.cpp">
+    <ClCompile Include="SoilHumiditySensor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
