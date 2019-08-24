@@ -14,6 +14,7 @@ const int LED_PIN = LED_BUILTIN;
 #define MAX_DEEP_SLEEP 3600000000   // micro seconds
 //#define MAX_KEPT_LOGLINES 5
 //#define MAX_LINE_LENGTH 100
+#define MAX_WAKEUPTIMES 4
 
 struct PersistentDataStruct {
 	char deviceID[20];
@@ -24,7 +25,8 @@ struct PersistentDataStruct {
 	char cloudUserName[16];
 	char cloudPwd[16];
 	char runMode[16];
-	char wakeTime[6];
+	char wakeupTime[MAX_WAKEUPTIMES][6];  // 4 sets of 6 chars. Format: HHMMSS
+	char pauseWakeTime[6];  // Format: HHMMSS
 	int totalSecondsToSleep;
 	int secondsToSleep;  
 	int maxSleepCycles;  

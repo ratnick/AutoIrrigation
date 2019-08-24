@@ -252,8 +252,8 @@ void loop() {
 			//			}
 		}
 		if (loopCount++ >= NBR_OF_LOOPS_BEFORE_SLEEP) {
-			if (PersistentMemory.GetWakeTime().charAt(0) != 'n') {
-				DeepSleepHandler.GotoSleepAndWakeUpAtTime(PersistentMemory.GetWakeTime());
+			if (PersistentMemory.GetWakeTime(0).charAt(0) != 'n') {
+				DeepSleepHandler.GotoSleepAndWakeUpAtTime(PersistentMemory.GetWakeTime(0));
 			}
 			else {
 				DeepSleepHandler.SetDeepSleepPeriod(PersistentMemory.GettotalSecondsToSleep());
@@ -493,9 +493,20 @@ void GetSettings_(boolean firstRun) {
 			PersistentMemory.SetdebugLevel(d);
 			SetFBDebugLevel(d);
 		}
-		if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + fb.wakeTime)) {
-			LogLinef(3, __FUNCTION__, "%s = %s", fb.wakeTime.c_str(), firebaseData.stringData().c_str());
-			PersistentMemory.SetWakeTime(firebaseData.stringData());
+		for (int i = 0; i < MAX_WAKEUPTIMES; i++) {
+			if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + fb.wakeupTime + String(i,0))) {
+				LogLinef(3, __FUNCTION__, "%s%d = %s", fb.wakeupTime.c_str(), i, firebaseData.stringData().c_str());
+				PersistentMemory.SetWakeTime(i, firebaseData.stringData());
+			}
+		}
+		if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + fb.pauseWakeTime)) {
+			LogLinef(3, __FUNCTION__, "%s = %s", fb.pauseWakeTime.c_str(), firebaseData.stringData().c_str());
+			PersistentMemory.SetPauseWakeTime(firebaseData.stringData());
+		}
+		if (Firebase.getBool(firebaseData, FB_BasePath + "/settings/" + fb.deepSleepEnabled)) {
+			b = firebaseData.boolData();
+			LogLinef(3, __FUNCTION__, "%s = %b", fb.deepSleepEnabled.c_str(), b);
+			PersistentMemory.SetdeepSleepEnabled(b);
 		}
 		if (Firebase.getBool(firebaseData, FB_BasePath + "/settings/" + fb.deepSleepEnabled)) {
 			b = firebaseData.boolData();
@@ -553,7 +564,10 @@ void CreateNewDevice(
 	jsoSettings[fb.debugLevel] = PersistentMemory.GetdebugLevel();
 	jsoSettings[fb.totalSecondsToSleep] = PersistentMemory.GettotalSecondsToSleep();
 	jsoSettings[fb.UserUpdate] = false;
-	jsoSettings[fb.wakeTime] = PersistentMemory.GetWakeTime();
+	for (int i = 0; i < MAX_WAKEUPTIMES; i++) {
+		jsoSettings[fb.wakeupTime + String(i)] = PersistentMemory.GetWakeTime(i);
+	}
+	jsoSettings[fb.pauseWakeTime] = PersistentMemory.GetPauseWakeTime();
 	jsoSettings[fb.openDur] = PersistentMemory.GetvalveOpenDuration();
 	jsoSettings[fb.soakTime] = PersistentMemory.GetvalveSoakTime();
 	jsoSettings[fb.humLimit] = PersistentMemory.GethumLimit();

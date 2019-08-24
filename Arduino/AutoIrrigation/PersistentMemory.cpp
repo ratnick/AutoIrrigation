@@ -26,7 +26,10 @@ void PersistentMemoryClass::init(
 		strcpy(ps.cloudUserName, "initial value\0");
 		strcpy(ps.cloudPwd, "not used\0");
 		strcpy(ps.runMode, RUNMODE_SOIL.c_str());
-		strcpy(ps.wakeTime, "na\0");
+		for (int i = 0; i < MAX_WAKEUPTIMES; i++) {
+			strcpy(ps.wakeupTime[i], "HHMMSS");
+		}
+		strcpy(ps.pauseWakeTime, "HHMMSS");
 		ps.secondsToSleep = _totalSecondsToSleep;
 		ps.currentSleepCycle = 0; // counts which sleep cycle we are at right now.
 		ps.valveOpenDuration = _valveOpenDuration;
@@ -84,7 +87,8 @@ String PersistentMemoryClass::GetmacAddress()		 { return String(ps.macAddress); 
 String PersistentMemoryClass::GetwifiSSID()			 { return String(ps.wifiSSID); }
 String PersistentMemoryClass::GetCloudUsername()	 { return String(ps.cloudUserName); }
 String PersistentMemoryClass::GetrunMode()			 { return String(ps.runMode); }
-String PersistentMemoryClass::GetWakeTime()			 { return String(ps.wakeTime); }
+String PersistentMemoryClass::GetWakeTime(int i)     { return String(ps.wakeupTime[i]); }
+String PersistentMemoryClass::GetPauseWakeTime()     { return String(ps.pauseWakeTime); }
 int PersistentMemoryClass::GettotalSecondsToSleep()  { return ps.totalSecondsToSleep; }
 int PersistentMemoryClass::GetsecondsToSleep()		 { return ps.secondsToSleep; }
 int PersistentMemoryClass::GetmaxSleepCycles()		 { return ps.maxSleepCycles;}
@@ -135,8 +139,12 @@ void PersistentMemoryClass::SetrunMode(String runMode_) {
 	strcpy(ps.runMode, runMode_.c_str());
 	WritePersistentMemory();
 }
-void PersistentMemoryClass::SetWakeTime(String wakeTime_) {
-	strcpy(ps.wakeTime, wakeTime_.c_str());
+void PersistentMemoryClass::SetWakeTime(int i, String wakeTime_) {
+	strcpy(ps.wakeupTime[i], wakeTime_.c_str());
+	WritePersistentMemory();
+}
+void PersistentMemoryClass::SetPauseWakeTime(String wakeTime_) {
+	strcpy(ps.pauseWakeTime, wakeTime_.c_str());
 	WritePersistentMemory();
 }
 void PersistentMemoryClass::SettotalSecondsToSleep(int totalSecondsToSleep_) {
@@ -186,7 +194,8 @@ void PersistentMemoryClass::Printps() {
 	LogLinef(3, __FUNCTION__, "cloudUserName     %s", ps.cloudUserName);
 	LogLinef(3, __FUNCTION__, "cloudPwd          %s", ps.cloudPwd);
 	LogLinef(3, __FUNCTION__, "runMode           %s", ps.runMode);
-	LogLinef(3, __FUNCTION__, "wakeTime          %s", ps.wakeTime);
+	LogLinef(3, __FUNCTION__, "wakeTime          %s", ps.wakeupTime[0]);
+	LogLinef(3, __FUNCTION__, "pauseWakeTime     %s", ps.pauseWakeTime[0]);
 	LogLinef(3, __FUNCTION__, "totalSecondsToSleep %d", ps.totalSecondsToSleep);
 	LogLinef(3, __FUNCTION__, "secondsToSleep    %d", ps.secondsToSleep);
 	LogLinef(3, __FUNCTION__, "maxSleepCycles    %d", ps.maxSleepCycles);
@@ -210,7 +219,11 @@ void PersistentMemoryClass::PrintpsRAW() {
 	Serial.println("cloudUserName     " + String(ps.cloudUserName));
 	Serial.println("cloudPwd          " + String(ps.cloudPwd));
 	Serial.println("runMode           " + String(ps.runMode));
-	Serial.println("wakeTime          " + String(ps.wakeTime));
+	Serial.println("wakeTime 0       " + String(ps.wakeupTime[0]));
+	Serial.println("wakeTime 1       " + String(ps.wakeupTime[1]));
+	Serial.println("wakeTime 2       " + String(ps.wakeupTime[2]));
+	Serial.println("wakeTime 3       " + String(ps.wakeupTime[3]));
+	Serial.println("pauseWakeTime     " + String(ps.pauseWakeTime));
 	Serial.println("totalSecondsToSleep " + String(ps.totalSecondsToSleep));
 	Serial.println("secondsToSleep    " + String(ps.secondsToSleep));
 	Serial.println("maxSleepCycles    " + String(ps.maxSleepCycles));

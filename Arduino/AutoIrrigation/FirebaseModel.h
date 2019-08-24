@@ -21,7 +21,8 @@ struct FirebaseModelStruct {
 	const String soakTime = "vlvSoak";
 	const String mainLoopDelay = "loopSec";
 	const String debugLevel = "db";
-	const String wakeTime = "wakeTime";
+	const String wakeupTime = "wakeTime";
+	const String pauseWakeTime = "pauseTime";
 	const String Vcc = "Vcc";
 	const String humidity = "Hum";
 	const String humLimit = "humLim";
