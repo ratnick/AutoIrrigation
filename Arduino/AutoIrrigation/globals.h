@@ -25,8 +25,8 @@ struct PersistentDataStruct {
 	char cloudUserName[16];
 	char cloudPwd[16];
 	char runMode[16];
-	char wakeupTime[MAX_WAKEUPTIMES][6];  // 4 sets of 6 chars. Format: HHMMSS
-	char pauseWakeTime[6];  // Format: HHMMSS
+	char wakeupTime[MAX_WAKEUPTIMES][7];  // 4 sets of 6 chars. Format: HHMMSS
+	char pauseWakeTime[7];  // Format: HHMMSS
 	int totalSecondsToSleep;
 	int secondsToSleep;  
 	int maxSleepCycles;  

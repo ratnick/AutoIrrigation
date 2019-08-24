@@ -27,9 +27,9 @@ void PersistentMemoryClass::init(
 		strcpy(ps.cloudPwd, "not used\0");
 		strcpy(ps.runMode, RUNMODE_SOIL.c_str());
 		for (int i = 0; i < MAX_WAKEUPTIMES; i++) {
-			strcpy(ps.wakeupTime[i], "HHMMSS");
+			strcpy(ps.wakeupTime[i], "HHMMSS\0");
 		}
-		strcpy(ps.pauseWakeTime, "HHMMSS");
+		strcpy(ps.pauseWakeTime, "HHMMSS\0");
 		ps.secondsToSleep = _totalSecondsToSleep;
 		ps.currentSleepCycle = 0; // counts which sleep cycle we are at right now.
 		ps.valveOpenDuration = _valveOpenDuration;
@@ -195,7 +195,7 @@ void PersistentMemoryClass::Printps() {
 	LogLinef(3, __FUNCTION__, "cloudPwd          %s", ps.cloudPwd);
 	LogLinef(3, __FUNCTION__, "runMode           %s", ps.runMode);
 	LogLinef(3, __FUNCTION__, "wakeTime          %s", ps.wakeupTime[0]);
-	LogLinef(3, __FUNCTION__, "pauseWakeTime     %s", ps.pauseWakeTime[0]);
+	LogLinef(3, __FUNCTION__, "pauseWakeTime     %s", ps.pauseWakeTime);
 	LogLinef(3, __FUNCTION__, "totalSecondsToSleep %d", ps.totalSecondsToSleep);
 	LogLinef(3, __FUNCTION__, "secondsToSleep    %d", ps.secondsToSleep);
 	LogLinef(3, __FUNCTION__, "maxSleepCycles    %d", ps.maxSleepCycles);

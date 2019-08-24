@@ -81,15 +81,16 @@ void DeepSleepHandlerClass::SetDeepSleepPeriod(int _secondsToSleep) {
 
 	if (PersistentMemory.GetdeepSleepEnabled()) {
 		if (_secondsToSleep < MIN_SLEEP_TIME_SECS) {
+			LogLinef(0, __FUNCTION__, "_secondsToSleep too low: %d. Set to %d", _secondsToSleep, MIN_SLEEP_TIME_SECS);
 			_secondsToSleep = MIN_SLEEP_TIME_SECS;
-			LogLinef(0, __FUNCTION__, "_secondsToSleep too low: %d", _secondsToSleep);
 		}
 	}
 	int secondsToSleep = _secondsToSleep % MAX_DEEP_SLEEP_SECS;
 	int maxSleepCycles = _secondsToSleep / MAX_DEEP_SLEEP_SECS;
+	LogLinef(3, __FUNCTION__, "secondsToSleep = %d  maxSleepCycles = %d", secondsToSleep, maxSleepCycles);
 	PersistentMemory.SetsecondsToSleep(secondsToSleep);
 	PersistentMemory.SetmaxSleepCycles(maxSleepCycles);
-	LogLinef(3, __FUNCTION__, "SetDeepSleepPeriod(): secondsToSleep = %d  maxSleepCycles = %d", secondsToSleep, maxSleepCycles);
+	LogLinef(3, __FUNCTION__, "Done");
 }
 
 void DeepSleepHandlerClass::GoToDeepSleep() {
