@@ -52,7 +52,7 @@ void WaterValveClass::CloseValve() {
 }
 
 void WaterValveClass::WaitToSoak() {
-	LogLine(3, __FUNCTION__, "soakSeconds=" + String(soakSeconds));
+	LogLinef(3, __FUNCTION__, "soakSeconds=%d", soakSeconds);
 	delay(1000 * soakSeconds);
 }
 

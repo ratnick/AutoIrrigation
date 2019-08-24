@@ -508,6 +508,12 @@ void GetSettings_(boolean firstRun) {
 			LogLinef(3, __FUNCTION__, "%s = %b", fb.deepSleepEnabled.c_str(), b);
 			PersistentMemory.SetdeepSleepEnabled(b);
 		}
+		if (Firebase.getBool(firebaseData, FB_BasePath + "/settings/" + fb.deepSleepEnabled)) {
+			b = firebaseData.boolData();
+			LogLinef(3, __FUNCTION__, "%s = %b", fb.deepSleepEnabled.c_str(), b);
+			PersistentMemory.SetdeepSleepEnabled(b);
+		}
+		LogLine(4, __FUNCTION__, "D");
 		if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + fb.runMode)) {
 			LogLinef(3, __FUNCTION__, "%s = %s", fb.runMode.c_str(), firebaseData.stringData().c_str());
 			PersistentMemory.SetrunMode(firebaseData.stringData()); 

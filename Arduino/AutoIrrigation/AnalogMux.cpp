@@ -30,18 +30,17 @@ void AnalogMuxClass::init(int _S1, int _S0, int _pwrCtrlPin, boolean _pwrCtrlPin
 		pwrCtrlPinActive = _pwrCtrlPinActive;
 		digitalWrite(pwrCtrlPin, !pwrCtrlPinActive);
 	}
-
-	LogLine(3, __FUNCTION__, "MUX on S0:" + String(S0) + " and S1:" + String(S1) + "  power ctrl:" + String(pwrCtrlPin));
+	LogLinef(3, __FUNCTION__, "MUX on S0: %d  abd S1:%d    power ctrl:%d", S0, S1, pwrCtrlPin);
 }
 
 void AnalogMuxClass::OpenChannel(int ch) {
 
-	LogLine(3, __FUNCTION__, "Open channel " + String(ch));
+	LogLinef(3, __FUNCTION__, "Open channel %d ", ch);
 	int S1 = this->S1;
 	int S0 = this->S0;
 
 	if (pwrCtrlPin > 0) {
-		LogLine(4, __FUNCTION__, "activate MUX power");
+		LogLine(3, __FUNCTION__, "activate MUX power");
 		digitalWrite(pwrCtrlPin, pwrCtrlPinActive);
 		delay(500);
 	}
@@ -67,7 +66,7 @@ void AnalogMuxClass::OpenChannel(int ch) {
 		digitalWrite(S0, HIGH);
 		break;
 	otherwise:
-		LogLine(0, __FUNCTION__, "ERROR: Undefined channel " + String(ch));
+		LogLinef(0, __FUNCTION__, "ERROR: Undefined channel %d", ch);
 		break;
 	}
 }
