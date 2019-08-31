@@ -15,6 +15,7 @@ const int LED_PIN = LED_BUILTIN;
 //#define MAX_KEPT_LOGLINES 5
 //#define MAX_LINE_LENGTH 100
 #define MAX_WAKEUPTIMES 4
+#define WAKEUP_IDX_SIMPLEDELAY 3  // Used to deep sleep for a number of seconds
 
 struct PersistentDataStruct {
 	char deviceID[20];
@@ -28,9 +29,9 @@ struct PersistentDataStruct {
 	char wakeupTime[MAX_WAKEUPTIMES][7];  // 4 sets of 6 chars. Format: HHMMSS
 	char pauseWakeTime[7];  // Format: HHMMSS
 	int totalSecondsToSleep;
-	int secondsToSleep;  
-	int maxSleepCycles;  
 	int currentSleepCycle; // counts which sleep cycle we are at right now.
+	int secondsToSleep;
+	int maxSleepCycles;  
 	float lastVccSummarizedReading;
 	int valveOpenDuration;
 	int valveSoakTime;

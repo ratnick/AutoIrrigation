@@ -30,8 +30,11 @@ void PersistentMemoryClass::init(
 			strcpy(ps.wakeupTime[i], "HHMMSS\0");
 		}
 		strcpy(ps.pauseWakeTime, "HHMMSS\0");
-		ps.secondsToSleep = _totalSecondsToSleep;
+		ps.totalSecondsToSleep = _totalSecondsToSleep;
 		ps.currentSleepCycle = 0; // counts which sleep cycle we are at right now.
+		ps.secondsToSleep = 30;
+		ps.maxSleepCycles = 0;
+		ps.lastVccSummarizedReading = 0;
 		ps.valveOpenDuration = _valveOpenDuration;
 		ps.valveSoakTime = _valveSoakTime;
 		ps.humLimit = 50; //pct
