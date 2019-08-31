@@ -68,7 +68,7 @@ float SoilHumiditySensorClass::GetHumidityPct() {
 	if (hum < 0) { hum = 0; }
 	if (hum > 100) { hum = 100; }
 
-	LogLinef(1, __FUNCTION__,
+	LogLinef(2, __FUNCTION__,
 		"  water=%d  lastAna=%d  dry=%d  lastAna-water=%d  dry-water=%d  hum=%d  humLimPct=%d", 
 		WET_VALUE_HUMIDITY,
 		this->lastAnalogueReadingWater,

@@ -24,11 +24,11 @@
 
 #define DEEP_SLEEP_SOAK_THRESHOLD 120     // if soaking time exceeds this limit, we will use deep sleep instead of delay()
 #define LOOP_DELAY 10 //secs
-#define FORCE_NEW_VALUES true      // Will overwrite all values in persistent memory. Enable once, disable and recompile
+#define FORCE_NEW_VALUES false// Will overwrite all values in persistent memory. Enable once, disable and recompile
 //#define MEASURE_INTERNAL_VCC      // When enabling, we cannot use analogue reading of sensor. 
 #define SIMULATE_WATERING false     // open the valve in every loop
 // See also SIMULATE_SENSORS in SensorHandler.h
-#define DEBUGLEVEL 4
+#define DEBUGLEVEL 2
 
 #ifdef USE_WIFI
 #include <SD.h>
@@ -244,21 +244,14 @@ void loop() {
 	if (rm.equals(RUNMODE_SOIL) || rm.equals(RUNMODE_WATER)) {
 		if (WaterIfNeeded()) {
 			// use deep sleep if it's enabled and we want to soak for a longer period of time
-			// if ( (waterValveA.soakSeconds <= DEEP_SLEEP_SOAK_THRESHOLD) || (!PersistentMemory.GetdeepSleepEnabled()) ) {
-			waterValveA.WaitToSoak();
-			//			} else {
-			//				DeepSleepHandler.SetDeepSleepPeriod(waterValveA.soakSeconds);
-			//				DeepSleepHandler.GoToDeepSleep();
-			//			}
+			if ( (waterValveA.soakSeconds <= DEEP_SLEEP_SOAK_THRESHOLD) || (!PersistentMemory.GetdeepSleepEnabled()) ) {
+				waterValveA.WaitToSoak();
+			} else {
+				DeepSleepHandler.GotoSleepAndWakeAfterDelay(waterValveA.soakSeconds);
+			}
 		}
 		if (loopCount++ >= NBR_OF_LOOPS_BEFORE_SLEEP) {
-			if (PersistentMemory.GetWakeTime(0).charAt(0) != 'n') {
-				DeepSleepHandler.GotoSleepAndWakeUpAtTime(PersistentMemory.GetWakeTime(0));
-			}
-			else {
-				DeepSleepHandler.SetDeepSleepPeriod(PersistentMemory.GettotalSecondsToSleep());
-				DeepSleepHandler.GoToDeepSleep();
-			}
+			DeepSleepHandler.GotoSleepAndWakeAfterDelay(PersistentMemory.GettotalSecondsToSleep());
 		}
 	}
 	else if (rm.equals(RUNMODE_SENSORTEST)) {
@@ -278,12 +271,10 @@ void loop() {
 			ConnectAndUploadToCloud(UploadTelemetry);
 		}
 		else {
-			DeepSleepHandler.SetDeepSleepPeriod(waterValveA.soakSeconds);
-			DeepSleepHandler.GoToDeepSleep();
+			DeepSleepHandler.GotoSleepAndWakeAfterDelay(waterValveA.soakSeconds);
 		}
 		if (loopCount++ >= NBR_OF_LOOPS_BEFORE_SLEEP) {
-			DeepSleepHandler.SetDeepSleepPeriod(PersistentMemory.GettotalSecondsToSleep());
-			DeepSleepHandler.GoToDeepSleep();
+			DeepSleepHandler.GotoSleepAndWakeAfterDelay(PersistentMemory.GettotalSecondsToSleep());
 		}
 	}
 	else {
@@ -411,7 +402,6 @@ boolean IsPersistentMemorySet() {
 void InitPersistentMemoryIfNeeded() {
 	if (!IsPersistentMemorySet() || FORCE_NEW_VALUES) {
 		PersistentMemory.init(true, TOTAL_SECS_TO_SLEEP, DEVICE_ID, VALVE_OPEN_DURATION, VALVE_SOAK_TIME, LOOP_DELAY, DEBUGLEVEL);   // false: read from memory.  true: initialize
-		DeepSleepHandler.SetDeepSleepPeriod(TOTAL_SECS_TO_SLEEP);
 		WiFi.macAddress(macAddr);
 		PersistentMemory.SetmacAddress(macAddr);
 		#if defined (USE_DEEP_SLEEP)
@@ -493,34 +483,30 @@ void GetSettings_(boolean firstRun) {
 			PersistentMemory.SetdebugLevel(d);
 			SetFBDebugLevel(d);
 		}
+		String fullPath;
 		for (int i = 0; i < MAX_WAKEUPTIMES; i++) {
-			if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + fb.wakeupTime + String(i,0))) {
-				LogLinef(3, __FUNCTION__, "%s%d = %s", fb.wakeupTime.c_str(), i, firebaseData.stringData().c_str());
+			fullPath = FB_BasePath + "/settings/" + fb.wakeupTime + String(i);
+			if (Firebase.getString(firebaseData, fullPath)) {
+				LogLinef(3, __FUNCTION__, " %s = %s", fullPath.c_str(), firebaseData.stringData().c_str());
 				PersistentMemory.SetWakeTime(i, firebaseData.stringData());
 			}
 		}
 		if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + fb.pauseWakeTime)) {
-			LogLinef(3, __FUNCTION__, "%s = %s", fb.pauseWakeTime.c_str(), firebaseData.stringData().c_str());
+			LogLinef(3, __FUNCTION__, " %s = %s", fb.pauseWakeTime.c_str(), firebaseData.stringData().c_str());
 			PersistentMemory.SetPauseWakeTime(firebaseData.stringData());
 		}
 		if (Firebase.getBool(firebaseData, FB_BasePath + "/settings/" + fb.deepSleepEnabled)) {
 			b = firebaseData.boolData();
-			LogLinef(3, __FUNCTION__, "%s = %b", fb.deepSleepEnabled.c_str(), b);
-			PersistentMemory.SetdeepSleepEnabled(b);
-		}
-		if (Firebase.getBool(firebaseData, FB_BasePath + "/settings/" + fb.deepSleepEnabled)) {
-			b = firebaseData.boolData();
-			LogLinef(3, __FUNCTION__, "%s = %b", fb.deepSleepEnabled.c_str(), b);
+			LogLinef(3, __FUNCTION__, " %s = %b", fb.deepSleepEnabled.c_str(), b);
 			PersistentMemory.SetdeepSleepEnabled(b);
 		}
 		LogLine(4, __FUNCTION__, "D");
 		if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + fb.runMode)) {
-			LogLinef(3, __FUNCTION__, "%s = %s", fb.runMode.c_str(), firebaseData.stringData().c_str());
+			LogLinef(3, __FUNCTION__, " %s = %s", fb.runMode.c_str(), firebaseData.stringData().c_str());
 			PersistentMemory.SetrunMode(firebaseData.stringData()); 
 		}
 		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.totalSecondsToSleep)) {
 			PersistentMemory.SettotalSecondsToSleep(firebaseData.intData());
-			DeepSleepHandler.SetDeepSleepPeriod(PersistentMemory.GettotalSecondsToSleep());
 		}
 		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.openDur)) {
 			val = firebaseData.intData();
@@ -535,7 +521,7 @@ void GetSettings_(boolean firstRun) {
 
 		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.soakTime)) {
 			val = firebaseData.intData();
-			LogLinef(3, __FUNCTION__, "%s = %d", fb.soakTime.c_str(), val);
+			LogLinef(3, __FUNCTION__, " %s = %d", fb.soakTime.c_str(), val);
 			PersistentMemory.SetvalveSoakTime(val);
 			waterValveA.SetvalveSoakTime(val);
 		}

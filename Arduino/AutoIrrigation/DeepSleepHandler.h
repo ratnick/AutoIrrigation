@@ -24,7 +24,8 @@ protected:
 
 public:
 	void GotoSleepAndWakeUpAtTime(String wakeupTime);
-	void SetDeepSleepPeriod(int secondsToSleep);
+	void GotoSleepAndWakeAfterDelay(int secondsToSleep);
+	//void SetDeepSleepPeriod(int _secondsToSleep);
 	void GoToDeepSleep();
 
 private:
