@@ -27,6 +27,7 @@ public:
 	void GotoSleepAndWakeAfterDelay(int secondsToSleep);
 	//void SetDeepSleepPeriod(int _secondsToSleep);
 	void GoToDeepSleep();
+	void TestDeepSleep();
 
 private:
 

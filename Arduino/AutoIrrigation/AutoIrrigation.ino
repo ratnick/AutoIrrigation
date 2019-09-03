@@ -126,6 +126,7 @@ FirebaseData firebaseData; // FirebaseESP8266 data object
 const int JSON_BUFFER_LENGTH = 250;
 
 void ConnectAndUploadToCloud(UploadType uploadType, boolean firstRun = false);
+void InitUnitTest();
 
 void setup() {
 	delay(500);
@@ -1081,12 +1082,63 @@ void TestLoop(String logStr, int LEDflash, int LEDblinkdelay) {
 
 #endif
 
+void InitUnitTest() {
+	delay(500);
+	Serial.begin(115200);
+
+	InitDebugLevel(4);
+	PersistentMemory.SetdebugLevel(4);
+
+	// read persistent memory
+	PersistentMemory.init(false, 20, "PCB v5.2 - #1", 0, 0, 10, 4);   // false: read from memory.  true: initialize
+	SetFBDebugLevel(PersistentMemory.GetdebugLevel());
+	LogLine(1, __FUNCTION__, "BEGIN");
+	LogLinef(1, __FUNCTION__, "Sleep cycle %d of %d", PersistentMemory.ps.currentSleepCycle, PersistentMemory.ps.maxSleepCycles);
+
+	// check for crazy values
+	if (PersistentMemory.ps.currentSleepCycle >= 12 || PersistentMemory.ps.maxSleepCycles >= 12) {
+		LogLine(2, __FUNCTION__, "Resetting counters##########################");
+		PersistentMemory.SetmaxSleepCycles(0);
+		PersistentMemory.SetvalveOpenDuration(0);
+		PersistentMemory.ps.currentSleepCycle = 0;
+	}
+
+#ifdef USE_WIFI 
+	ConnectToWifi();
+	WiFi.macAddress(macAddr);
+	PersistentMemory.SetmacAddress(macAddr);
+
+	// TODO: move time fetching to Wifi_nnr and generalize it.
+	configTime(0, 0, "pool.ntp.org", "time.nist.gov");   // note - it may take some HOURS before actual time is correct.
+	AdjustTime(2);  // configTime adjustments does not work!! Hence we adjust and include summertime permanently.
+	while (time(nullptr) < 1510644967) {
+		delay(10);
+	}
+	if (getCurrentTimeB()) {
+		LogLine(5, __FUNCTION__, "Time fetched and adjusted");
+	}
+	else {
+		LogLine(0, __FUNCTION__, "Time NOT fetched and adjusted");
+	}
+#endif
+
+/*
+#ifdef USE_FIREBASE
+	FB_BasePath = FB_DEVICE_PATH + PersistentMemory.GetmacAddress();
+	Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+	//RemoveTelemetryFromFirebase(); UploadLog_("Setup(): ALL TELEMETRY REMOVED");
+	ConnectAndUploadToCloud(UploadStateAndSettings);
+#endif
+*/
+	if (PersistentMemory.ps.currentSleepCycle != 0) {
+		DeepSleepHandler.GoToDeepSleep();
+	}
+}
+
 void testHardware() {
 
 //	DeepSleepHandler.GotoSleepAndWakeUpAtTime(PersistentMemory.GetWakeTime());
-
-
-
+	
 	TestLoop("testHardware: begin", 1, 500);
 
 	AnalogMux.OpenChannel(0);
