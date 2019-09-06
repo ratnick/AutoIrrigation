@@ -164,6 +164,8 @@ void SetDeepSleepPeriod(int _secondsToSleep) {
 			_secondsToSleep = MIN_SLEEP_TIME_SECS;
 		}
 	}
+	float floatSecondsToSleep = _secondsToSleep * DRIFTING_ADJUSTMENT;
+	_secondsToSleep = lroundf(floatSecondsToSleep);
 	int secondsToSleep = _secondsToSleep % MAX_DEEP_SLEEP_SECS;
 	int maxSleepCycles = _secondsToSleep / MAX_DEEP_SLEEP_SECS;
 	LogLinef(1, __FUNCTION__, "secondsToSleep = %d  maxSleepCycles = %d", secondsToSleep, maxSleepCycles);
