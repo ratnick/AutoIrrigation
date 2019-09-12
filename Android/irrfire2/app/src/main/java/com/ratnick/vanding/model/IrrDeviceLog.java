@@ -5,7 +5,6 @@ import com.google.firebase.database.IgnoreExtraProperties;
 @IgnoreExtraProperties
 public class IrrDeviceLog {
 
-    public long ts;
     public String txt;
 
     public IrrDeviceLog() {

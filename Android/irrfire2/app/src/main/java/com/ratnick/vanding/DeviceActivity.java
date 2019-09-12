@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.google.firebase.database.Query;
 import com.ratnick.vanding.model.IrrDevice;
+import com.ratnick.vanding.model.IrrDeviceLog;
 import com.ratnick.vanding.model.IrrDeviceMetadata;
 import com.ratnick.vanding.model.IrrDeviceSettings;
 import com.ratnick.vanding.model.IrrDeviceState;
@@ -196,7 +197,30 @@ public class DeviceActivity extends AppCompatActivity {
 
             return true;
 
-        } else if (id == R.id.action_refresh) {
+        } else if (id == R.id.action_purge_log) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Delete all logs?");
+
+                // Set up the buttons
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        PurgeLogData(0);
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+
+                return true;
+
+            } else if (id == R.id.action_refresh) {
             DisplayDeviceData();
         }
 
@@ -642,6 +666,36 @@ public class DeviceActivity extends AppCompatActivity {
                     }
                 }
                 showToast("Deleted " + count + " telemetry posts");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // ...
+            }
+        });
+    }
+
+    private void PurgeLogData(int daysToKeep) {
+
+        Date dateFilter = new Date(System.currentTimeMillis() - (daysToKeep * 1000 * 60 * 60 * 24));
+
+        final DatabaseReference allLog = mDeviceReference[mSelectedIrrDeviceK].child("log");
+        //allLog.orderByChild("timestamp").endAt(dateFilter.getTime()).addListenerForSingleValueEvent(new ValueEventListener() {
+        allLog.addListenerForSingleValueEvent(new ValueEventListener() {
+            // .endAt(1556001761734)
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                int count = (int) dataSnapshot.getChildrenCount();
+                if (count > 0) {
+                    IrrDeviceLog post;
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        //post = postSnapshot.getValue(IrrDeviceLog.class);
+                        //System.out.println(" timestamp " + post.timestamp + "  Vcc=" + post.Vcc);
+                        allLog.child(postSnapshot.getKey()).removeValue();
+                    }
+                }
+                showToast("Deleted " + count + " log posts");
             }
 
             @Override
