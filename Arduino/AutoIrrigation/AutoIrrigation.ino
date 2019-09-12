@@ -155,6 +155,26 @@ void setup() {
 	externalVoltMeter.lastSummarizedReading = PersistentMemory.ps.lastVccSummarizedReading;
 	externalVoltMeter.init(ANALOG_INPUT, "5V voltmeter", CHANNEL_BATT, SensorHandlerClass::ExternalVoltMeter, PersistentMemory.ps.lastVccSummarizedReading);
 
+	// If voltage is too low, go to sleep immediately. No error checking
+	float vccTmp;
+	vccTmp = externalVoltMeter.ReadSingleVoltage();
+	LogLinef(3, __FUNCTION__, "Voltage: %fV. ", vccTmp);
+	if (vccTmp < 3.5) {
+		#ifdef USE_WIFI 
+			ConnectToWifi();
+		#endif
+		#ifdef USE_FIREBASE
+			FB_BasePath = FB_DEVICE_PATH + PersistentMemory.GetmacAddress();
+			Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+			//RemoveTelemetryFromFirebase(); UploadLog_("Setup(): ALL TELEMETRY REMOVED");
+			InitFirebaseLogging(&firebaseData, FB_BasePath, "log", JSON_BUFFER_LENGTH);
+		#endif
+			LogLinef(0, __FUNCTION__, "Voltage too low: %fV. Go to sleep for 12 hours", vccTmp);
+			DeepSleepHandler.GotoSleepAndWakeAfterDelay(12 * 60 * 60);
+	}
+
+
+
 	String rm = PersistentMemory.GetrunMode();
 	if (rm.equals(RUNMODE_SOIL)) {
 		soilHumiditySensorA.init(ANALOG_INPUT, "humidity sensor A", CHANNEL_HUM, SensorHandlerClass::SoilHumiditySensor, PersistentMemory.ps.humLimit);

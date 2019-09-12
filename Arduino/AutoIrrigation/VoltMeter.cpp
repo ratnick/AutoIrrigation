@@ -59,6 +59,18 @@ float VoltMeterClass::ReadVoltage() {
 	return (this->lastSummarizedReading);
 }
 
+float VoltMeterClass::ReadSingleVoltage() {
+	LogLinef(2, __FUNCTION__, "READING FROM analog MUX channel %d", muxChannel);
+	AnalogMux.OpenChannel(muxChannel);
+	float res = analogRead(pinNbr);
+	AnalogMux.CloseMUXpwr();
+	LogLinef(1, __FUNCTION__, "Value = %f   converted = %f", res, (res * factor));
+
+	this->lastAnalogueReadingVoltage = res;
+	res = res * factor;
+	return (res);
+}
+
 float VoltMeterClass::GetlastAnalogueReadingVoltage() {
 	return this->lastAnalogueReadingVoltage;
 }

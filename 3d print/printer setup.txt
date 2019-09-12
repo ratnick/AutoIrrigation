@@ -1,6 +1,7 @@
 Tape:
+langs HELE kanten (½-1 cm)
 helt ud i hjørnerne
-midt ingenting (to strimler på skrå)
+midt ingenting 
 
 Heat:
 150W halogene lamp

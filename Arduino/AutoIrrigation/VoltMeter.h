@@ -20,6 +20,7 @@ class VoltMeterClass
 
 	 void init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType, float _lastSummarizedReading);
 	 float ReadVoltage();
+	 float ReadSingleVoltage();
 	 float GetlastAnalogueReadingVoltage();
 	 float GetlastSummarizedReading();
 	 float lastSummarizedReading;
