@@ -149,6 +149,9 @@ void setup() {
 	if (PersistentMemory.ps.currentSleepCycle != 0) {
 		DeepSleepHandler.GoToDeepSleep();
 	}
+	if (PersistentMemory.ps.currentSleepCycle == 0 && DeepSleepHandler.ContinueSleeping()) {
+		DeepSleepHandler.GoToDeepSleep();
+	}
 
 	initFlashLED();
 	AnalogMux.init(MUX_S1, MUX_S0, HUM_SENSOR_PWR_CTRL, HIGH);

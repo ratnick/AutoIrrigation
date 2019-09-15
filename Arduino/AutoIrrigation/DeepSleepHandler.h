@@ -26,6 +26,7 @@ public:
 	void GotoSleepAndWakeUpAtTime(String wakeupTime);
 	void GotoSleepAndWakeAfterDelay(int secondsToSleep);
 	//void SetDeepSleepPeriod(int _secondsToSleep);
+	boolean ContinueSleeping();
 	void GoToDeepSleep();
 	void TestDeepSleep();
 

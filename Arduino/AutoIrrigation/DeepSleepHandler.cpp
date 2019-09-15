@@ -172,6 +172,18 @@ void SetDeepSleepPeriod(int _secondsToSleep) {
 	LogLinef(1, __FUNCTION__, "Done");
 }
 
+boolean DeepSleepHandlerClass::ContinueSleeping() {
+
+	if ((PersistentMemory.ps.currentSleepCycle == 0) && (PersistentMemory.GetsecondsToSleep() == MAX_DEEP_SLEEP_SECS)) {
+		LogLine(4, __FUNCTION__, "continue sleeping");
+		return true;
+	}
+	else {
+		LogLine(4, __FUNCTION__, "stop sleeping");
+		return false;
+	}
+}
+
 void DeepSleepHandlerClass::GoToDeepSleep() {
 
 	boolean lastCycle = false;
