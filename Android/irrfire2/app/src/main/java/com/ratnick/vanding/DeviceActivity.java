@@ -715,6 +715,7 @@ public class DeviceActivity extends AppCompatActivity {
         updateUIBasedOnSettings(mIrrDevice[mSelectedIrrDeviceK].settings);
         updateUIBasedOnTelemetry(mIrrDevice[mSelectedIrrDeviceK].telemetry_current);
         graph.removeAllSeries();
+        graph.getSecondScale().removeAllSeries();
         // primary Y-axis:
         graph.addSeries(mIrrDevice[mSelectedIrrDeviceK].xSeriesValveState);
         graph.addSeries(mIrrDevice[mSelectedIrrDeviceK].xSeriesHumidity);
