@@ -1,6 +1,0 @@
-<resources>
-    <string name="app_name">Ratnick Vanding</string>
-    <string name="hello_world">Davs!</string>
-    <string name="action_purge_data">Purge telemetry data</string>
-    <string name="action_refresh">Refresh</string>
-</resources>
