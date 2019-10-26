@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backdrop"
+    tools:context=".PurgeLog">
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        style="@style/FullscreenTheme"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:baselineAligned="false"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="-16dp"
+        tools:layout_editor_absoluteY="222dp">
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="60dp" />
+
+        <TableLayout style="@style/TableLayoutStyle">
+
+            <TableRow style="@style/TableRowStyle">
+
+                <TextView
+                    android:id="@+id/tvLocationTxt"
+                    style="@style/TextViewStyle"
+                    android:text="Location" />
+
+                <TextView
+                    android:id="@+id/tvLocation"
+                    style="@style/TextViewStyle"
+                    android:text="Loc" />
+
+            </TableRow>
+
+            <TableRow style="@style/TableRowStyle">
+
+                <TextView
+                    android:id="@+id/tvDeviceIDTxt"
+                    style="@style/TextViewStyle"
+                    android:text="Device ID" />
+
+                <TextView
+                    android:id="@+id/tvDeviceID"
+                    style="@style/TextViewStyle"
+                    android:text="_" />
+            </TableRow>
+
+            <TableRow style="@style/TableRowStyle">
+
+                <TextView
+                    android:id="@+id/tvNbrOfTelemetryTxt"
+                    style="@style/TextViewStyle"
+                    android:text="# of telemetry" />
+
+                <TextView
+                    android:id="@+id/tvNbrOfTelemetry"
+                    style="@style/TextViewStyle"
+                    android:text="0" />
+
+            </TableRow>
+
+            <TableRow style="@style/TableRowStyle">
+
+                <TextView
+                    android:id="@+id/tvNbrOfLogsTxt"
+                    style="@style/TextViewStyle"
+                    android:text="# of logs" />
+
+                <TextView
+                    android:id="@+id/tvNbrOfLogs"
+                    style="@style/TextViewStyle"
+                    android:text="0" />
+            </TableRow>
+
+        </TableLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp" />
+
+        <TableLayout style="@style/TableLayoutStyle">
+
+            <TableRow
+                style="@style/TableRowStyle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvKeepDaysLogTxt"
+                    style="@style/TextViewStyle"
+                    android:text="Keep last X days of LOG" />
+
+                <EditText
+                    android:id="@+id/tvKeepLogDays"
+                    style="@style/EditTextStyle"
+                    android:layout_weight="60"
+                    android:inputType="number"
+                    android:text="-1" />
+            </TableRow>
+
+            <TableRow style="@style/TableRowStyle">
+
+                <TextView
+                    android:id="@+id/tvKeepDaysTeleTxt"
+                    style="@style/TextViewStyle"
+                    android:text="Keep last X days of TELEMETRY" />
+
+                <EditText
+                    android:id="@+id/tvKeepTeleDays"
+                    style="@style/EditTextStyle"
+                    android:layout_weight="60"
+                    android:inputType="number"
+                    android:text="-1" />
+            </TableRow>
+
+            <TableRow style="@style/TableRowStyle">
+
+                <TextView
+                    style="@style/TextViewStyle"
+                    android:text="(-1 => don't delete,    0 => delete all)"
+                    android:textStyle="italic" />
+            </TableRow>
+
+        </TableLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="60dp" />
+
+        <TableLayout style="@style/TableLayoutStyle">
+
+            <TableRow style="@style/TableRowStyle">
+
+                <Button
+                    android:id="@+id/executeButton"
+                    style="@style/ButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:text="EXECUTE" />
+            </TableRow>
+        </TableLayout>
+    </LinearLayout>
+
+    <include layout="@layout/content_purge_log" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+

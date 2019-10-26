@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backdrop"
+    tools:context=".SingleDevice">
+
+    <LinearLayout
+        style="@style/FullscreenTheme"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBarOverlay">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/app_bar_height" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/LeftMargin"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="95"
+                android:orientation="vertical"></LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:orientation="vertical">
+
+                <TableLayout
+                    android:id="@+id/StaticInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TableRow
+                        android:id="@+id/LocAndID"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <EditText
+                            android:id="@+id/tvLocation"
+                            style="@style/EditTextStyle"
+                            android:layout_weight="65"
+                            android:inputType="text"
+                            android:text="Location"
+                            android:textSize="18dp" />
+
+                        <EditText
+                            android:id="@+id/tvDeviceID"
+                            style="@style/EditTextStyle"
+                            android:layout_weight="35"
+                            android:inputType="text"
+                            android:text="device ID"
+                            android:textAlignment="viewEnd"
+                            android:textSize="18dp" />
+                    </TableRow>
+
+                </TableLayout>
+
+                <LinearLayout
+                    android:id="@+id/spacer1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/TextViewStyle"
+                        android:inputType="none" />
+                </LinearLayout>
+
+                <TableLayout
+                    android:id="@+id/WateringControls"
+                    style="@style/TableLayoutStyle">
+
+                    <TableRow
+                        android:id="@+id/OpenDuration"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvOpenDurationTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Valve open duration" />
+
+                        <EditText
+                            android:id="@+id/tvOpenDuration"
+                            style="@style/EditTextStyle"
+                            android:inputType="number"
+                            android:text="123" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/SoakTime"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvSoakTimeTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Soak time" />
+
+                        <EditText
+                            android:id="@+id/tvSoakTime"
+                            style="@style/EditTextStyle"
+                            android:inputType="number"
+                            android:text="123" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/HumLimit"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvhumLimitTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Hum. threshold %" />
+
+                        <EditText
+                            android:id="@+id/tvhumLim"
+                            style="@style/EditTextStyle"
+                            android:inputType="number"
+                            android:text="123" />
+
+                    </TableRow>
+                </TableLayout>
+
+                <TableLayout
+                    android:id="@+id/ModeControls"
+                    style="@style/TableLayoutStyle">
+
+                    <TableRow
+                        android:id="@+id/DebugLevel"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvDbTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Debug level (0-4)" />
+
+                        <EditText
+                            android:id="@+id/tvDb"
+                            style="@style/EditTextStyle"
+                            android:inputType="number"/>
+
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/runMode"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvrunModeTxt"
+                            style="@style/TextViewStyle"
+                            android:text="normal|soil|batt|testhw mode|gas"
+                            tools:textSize="12sp" />
+
+                        <EditText
+                            android:id="@+id/tvrunMode"
+                            style="@style/EditTextStyle"
+                            android:inputType="text"/>
+
+                    </TableRow>
+
+                </TableLayout>
+
+                <TableLayout
+                    android:id="@+id/SleepControls"
+                    style="@style/TableLayoutStyle">
+
+                    <TableRow
+                        android:id="@+id/SecToSleep"
+                        style="@style/TableRowStyle">
+
+                    <TextView
+                            android:id="@+id/tvSecsToSleepTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Total secs to sleep" />
+
+                        <EditText
+                            android:id="@+id/tvSecsToSleep"
+                            style="@style/EditTextStyle"
+                            android:inputType="number"/>
+
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/DeepSlpEnabled"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvdeepSleepEnabledTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Deep sleep enabled" />
+
+                        <EditText
+                            android:id="@+id/tvdeepSleepEnabled"
+                            style="@style/EditTextStyle"
+                            android:inputType="text"
+                            android:text="Deep sleep enabled" />
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/CurSleepCycle"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvCurrentSleepCycleTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Current sleep cycle" />
+
+                        <TextView
+                            android:id="@+id/tvCurrentSleepCycle"
+                            style="@style/TextViewValueStyle"
+                            android:text="Name" />
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/MaxSlpCycles"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvMaxSlpCyclesTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Max sleep cycles" />
+
+                        <TextView
+                            android:id="@+id/tvMaxSlpCycles"
+                            style="@style/TextViewValueStyle"
+                            android:text="TextView" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/Waketimes"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvWaketimeTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Wakeup at:" />
+
+                        <EditText
+                            android:id="@+id/tvWaketime0"
+                            style="@style/EditTextStyle"
+                            android:hint="Leave blank to delete"
+                            android:inputType="text"/>
+
+                        <EditText
+                            android:id="@+id/tvWaketime1"
+                            style="@style/EditTextStyle"
+                            android:hint="Leave blank to delete"
+                            android:inputType="text"/>
+
+                        <EditText
+                            android:id="@+id/tvWaketime2"
+                            style="@style/EditTextStyle"
+                            android:hint="Leave blank to delete"
+                            android:inputType="text"/>
+
+                    </TableRow>
+
+                </TableLayout>
+
+                <LinearLayout
+                    android:id="@+id/spacer2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/TextViewStyle"
+                        android:inputType="none" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/buttons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/purgeButton"
+                        android:text="PURGE"
+                        style="@style/ButtonStyle"/>
+
+                    <Space
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <Button
+                        android:id="@+id/refreshButton"
+                        android:text="REFRESH"
+                        style="@style/ButtonStyle"/>
+
+                    <Space
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <Button
+                        android:id="@+id/executeButton"
+                        android:text="SET"
+                        style="@style/ButtonStyle"/>
+
+                </LinearLayout>
+
+                <TableLayout
+                    android:id="@+id/tbTelemetryCurrent"
+                    style="@style/TableLayoutStyle">
+
+                    <TableRow
+                        android:id="@+id/Humidity"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvHumTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Humidity %" />
+
+                        <TextView
+                            android:id="@+id/tvHum"
+                            style="@style/TextViewValueStyle"
+                            android:text="0.00" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/tVcc"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvVccTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Battery Voltage" />
+
+                        <TextView
+                            android:id="@+id/tvVcc"
+                            style="@style/TextViewValueStyle"
+                            android:text="0.00" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/wifiSSDI"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvWifiSSIDTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Wifi SSID" />
+
+                        <TextView
+                            android:id="@+id/tvWifiSSID"
+                            style="@style/TextViewValueStyle"
+                            android:text="Name" />
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/WifiStrength"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvWifiTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Wifi signal strength" />
+
+                        <TextView
+                            android:id="@+id/tvWifi"
+                            style="@style/TextViewValueStyle"
+                            android:text="20db" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/timeStampTelemetry"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvTimestampTelemetryTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Last data read time" />
+
+                        <TextView
+                            android:id="@+id/tvTimestampTelemetryTime"
+                            style="@style/TextViewValueStyle"
+                            android:text="Time" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/LastAnalogue"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvLastAnalogueTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Analogue (0-1023)" />
+
+                        <TextView
+                            android:id="@+id/tvLastAnalogueReading"
+                            style="@style/TextViewValueStyle"
+                            android:text="TextView" />
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/timeStampLastOpen"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvLastOpenTimestampTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Valve last open" />
+
+                        <TextView
+                            android:id="@+id/tvLastOpenTimestamp"
+                            style="@style/TextViewValueStyle"
+                            android:text="TextView" />
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/timestampState"
+                        style="@style/TableRowStyle">
+
+                        <TextView
+                            android:id="@+id/tvTimestampStateTxt"
+                            style="@style/TextViewStyle"
+                            android:text="Timestamp" />
+
+                        <TextView
+                            android:id="@+id/tvTimestampState"
+                            style="@style/TextViewValueStyle"
+                            android:text="(timestamp)" />
+                    </TableRow>
+
+                </TableLayout>
+
+                <FrameLayout
+                    android:id="@+id/Graphs"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <com.jjoe64.graphview.GraphView
+                        android:id="@+id/graph"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/RightMargin"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="95"
+                android:orientation="vertical">
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <include layout="@layout/content_single_device" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

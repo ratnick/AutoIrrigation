@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainConstraintLayout"
+    android:background="@color/backdrop"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+   <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/app_bar_height" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <TextView
+        android:id="@+id/tvTimestamp1"
+        style="@style/TextViewStyleParent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="Timestamp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@+id/gBottomOfTitles"
+        app:layout_constraintEnd_toStartOf="@+id/g1"
+        app:layout_constraintStart_toStartOf="@+id/gLeftMargin"
+        app:layout_constraintTop_toTopOf="@+id/gTopOfTitles" />
+
+    <TextView
+        android:id="@+id/tvHumTitle"
+        style="@style/TextViewStyleParent"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:text="Humidity %"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@+id/gBottomOfTitles"
+        app:layout_constraintEnd_toStartOf="@+id/g2"
+        app:layout_constraintTop_toTopOf="@+id/gTopOfTitles" />
+
+    <TextView
+        android:id="@+id/tvVccTitle"
+        style="@style/TextViewStyleParent"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:text="Vcc"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@+id/gBottomOfTitles"
+        app:layout_constraintEnd_toStartOf="@+id/g3"
+        app:layout_constraintTop_toTopOf="@+id/gTopOfTitles" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvContacts"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/gTopOfRecycler" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gTopOfTitles"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="55dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gBottomOfTitles"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="72dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gTopOfRecycler"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="79dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gLeftMargin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="@dimen/vg_margin" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/g1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="@dimen/vg_1" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/g2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="@dimen/vg_2" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/g3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="@dimen/vg_3" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/g4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="@dimen/vg_4" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gRightMargin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="@dimen/vg_margin" />
+
+     <include        layout="@layout/content_main"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

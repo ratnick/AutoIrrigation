@@ -1,0 +1,13 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="app_bar_height">40dp</dimen>
+    <dimen name="item_width">200dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
+    <dimen name="device_item_font">5dp</dimen>
+    <dimen name="std_textsize">14dp</dimen>
+    <dimen name="vg_margin">7dp</dimen>
+    <dimen name="vg_1">0.38</dimen>
+    <dimen name="vg_2">0.59</dimen>
+    <dimen name="vg_3">0.76</dimen>
+    <dimen name="vg_4">0.78</dimen>
+</resources>
