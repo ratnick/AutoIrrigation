@@ -2,6 +2,7 @@ package com.vanding.irrigation;
 
 import android.util.Log;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,53 +31,137 @@ public class FirebaseObject implements Serializable {
     private static final String FB_PATH = "irrdevices";
     private static final String INITIAL_DEVICE_ID = "84:F3:EB: C:38:7A";
 
+    private static boolean firebase_initialized = false;
+    private static boolean firebase_listeners_initialized = false;
+
     public FirebaseObject() {
     }
 
     public void LoadDeviceBasics() {
-        dbAllDevicesReference.addListenerForSingleValueEvent(
-            new ValueEventListener() {
+        if (!firebase_initialized) {
+            firebase_initialized = true;
 
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    dbLoadingState = dbFirebaseLoadingState.DEVICES_LOADING;
-                    dbNbrOfDevices = (int) dataSnapshot.getChildrenCount();
+            dbAllDevicesReference.addListenerForSingleValueEvent(
+                new ValueEventListener() {
 
-                    int i=0;
-                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                        dbIrrDeviceStrings[i] = postSnapshot.getKey();
-                        dbIrrDevice[i] = new IrrDevice();
-                        dbIrrDevice[i].metadata = postSnapshot.child("metadata").getValue(IrrDeviceMetadata.class);
-                        dbIrrDevice[i].state = postSnapshot.child("state").getValue(IrrDeviceState.class);
-                        dbIrrDevice[i].settings = postSnapshot.child("settings").getValue(IrrDeviceSettings.class);
-                        dbIrrDevice[i].telemetry_current = postSnapshot.child("telemetry_current").getValue(IrrDeviceTelemetry.class);
-                        dbIrrDevice[i].nbrOfTelemetry = 0;  // nnr postSnapshot.child("telemetry").getChildrenCount();
-                        dbIrrDevice[i].nbrOfLogs = 0;       // nnr postSnapshot.child("log").getChildrenCount();
-                        // set the device run state:
-                        if (dbIrrDevice[i].telemetry_current.Vcc < 3.6) {
-                            dbIrrDevice[i].overallStatus = IrrDevice.DeviceStatus.FAULT;
-                        } else if (dbIrrDevice[i].telemetry_current.Vcc < 3.8) {
-                            dbIrrDevice[i].overallStatus = IrrDevice.DeviceStatus.WARNING;
-                        } else {
-                            dbIrrDevice[i].overallStatus = IrrDevice.DeviceStatus.OK;
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        // Firebase guaratees that initial loading is done when onDataChange is called
+                        dbLoadingState = dbFirebaseLoadingState.DEVICES_LOADING;
+                        dbNbrOfDevices = (int) dataSnapshot.getChildrenCount();
+
+                        int i = 0;
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            dbIrrDeviceStrings[i] = postSnapshot.getKey();
+                            dbIrrDevice[i] = new IrrDevice();
+                            dbIrrDevice[i].metadata = postSnapshot.child("metadata").getValue(IrrDeviceMetadata.class);
+                            dbIrrDevice[i].state = postSnapshot.child("state").getValue(IrrDeviceState.class);
+                            dbIrrDevice[i].settings = postSnapshot.child("settings").getValue(IrrDeviceSettings.class);
+                            dbIrrDevice[i].telemetry_current = postSnapshot.child("telemetry_current").getValue(IrrDeviceTelemetry.class);
+                            dbIrrDevice[i].nbrOfTelemetry = (int) postSnapshot.child("telemetry").getChildrenCount();
+                            dbIrrDevice[i].nbrOfLogs = (int) postSnapshot.child("log").getChildrenCount();
+                            // set the device run state:
+                            if (dbIrrDevice[i].telemetry_current.Vcc < 3.6) {
+                                dbIrrDevice[i].overallStatus = IrrDevice.DeviceStatus.FAULT;
+                            } else if (dbIrrDevice[i].telemetry_current.Vcc < 3.8) {
+                                dbIrrDevice[i].overallStatus = IrrDevice.DeviceStatus.WARNING;
+                            } else {
+                                dbIrrDevice[i].overallStatus = IrrDevice.DeviceStatus.OK;
+                            }
+                            i++;
                         }
-                        i++;
+
+                        List<String> list = new ArrayList<String>();
+                        for (i = 0; i < dbNbrOfDevices; i++) {
+                            list.add(dbIrrDeviceStrings[i]);
+                        }
+                        dbLoadingState = dbFirebaseLoadingState.DEVICES_LOADED;
+                        LoadEventListeners();
                     }
 
-                    List<String> list = new ArrayList<String>();
-                    for(i=0; i< dbNbrOfDevices; i++) {
-                        list.add(dbIrrDeviceStrings[i]);
+                    @Override
+                    public void onCancelled(DatabaseError firebaseError) {
                     }
-                    dbLoadingState = dbFirebaseLoadingState.DEVICES_LOADED;
                 }
-
-                @Override
-                public void onCancelled(DatabaseError firebaseError) {
-                }
-            }
-        );
-
+            );
+        }
     }
+
+    public void LoadEventListeners() {
+
+        if (firebase_initialized && !firebase_listeners_initialized) {
+            firebase_listeners_initialized = true;
+
+
+            for (int k=0; k< dbNbrOfDevices; k++) {
+                dbDeviceReference[k] = FirebaseDatabase.getInstance().getReference().child("irrdevices").child(dbIrrDeviceStrings[k]);
+                dbDeviceReference[k].addChildEventListener(
+                    new ChildEventListener() {
+
+                        @Override
+                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                            String dataKey = dataSnapshot.getKey();
+                            String deviceKey = dataSnapshot.getRef().getParent().getKey();
+                            int k = FindKeyInList(deviceKey);
+                            Log.d("HomeX", "Key is " + dataKey);
+
+                            if (dataKey.equals("metadata")) {
+                                IrrDeviceMetadata meta = dataSnapshot.getValue(IrrDeviceMetadata.class);
+                                if (meta != null) {
+                                    dbIrrDevice[k].metadata = meta;
+                                }
+                            }
+
+                            if (dataKey.equals("state")) {
+                                IrrDeviceState devState = dataSnapshot.getValue(IrrDeviceState.class);
+                                if (devState != null) {
+                                    dbIrrDevice[k].state = devState;
+                                }
+                            }
+
+                            if (dataKey.equals("settings")) {
+                                IrrDeviceSettings devSettings = dataSnapshot.getValue(IrrDeviceSettings.class);
+                                if (devSettings != null) {
+                                    dbIrrDevice[k].settings = devSettings;
+                                }
+                            }
+
+                            if (dataKey.equals("telemetry_current")) {
+                                IrrDeviceTelemetry tele = dataSnapshot.getValue(IrrDeviceTelemetry.class);
+                                if (tele != null) {
+                                    dbIrrDevice[k].telemetry_current = tele;
+                                }
+                            }
+
+                            if (dataKey.equals("telemetry")) {
+                                String dKey = dataSnapshot.getRef().getParent().getKey();
+                                if (dKey == dbIrrDeviceStrings[k]) {
+                                    Log.e("Count ", "" + dataSnapshot.getChildrenCount());
+                                    dbIrrDevice[k].xSeriesVcc.resetData(readAllData(dataSnapshot, "Vcc"));
+                                    dbIrrDevice[k].xSeriesHumidity.resetData(readAllData(dataSnapshot, "Hum"));
+                                    dbIrrDevice[k].xSeriesValveState.resetData(readAllData(dataSnapshot, "vlvState"));
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {}
+
+                        @Override
+                        public void onChildRemoved(DataSnapshot dataSnapshot) { }
+
+                        @Override
+                        public void onChildMoved(DataSnapshot dataSnapshot, String s) { }
+
+                        @Override
+                        public void onCancelled(DatabaseError firebaseError) { }
+
+                    }
+                );
+            }
+        }
+    }
+
 
     public void LoadDeviceTelemetry(int _k) {
 

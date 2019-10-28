@@ -2,6 +2,7 @@ package com.vanding.irrigation;
 
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -83,18 +85,29 @@ public class SingleDevice extends AppCompatActivity {
         commandIntent.putExtra(FirebaseService.DEVICE_NBR, selectedDevice);
         startFirebaseService(FirebaseService.ActionType.LOAD_DEVICE_TELEMETRY, commandIntent);
 
-
         purgeButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(SingleDevice.this, PurgeLog.class);
                 intent.putExtra(DEVICE_NBR, dbSelectedIrrDeviceK);
                 intent.putExtra(PurgeLog.PURGE_TYPE, PurgeLog.PURGE_LOG);
                 startActivity(intent);
+
+                Context context = getApplicationContext();
+                Toast toast = Toast.makeText(context, "DATA PURGED", Toast.LENGTH_SHORT);
+                toast.show();
             }
         });
         refreshButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //TODO
+                Intent commandIntent2 = new Intent(getApplicationContext(), FirebaseService.class);
+                commandIntent2.putExtra(FirebaseService.DEVICE_NBR, selectedDevice);
+                startFirebaseService(FirebaseService.ActionType.LOAD_DEVICE_BASICS, commandIntent2);
+                startFirebaseService(FirebaseService.ActionType.LOAD_DEVICE_TELEMETRY, commandIntent2);
+
+                DisplayDeviceData();
+                Context context = getApplicationContext();
+                Toast toast = Toast.makeText(context, "DATA REFRESHED", Toast.LENGTH_SHORT);
+                toast.show();
             }
         });
         executeButton.setOnClickListener(new View.OnClickListener() {
@@ -107,11 +120,14 @@ public class SingleDevice extends AppCompatActivity {
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.humLim = Integer.valueOf(tvhumLim.getText().toString());
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.db = Integer.valueOf(tvDb.getText().toString());
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.wakeTime0 = tvWaketime0.getText().toString();
-                dbIrrDevice[dbSelectedIrrDeviceK].settings.wakeTime1 = tvWaketime0.getText().toString();
-                dbIrrDevice[dbSelectedIrrDeviceK].settings.wakeTime2 = tvWaketime0.getText().toString();
+                dbIrrDevice[dbSelectedIrrDeviceK].settings.wakeTime1 = tvWaketime1.getText().toString();
+                dbIrrDevice[dbSelectedIrrDeviceK].settings.wakeTime2 = tvWaketime2.getText().toString();
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.runMode = tvrunMode.getText().toString();
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.Updated = true;
                 writeStateToFirebase();
+                Context context = getApplicationContext();
+                Toast toast = Toast.makeText(context, "DATA UPDATED", Toast.LENGTH_SHORT);
+                toast.show();
             }
         });
     }
@@ -157,6 +173,7 @@ public class SingleDevice extends AppCompatActivity {
     /* Finally, once we are here we know the service call succeeded and we can act accordingly. */
     private void processServiceReturn(FirebaseService.ActionType action, Intent returnIntent){
         switch(action){
+            case LOAD_DEVICE_BASICS:
             case LOAD_DEVICE_TELEMETRY:
                 DisplayGraphData();
                 break;

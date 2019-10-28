@@ -53,6 +53,19 @@
             <TableRow style="@style/TableRowStyle">
 
                 <TextView
+                    android:id="@+id/tvNbrOfLogsTxt"
+                    style="@style/TextViewStyle"
+                    android:text="# of logs" />
+
+                <TextView
+                    android:id="@+id/tvNbrOfLogs"
+                    style="@style/TextViewStyle"
+                    android:text="0" />
+            </TableRow>
+
+            <TableRow style="@style/TableRowStyle">
+
+                <TextView
                     android:id="@+id/tvNbrOfTelemetryTxt"
                     style="@style/TextViewStyle"
                     android:text="# of telemetry" />
@@ -62,19 +75,6 @@
                     style="@style/TextViewStyle"
                     android:text="0" />
 
-            </TableRow>
-
-            <TableRow style="@style/TableRowStyle">
-
-                <TextView
-                    android:id="@+id/tvNbrOfLogsTxt"
-                    style="@style/TextViewStyle"
-                    android:text="# of logs" />
-
-                <TextView
-                    android:id="@+id/tvNbrOfLogs"
-                    style="@style/TextViewStyle"
-                    android:text="0" />
             </TableRow>
 
         </TableLayout>
