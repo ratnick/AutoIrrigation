@@ -9,6 +9,8 @@ struct FirebaseModelStruct {
 	const String softwareVersion = "sw";
 	const String SSID = "SSID";
 	const String runMode = "runMode";
+	const String vccAdjustment = "vadj";
+	const String vccMinLimit = "vMin";
 	const String runOnce = "runOnce";
 	const String timestamp = "timestamp";
 	const String curSleepCycle = "slpCurCyc";

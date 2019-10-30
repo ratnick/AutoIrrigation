@@ -6,9 +6,10 @@
 #include "VoltMeter.h"
 #include "AnalogMux.h"
 #include "LogLib.h"
+#include "PersistentMemory.h"
 
-const float MAX_VOLTAGE = 4.0;
-const float factor = MAX_VOLTAGE / 1024.0;  // 3.3 = max voltage on A0, https://arduinodiy.wordpress.com/2016/12/25/monitoring-lipo-battery-voltage-with-wemos-d1-minibattery-shield-and-thingspeak/
+float MAX_VOLTAGE = 4.0;
+float factor = MAX_VOLTAGE / 1024.0;  // 3.3 = max voltage on A0, https://arduinodiy.wordpress.com/2016/12/25/monitoring-lipo-battery-voltage-with-wemos-d1-minibattery-shield-and-thingspeak/
 //const float factor = MAX_VOLTAGE * ((4.3 + 6.8) / 6.8) / 1023.0;  // 3.2 = max voltage on A0
 														  // 4.3 and 6.8 are resistor values
 
@@ -36,6 +37,9 @@ void VoltMeterClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHand
 }
 
 float VoltMeterClass::ReadVoltage() {
+	MAX_VOLTAGE = PersistentMemory.ps.vccAdjustment;
+	factor = MAX_VOLTAGE / 1024.0;
+	
 	float sumRes = 0.0;
 	LogLinef(2, __FUNCTION__, "READING FROM analog MUX channel %d", muxChannel);
 	AnalogMux.OpenChannel(muxChannel);

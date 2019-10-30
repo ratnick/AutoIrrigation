@@ -49,6 +49,8 @@ class PersistentMemoryClass
 	 int GethumLimit();
 	 int GetmainLoopDelay();
 	 int GetdebugLevel();
+	 float GetvccAdjustment();
+	 float GetvccMinLimit();
 	 boolean GetdeepSleepEnabled();
 
 	 void SetdeviceID(String id_);
@@ -66,7 +68,9 @@ class PersistentMemoryClass
 	 void SetvalveSoakTime(int valveSoakTime_);
 	 void SethumLimit(int humLimit_);
 	 void SetmainLoopDelay(int mainLoopDelay_);
-	 void SetdebugLevel(int debugLevel);
+	 void SetdebugLevel(int debugLevel_);
+	 void SetvccAdjustment(float vccAdj_);
+	 void SetvccMinLimit(float vccMinLimit_);
 	 void SetdeepSleepEnabled(boolean deepSleepEnabled_);
 
 	 void Printps();

@@ -28,7 +28,7 @@
 //#define MEASURE_INTERNAL_VCC      // When enabling, we cannot use analogue reading of sensor. 
 #define SIMULATE_WATERING false     // open the valve in every loop
 // See also SIMULATE_SENSORS in SensorHandler.h
-#define DEBUGLEVEL 2
+#define DEBUGLEVEL 1
 
 #ifdef USE_WIFI
 #include <SD.h>
@@ -162,7 +162,7 @@ void setup() {
 	float vccTmp;
 	vccTmp = externalVoltMeter.ReadSingleVoltage();
 	LogLinef(3, __FUNCTION__, "Voltage: %fV. ", vccTmp);
-	if (vccTmp < 3.5) {
+	if (vccTmp < PersistentMemory.ps.vccMinLimit) {
 		#ifdef USE_WIFI 
 			ConnectToWifi();
 		#endif
@@ -524,10 +524,9 @@ void GetSettings_(boolean firstRun) {
 			LogLinef(3, __FUNCTION__, " %s = %b", fb.deepSleepEnabled.c_str(), b);
 			PersistentMemory.SetdeepSleepEnabled(b);
 		}
-		LogLine(4, __FUNCTION__, "D");
 		if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + fb.runMode)) {
 			LogLinef(3, __FUNCTION__, " %s = %s", fb.runMode.c_str(), firebaseData.stringData().c_str());
-			PersistentMemory.SetrunMode(firebaseData.stringData()); 
+			PersistentMemory.SetrunMode(firebaseData.stringData());
 		}
 		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.totalSecondsToSleep)) {
 			PersistentMemory.SettotalSecondsToSleep(firebaseData.intData());
@@ -541,6 +540,14 @@ void GetSettings_(boolean firstRun) {
 			val = firebaseData.intData();
 			PersistentMemory.SethumLimit(val);
 			soilHumiditySensorA.SethumLimitPct(val);
+		}
+		if (Firebase.getFloat(firebaseData, FB_BasePath + "/settings/" + fb.vccAdjustment)) {
+			float f = firebaseData.floatData();
+			PersistentMemory.SetvccAdjustment(f);
+		}
+		if (Firebase.getFloat(firebaseData, FB_BasePath + "/settings/" + fb.vccMinLimit)) {
+			float f = firebaseData.floatData();
+			PersistentMemory.SetvccMinLimit(f);
 		}
 
 		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.soakTime)) {
@@ -581,6 +588,8 @@ void CreateNewDevice(
 	jsoSettings[fb.openDur] = PersistentMemory.GetvalveOpenDuration();
 	jsoSettings[fb.soakTime] = PersistentMemory.GetvalveSoakTime();
 	jsoSettings[fb.humLimit] = PersistentMemory.GethumLimit();
+	jsoSettings[fb.vccAdjustment] = PersistentMemory.GetvccAdjustment();
+	jsoSettings[fb.vccMinLimit] = PersistentMemory.GetvccMinLimit();
 	if (PersistentMemory.GetdeepSleepEnabled()) {  // It only works if using "true" or "false". ??
 		jsoSettings[fb.deepSleepEnabled] = true;
 	}
