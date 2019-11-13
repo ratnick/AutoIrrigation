@@ -306,3 +306,5 @@ Firebase-ESP8266-DEMO/
 Arduino/AutoIrrigation/__vm/Compile.vmps.xml
 Arduino/AutoIrrigation/__vm/
 /PCB/arkiv
+/PCB/_saved_irrigation v6.0.pro
+/PCB/footprint.pretty/12-5V_DCDC_v1.kicad_mod
