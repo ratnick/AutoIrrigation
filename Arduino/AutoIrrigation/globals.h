@@ -23,9 +23,9 @@ struct PersistentDataStruct {
 	char deviceLocation[28];
 	char wifiSSID[20];
 	char wifiPwd[16];
-	char cloudUserName[16];
-	char cloudPwd[16];
 	char runMode[16];
+	float vccAdjustment;
+	float vccMinLimit;
 	char wakeupTime[MAX_WAKEUPTIMES][7];  // 4 sets of 6 chars. Format: HHMMSS
 	char pauseWakeTime[7];  // Format: HHMMSS
 	int totalSecondsToSleep;
@@ -39,6 +39,8 @@ struct PersistentDataStruct {
 	int mainLoopDelay;
 	int debugLevel;
 	boolean deepSleepEnabled;
+	char cloudUserName[16];
+	char cloudPwd[16];
 
 //TODO	boolean stopInstantly;   /* if the sensor thinks something is wrong, this bit is flipped, and it will never open the valve until reset*/
 //TODO	time_t lastValveopenTimeStamp;

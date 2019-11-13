@@ -38,6 +38,8 @@ void PersistentMemoryClass::init(
 		ps.valveOpenDuration = _valveOpenDuration;
 		ps.valveSoakTime = _valveSoakTime;
 		ps.humLimit = 50; //pct
+		ps.vccAdjustment = 4.01; // Volt
+		ps.vccMinLimit = 3.10; // Volt
 		ps.mainLoopDelay = _mainLoopDelay;
 		ps.debugLevel = _debugLevel;
 		ps.deepSleepEnabled = true;
@@ -101,6 +103,8 @@ int PersistentMemoryClass::GetvalveSoakTime()		 { return ps.valveSoakTime; }
 int PersistentMemoryClass::GethumLimit()			 { return ps.humLimit; }
 int PersistentMemoryClass::GetmainLoopDelay()        { return ps.mainLoopDelay; }
 int PersistentMemoryClass::GetdebugLevel()           { return ps.debugLevel; }
+float PersistentMemoryClass::GetvccAdjustment()		 { return ps.vccAdjustment; }
+float PersistentMemoryClass::GetvccMinLimit()		 { return ps.vccMinLimit; }
 boolean PersistentMemoryClass::GetdeepSleepEnabled() { return ps.deepSleepEnabled;  }
 
 String mac2String(byte ar[]) {
@@ -140,6 +144,7 @@ void PersistentMemoryClass::SetdeviceLocation(String deviceLocation_) {
 }
 void PersistentMemoryClass::SetrunMode(String runMode_) {
 	strcpy(ps.runMode, runMode_.c_str());
+	LogLinef(3, __FUNCTION__, "ps.runMode=%s, runMode_.c_str()=%s", ps.runMode, runMode_.c_str());
 	WritePersistentMemory();
 }
 void PersistentMemoryClass::SetWakeTime(int i, String wakeTime_) {
@@ -182,6 +187,14 @@ void PersistentMemoryClass::SetdebugLevel(int debugLevel_) {
 	ps.debugLevel = debugLevel_;
 	WritePersistentMemory();
 }
+void PersistentMemoryClass::SetvccAdjustment(float vccAdj_) {
+	ps.vccAdjustment = vccAdj_;
+	WritePersistentMemory();
+}
+void PersistentMemoryClass::SetvccMinLimit(float vccMinLimit_) {
+	ps.vccMinLimit = vccMinLimit_;
+	WritePersistentMemory();
+}
 void PersistentMemoryClass::SetdeepSleepEnabled(boolean deepSleepEnabled_) {
 	ps.deepSleepEnabled = deepSleepEnabled_;
 	WritePersistentMemory();
@@ -207,6 +220,8 @@ void PersistentMemoryClass::Printps() {
 	LogLinef(3, __FUNCTION__, "valveOpenDuration %d", ps.valveOpenDuration);
 	LogLinef(3, __FUNCTION__, "valveSoakTime %d", ps.valveSoakTime);
 	LogLinef(3, __FUNCTION__, "humLimit %d", ps.humLimit);
+	LogLinef(3, __FUNCTION__, "vccAdjustment %f", ps.vccAdjustment);
+	LogLinef(3, __FUNCTION__, "vccMinLimit %f", ps.vccMinLimit);
 	LogLinef(3, __FUNCTION__, "mainLoopDelay %d", ps.mainLoopDelay);
 	LogLinef(3, __FUNCTION__, "debugLevel %d", ps.debugLevel);
 	LogLinef(3, __FUNCTION__, "deepSleepEnabled %d", (int) ps.deepSleepEnabled);
@@ -235,6 +250,8 @@ void PersistentMemoryClass::PrintpsRAW() {
 	Serial.println("valveOpenDuration " + String(ps.valveOpenDuration));
 	Serial.println("valveSoakTime " + String(ps.valveSoakTime));
 	Serial.println("humLimit " + String(ps.humLimit));
+	Serial.println("vccAdjustment " + String(ps.vccAdjustment));
+	Serial.println("vccMinLimit " + String(ps.vccMinLimit));
 	Serial.println("mainLoopDelay " + String(ps.mainLoopDelay));
 	Serial.println("debugLevel " + String(ps.debugLevel));
 	Serial.println("deepSleepEnabled " + String(ps.deepSleepEnabled));
