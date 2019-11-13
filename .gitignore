@@ -305,3 +305,11 @@ PCB/WRAPPED.kicad_pcb
 Firebase-ESP8266-DEMO/
 Arduino/AutoIrrigation/__vm/Compile.vmps.xml
 Arduino/AutoIrrigation/__vm/
+/Android/Irrigation/.gradle
+/Android/Irrigation/app/build
+/Android/Irrigation/app/app.iml
+/Android/Irrigation/local.properties
+/Android/Irrigation/Vandingsautomatik.iml
+/PCB/arkiv
+/PCB/footprint.pretty/12-5V_DCDC_v1.kicad_mod
+/PCB/_saved_irrigation v6.0.pro
