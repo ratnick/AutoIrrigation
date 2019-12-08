@@ -19,6 +19,7 @@ public class IrrDevice {
     public int nbrOfTelemetry;
     public int nbrOfLogs;
 
+    @SuppressWarnings("unchecked")
     public IrrDevice() {
         // Default constructor required for calls to DataSnapshot.getValue(Comment.class)
         this.metadata = new IrrDeviceMetadata();
