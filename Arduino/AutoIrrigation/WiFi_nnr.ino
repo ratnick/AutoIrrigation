@@ -1,49 +1,39 @@
 
-void initWifiDevice(int wifiSet) {   //wifiset always zero at the moment. But in time, it will be used for retries at different wifi ssid
 
-	wifiDevice.wifiPairs = 2;		 // nbr of combinations below
-	switch (wifiSet) {
-	case 1:
-		wifiDevice.currentSSID = "nohrTDC-taget";
-		wifiDevice.pwd = "xxx";
-		break;
-	case 2:
-		wifiDevice.currentSSID = "nohrTDC";
-		wifiDevice.pwd = "xxx";
-		break;
-	case 3:
-		wifiDevice.currentSSID = "nohrTDC_2GEXT";
-		wifiDevice.pwd = "xxx";
-		break;
-	case 4:
-		wifiDevice.currentSSID = "nohrTDC_5GEXT";
-		wifiDevice.pwd = "xxx";
-		break;
-	case 5:
-		wifiDevice.currentSSID = "TP-LINK NNR";
-		wifiDevice.pwd = "xxx";
-		break;
-	case 6:
-		wifiDevice.currentSSID = "Nik Z5";
-		wifiDevice.pwd = "xxx";
-		break;
-	case 7:
-		wifiDevice.currentSSID = "NikSession";
-		wifiDevice.pwd = "xxx";
-		break;
-	other:
-		break;
+typedef struct
+{
+	String ssid;
+	String pwd;
+} hotspot_cred;
+const int MAX_HOTSPOTS = 7;
 
-	}
+#include "wifipasswords.h"
+/* The file wifipasswords.h is private and has the following format:
+
+hotspot_cred SSID_pairs[MAX_HOTSPOTS] = {
+	{ "nohrx-yy", "*******" },
+	{ "nohrx", ""*******" },
+	{ "nohrx_2Gxxx", ""*******" },
+	{ "nohrx_xxx", ""*******" },
+	{ "CAR HOTSPOT", ""*******" },
+	{ "ROOF HOTSPOT", ""*******" },
+	{ "Nikxxx", ""*******" }
+};
+
+*/
+
+static void initWifiDevice(int wifiSet) {   //wifiset always zero at the moment. But in time, it will be used for retries at different wifi ssid
+	wifiDevice.currentSSID = SSID_pairs[wifiSet].ssid;
+	wifiDevice.pwd = SSID_pairs[wifiSet].pwd;
 }
 
-// return values:
-//  200: success. Is already connected.
-//	100: success connecting to SSID + pwd given in parameters
-//  0-N: success in connecting to (SSID, pwd) tuple number n.
-//   -1: no success in connecting.
 
 int initWifi() {
+	// return values:
+	//  200: success. Is already connected.
+	//	100: success connecting to SSID + pwd given in parameters
+	//  0-N: success in connecting to (SSID, pwd) tuple number n.
+	//   -1: no success in connecting.
 	return initWifi("", "");
 }
 

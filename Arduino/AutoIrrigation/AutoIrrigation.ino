@@ -18,15 +18,15 @@
 
 // Program control:
 //#define RUN_ONCE
-#define USE_DEEP_SLEEP				// When enabling, connect D0 to RST (on Wemos D1 mini)
+#define USE_DEEP_SLEEP				   // When enabling, connect D0 to RST (on Wemos D1 mini)
 #define NBR_OF_LOOPS_BEFORE_SLEEP 1
 #define TOTAL_SECS_TO_SLEEP 20
 
-#define DEEP_SLEEP_SOAK_THRESHOLD 120     // if soaking time exceeds this limit, we will use deep sleep instead of delay()
-#define LOOP_DELAY 10 //secs
-#define FORCE_NEW_VALUES false// Will overwrite all values in persistent memory. Enable once, disable and recompile
-//#define MEASURE_INTERNAL_VCC      // When enabling, we cannot use analogue reading of sensor. 
-#define SIMULATE_WATERING false     // open the valve in every loop
+#define DEEP_SLEEP_SOAK_THRESHOLD 120  // if soaking time exceeds this limit, we will use deep sleep instead of delay()
+#define LOOP_DELAY 10                  //secs
+#define FORCE_NEW_VALUES false         // Will overwrite all values in persistent memory. Enable once, disable and recompile
+//#define MEASURE_INTERNAL_VCC         // When enabling, we cannot use analogue reading of sensor. 
+#define SIMULATE_WATERING false        // open the valve in every loop
 // See also SIMULATE_SENSORS in SensorHandler.h
 #define DEBUGLEVEL 1
 
@@ -76,7 +76,6 @@
 #include "GasSensor.h"
 #include "VoltMeter.h"
 #include "DeepSleepHandler.h"
-#include "LEDHandler.h"
 #include "PersistentMemory.h"
 #ifdef USE_AZURE
 #include "AzureCloudHandler.h"
