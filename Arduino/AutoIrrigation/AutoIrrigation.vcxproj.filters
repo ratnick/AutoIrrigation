@@ -16,8 +16,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="AutoIrrigation.ino" />
-    <None Include="..\..\..\..\Common\Arduino\CommonNNR\NTPTimeServices.ino" />
-    <None Include="..\..\..\..\Common\Arduino\CommonNNR\WiFi_nnr.ino" />
+    <None Include="NTPTimeServices.ino">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="WiFi_nnr.ino">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.AutoIrrigation.vsarduino.h">
