@@ -80,14 +80,11 @@ watering on a city terrasse with the following main requirements:
 
 ![](media/52b8969e022fb8b628a3f045607cc01d.png)
 
-![Alt text](/docs/fig/image001.png?raw=true " The finished unit. Ready to plug
-into the soil.")
-
-Figur 1.
+Figur 1. The finished unit. Ready to plug into the soil.
 
 ![A close up of a piece of paper Description automatically generated](media/d5a75f028147682061810ceb927edf5d.png)
 
-Figur 2. Same unit - disassembled
+Figur . Same unit - disassembled
 
 ![A circuit board Description automatically generated](media/4143008a58fa44abb9371f4ef052db38.png)
 
@@ -95,7 +92,7 @@ Figur 3. Close-up of the PCB
 
 ![](media/ef8bff0f43158af55bfb84dba7f607e2.png)
 
-Figur 4. The Android app
+Figur . The Android app
 
 Overall Design drivers
 ======================
@@ -233,7 +230,7 @@ In brieft, you should (details in each section):
 System overview
 ===============
 
-Figur 5. System overview
+Figur . System overview
 
 Hardware & PCB
 ==============
@@ -256,7 +253,7 @@ are no changes affecting software.
 Overview
 --------
 
-Figur 6. Hardware overview.
+Figur . Hardware overview.
 
 1.  The hardware modules are all on same PCB, except:
 
@@ -309,7 +306,7 @@ File: irrigation v5.3.sch
 
 ![](media/269139f609fee04dd1f5e33d122465a7.png)
 
-Figur 8. Schematics.
+Figur . Schematics.
 
 PCB layout
 ----------
@@ -322,7 +319,7 @@ File: irrigation v5.3.kicad_pcb
 
 ![](media/b6800ffdd82a1b9f17b3c1bcd09ecf8f.png)
 
-Figur 9. PCB layout.
+Figur . PCB layout.
 
 Considerations & Notes
 ----------------------
@@ -742,7 +739,7 @@ File: Irrigation unit - Main box (side mounted)
 
 ![](media/3e6459f27b6f307ae294fc93ff34add4.png)
 
-Figur 10. Main box
+Figur . Main box
 
 ![](media/b87d59013a61778a4750c6b765550782.png)
 
@@ -758,7 +755,7 @@ Figur 12. Ceiling to main box
 
 ![](media/928f6e3db33dca7d7409f1b3948ca26a.png)
 
-Figur 13. ...with solar panel
+Figur . ...with solar panel
 
 ### Box for valve and valve driver
 
@@ -770,7 +767,7 @@ Figur 14. Box for valve and valve driver - seen from the bottom.
 
 ![](media/ac249ab959764932b3c2d216f89a281d.png)
 
-Figur 15...with components inside
+Figur ...with components inside
 
 Considerations and notes
 ------------------------
@@ -910,3 +907,7 @@ Log History
 |-------------|------------------------|------------------|
 | 15-dec-2019 | Initial public version | all              |
 |             |                        |                  |
+
+Save this file as ../README.MD to publish on GitHub with embedded pictures.
+
+Install the plugin <http://www.writage.com/> and export directly from Word.
