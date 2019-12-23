@@ -284,9 +284,9 @@ public class FirebaseObject implements Serializable {
                     if (count > 0) {
                         IrrDeviceLog post;
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                            //post = postSnapshot.getValue(IrrDeviceLog.class);
+                            post = postSnapshot.getValue(IrrDeviceLog.class);
                             //System.out.println(" timestamp " + post.timestamp + "  Vcc=" + post.Vcc);
-                            //allLog.child(postSnapshot.getKey()).removeValue();
+                            allLog.child(postSnapshot.getKey()).removeValue();
                         }
                     }
                     //showToast("Deleted " + count + " log posts");
