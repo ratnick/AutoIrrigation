@@ -13,15 +13,15 @@ const char timeServer[] = "0.dk.pool.ntp.org"; // Danish NTP Server
 boolean WifiHandlerClass::init(boolean usePredefinedSSID)
 {
 
-	WifiPair wifiPairA = { "TP-LINK NNR", "RASMUSSEN" };
+	WifiPair wifiPairA = { "TP-LINK NNR", "x" };
 	String c = "lkklJ";
 	String p = "LKJLJ";
 
 	//	WifiPair wifiPair[2] = {
 
 	String wifiPair[2][2]  = {
-		{"TP-LINK NNR", "RASMUSSEN"},
-		{"Nik Z5", "RASMUSSEN"}
+		{"TP-LINK NNR", "x"},
+		{"Nik Z5", "x"}
 	}	;
 
 	// variables for object
@@ -90,19 +90,19 @@ boolean WifiHandlerClass::init(boolean usePredefinedSSID)
 	switch (wifiSet) {
 	case 3:
 		wifiDevice.ssid = "TP-LINK NNR";
-		wifiDevice.pwd = "RASMUSSEN";
+		wifiDevice.pwd = "x";
 		break;
 	case 2:
 		wifiDevice.ssid = "Nik Z5";
-		wifiDevice.pwd = "RASMUSSEN";
+		wifiDevice.pwd = "x";
 		break;
 	case 1:
 		wifiDevice.ssid = "nohrTDC";
-		wifiDevice.pwd = "RASMUSSEN";
+		wifiDevice.pwd = "x";
 		break;
 	case 4:
 		wifiDevice.ssid = "NikSession";
-		wifiDevice.pwd = "rasmussen";
+		wifiDevice.pwd = "x";
 		break;
 	case 5:
 		wifiDevice.ssid = "TeliaGateway58-98-35-B5-DB-17";

@@ -16,7 +16,7 @@
 
 // Wifi newtork details.
 const char *ssid = "nohrTDC";
-const char *password = "RASMUSSEN";
+const char *password = "x";
 
 // Cloud iot details.
 const char* project_id = "irrigation-229017";

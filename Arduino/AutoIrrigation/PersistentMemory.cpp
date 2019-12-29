@@ -22,7 +22,7 @@ void PersistentMemoryClass::init(
 		strcpy(ps.macAddress, "ABCDEF\0");
 		strcpy(ps.deviceLocation, "not set\0");
 		strcpy(ps.wifiSSID, "nohrTDC\0");
-		strcpy(ps.wifiPwd, "RASMUSSEN\0");
+		strcpy(ps.wifiPwd, "x\0");
 		strcpy(ps.cloudUserName, "initial value\0");
 		strcpy(ps.cloudPwd, "not used\0");
 		strcpy(ps.runMode, RUNMODE_SOIL.c_str());
