@@ -5,6 +5,9 @@
 */
 
 
+//#include <jsmn.h>
+//#include <FirebaseJson.h>
+#include <SoftwareSerial.h>
 #define HARDWARE_DESCRIPTION "PCB v5.2 WeMOS D1 r2, 12V valve switch"
 #define DEVICE_ID "PCB v5.2 - #1"
 
@@ -18,7 +21,7 @@
 
 // Program control:
 //#define RUN_ONCE
-#define USE_DEEP_SLEEP				   // When enabling, connect D0 to RST (on Wemos D1 mini)
+//#define USE_DEEP_SLEEP				   // When enabling, connect D0 to RST (on Wemos D1 mini)
 #define NBR_OF_LOOPS_BEFORE_SLEEP 1
 #define TOTAL_SECS_TO_SLEEP 20
 
@@ -26,9 +29,10 @@
 #define LOOP_DELAY 10                  //secs
 #define FORCE_NEW_VALUES false         // Will overwrite all values in persistent memory. Enable once, disable and recompile
 //#define MEASURE_INTERNAL_VCC         // When enabling, we cannot use analogue reading of sensor. 
+//#define SLEEP_WHEN_LOW_VOLTAGE
 #define SIMULATE_WATERING false        // open the valve in every loop
 // See also SIMULATE_SENSORS in SensorHandler.h
-#define DEBUGLEVEL 1
+#define DEBUGLEVEL 4
 
 #ifdef USE_WIFI
 #include <SD.h>
@@ -73,12 +77,15 @@
 #include "ciotc_config.h" // Wifi configuration here
 #include "WaterValve.h"
 #include "SoilHumiditySensor.h"
-#include "GasSensor.h"
 #include "VoltMeter.h"
 #include "DeepSleepHandler.h"
 #include "PersistentMemory.h"
 #ifdef USE_AZURE
 #include "AzureCloudHandler.h"
+#endif
+#ifdef USE_GAS_SENSOR
+#include "GasSensor.h"
+GasSensorClass gasSensor;
 #endif
 
 // Wifi and network globals
@@ -101,7 +108,6 @@ const int CHANNEL_WATER = 2;
 // Sensors and actuators
 SoilHumiditySensorClass soilHumiditySensorA;
 WaterValveClass waterValveA;
-GasSensorClass gasSensor;
 VoltMeterClass externalVoltMeter;
 const int VALVE_OPEN_DURATION = 2;   // time a valve can be open in one run-time cycle, i.e. between deepsleeps
 const int VALVE_SOAK_TIME     = 30;   // time between two valve openings
@@ -159,7 +165,11 @@ void setup() {
 
 	// If voltage is too low, go to sleep immediately. No error checking
 	float vccTmp;
-	vccTmp = externalVoltMeter.ReadSingleVoltage();
+	#ifdef SLEEP_WHEN_LOW_VOLTAGE
+		vccTmp = externalVoltMeter.ReadSingleVoltage();
+	#else
+		vccTmp = PersistentMemory.ps.vccMinLimit;
+	#endif
 	LogLinef(3, __FUNCTION__, "Voltage: %fV. ", vccTmp);
 	if (vccTmp < PersistentMemory.ps.vccMinLimit) {
 		#ifdef USE_WIFI 
@@ -174,8 +184,7 @@ void setup() {
 			LogLinef(0, __FUNCTION__, "Voltage too low: %fV. Go to sleep for 12 hours", vccTmp);
 			DeepSleepHandler.GotoSleepAndWakeAfterDelay(12 * 60 * 60);
 	}
-
-
+	
 
 	String rm = PersistentMemory.GetrunMode();
 	if (rm.equals(RUNMODE_SOIL)) {
@@ -184,10 +193,13 @@ void setup() {
 	else if (rm.equals(RUNMODE_WATER)) {
 		soilHumiditySensorA.init(ANALOG_INPUT, "water sensor A", CHANNEL_WATER, SensorHandlerClass::WaterSensor, PersistentMemory.ps.humLimit);
 	}
+
+#ifdef USE_GAS_SENSOR
 	else if (rm.equals(RUNMODE_GAS)) {
 		gasSensor.init(ANALOG_INPUT, "gas senso", CHANNEL_HUM, SensorHandlerClass::GasSensor);
 	}
-
+#endif
+	
 	waterValveA.init(VALVE_CTRL, "water valve A", PersistentMemory.ps.valveOpenDuration, PersistentMemory.ps.valveSoakTime);
 	#ifdef USE_WIFI 
 		ConnectToWifi();
@@ -290,8 +302,17 @@ void loop() {
 	}
 	else if (rm.equals(RUNMODE_GAS)) {
 		if (!PersistentMemory.GetdeepSleepEnabled()) {
-			gasSensor.ReadSensor();
+			char jsonStr[1000];
+			jsonStr[0] = '\0';
+//			StaticJsonBuffer<1000> jsonBuffer;
+//			JsonObject& json = jsonBuffer.createObject();
+
+			LogLinef(0, __FUNCTION__, "A");
+			//			gasSensor.ReadSerialJsonOnce(jsonStr);
+			Serial.println(jsonStr);
+			LogLinef(0, __FUNCTION__, "B");
 			ConnectAndUploadToCloud(UploadTelemetry);
+			LogLinef(0, __FUNCTION__, "C");
 		}
 		else {
 			DeepSleepHandler.GotoSleepAndWakeAfterDelay(waterValveA.soakSeconds);
@@ -490,22 +511,33 @@ void RemoveTelemetryFromFirebase() {
 void GetSettings_(boolean firstRun) {
 	int val;
 	boolean b;
+	String str;
+
 	LogLine(4, __FUNCTION__, "begin");
 	if (firstRun || IsSettingsDataUpdatedByUser()) {
-		if (Firebase.getString(firebaseData, FB_BasePath + "/metadata/" + fb.location)) { 
-			PersistentMemory.SetdeviceLocation(firebaseData.stringData()); 
+		LogLinef(4, __FUNCTION__, "2 %s", FB_BasePath.c_str());
+		LogLinef(4, __FUNCTION__, "2 %s", fb.location.c_str());
+		str = FB_BasePath + "/metadata/" + fb.location;
+		if (Firebase.getString(firebaseData, str)) {
+			LogLinef(4, __FUNCTION__, " 2.1");
+			PersistentMemory.SetdeviceLocation(firebaseData.stringData());
+			LogLinef(4, __FUNCTION__, " 2.2");
 		}
-		if (Firebase.getString(firebaseData, FB_BasePath + "/metadata/" + fb.deviceID)) { 
+		LogLinef(4, __FUNCTION__, " 3");
+		if (Firebase.getString(firebaseData, FB_BasePath + "/metadata/" + fb.deviceID)) {
 			PersistentMemory.SetdeviceID(firebaseData.stringData()); 
 		}
+		LogLinef(4, __FUNCTION__, " 4");
 		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.mainLoopDelay)) {
 			PersistentMemory.SetmainLoopDelay(firebaseData.intData());
 		}
+		LogLinef(4, __FUNCTION__, " 5");
 		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.debugLevel)) {
 			int d = firebaseData.intData();
 			PersistentMemory.SetdebugLevel(d);
 			SetFBDebugLevel(d);
 		}
+		LogLinef(4, __FUNCTION__, " 10");
 		String fullPath;
 		for (int i = 0; i < MAX_WAKEUPTIMES; i++) {
 			fullPath = FB_BasePath + "/settings/" + fb.wakeupTime + String(i);
@@ -518,6 +550,7 @@ void GetSettings_(boolean firstRun) {
 			LogLinef(3, __FUNCTION__, " %s = %s", fb.pauseWakeTime.c_str(), firebaseData.stringData().c_str());
 			PersistentMemory.SetPauseWakeTime(firebaseData.stringData());
 		}
+		LogLinef(4, __FUNCTION__, " 20");
 		if (Firebase.getBool(firebaseData, FB_BasePath + "/settings/" + fb.deepSleepEnabled)) {
 			b = firebaseData.boolData();
 			LogLinef(3, __FUNCTION__, " %s = %b", fb.deepSleepEnabled.c_str(), b);
@@ -530,6 +563,7 @@ void GetSettings_(boolean firstRun) {
 		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.totalSecondsToSleep)) {
 			PersistentMemory.SettotalSecondsToSleep(firebaseData.intData());
 		}
+		LogLinef(4, __FUNCTION__, " 30");
 		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.openDur)) {
 			val = firebaseData.intData();
 			PersistentMemory.SetvalveOpenDuration(val);
@@ -548,6 +582,7 @@ void GetSettings_(boolean firstRun) {
 			float f = firebaseData.floatData();
 			PersistentMemory.SetvccMinLimit(f);
 		}
+		LogLinef(4, __FUNCTION__, " 40");
 
 		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.soakTime)) {
 			val = firebaseData.intData();

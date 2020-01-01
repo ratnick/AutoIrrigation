@@ -10,6 +10,9 @@
 #endif
 
 #include "SensorHandler.h"
+#include <ArduinoJson.hpp>
+#include <ArduinoJson.h>
+
 
 class GasSensorClass
 {
@@ -18,10 +21,10 @@ class GasSensorClass
 	 SensorHandlerClass::SensorType sensorType;
 
 	 void init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType);
-	 float GetlastPPM();
-	 float ReadSensor();
-	 float ConvertToPPM(float rawVal);
+	 void ReadSerialJsonOnce(char jsonStr[]);
 	 float TestSensor();
+	 float GetlastPPM();
+	 float ConvertToPPM(float rawVal);
 
 private:
 	int muxChannel;
@@ -29,6 +32,7 @@ private:
 	float lastAnalogueReading; 
 	float lastPPM;
 	boolean lastDigitalReading;
+
 
 };
 

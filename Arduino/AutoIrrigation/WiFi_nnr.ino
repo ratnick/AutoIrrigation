@@ -57,7 +57,7 @@ int initWifi(char _wifiSSID[], char _wifiPwd[]) {
 
 		//listNetworks();
 		while (MaxLoopsThroughAll-- >= 0) {
-			wifiDevice.WifiIndex = 0;
+			wifiDevice.WifiIndex = -1;
 			Serial.println("Not connected. Trying all known wifi hotspots.");
 
 			if (_wifiSSID[0] != 0) {
