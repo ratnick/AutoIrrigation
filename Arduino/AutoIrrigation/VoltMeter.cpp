@@ -36,9 +36,17 @@ void VoltMeterClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHand
 	}
 }
 
+void  VoltMeterClass::AddTelemetryJson(FirebaseJson* json) {
+	float val = this->ReadVoltage();
+	this->voltTm.voltage = (double) val;
+	json->add("Vcc", this->voltTm.voltage);
+	this->voltTm.lastAnalogueReadingVoltage = (int)this->GetlastAnalogueReadingVoltage();
+	json->add("lastAnalog", this->voltTm.lastAnalogueReadingVoltage);
+}
+
 float VoltMeterClass::ReadVoltage() {
 	MAX_VOLTAGE = PersistentMemory.ps.vccAdjustment;
-	factor = MAX_VOLTAGE / 1024.0;
+	//factor = MAX_VOLTAGE / 1024.0;
 	
 	float sumRes = 0.0;
 	LogLinef(2, __FUNCTION__, "READING FROM analog MUX channel %d", muxChannel);
@@ -46,7 +54,8 @@ float VoltMeterClass::ReadVoltage() {
 	float res = analogRead(pinNbr);
 	AnalogMux.CloseMUXpwr();
 	LogLinef(1, __FUNCTION__, "Value = %f   converted = %f", res, (res * factor));
-	
+	LogLinef(4, __FUNCTION__, "Factor = %f", factor);
+
 	this->lastAnalogueReadingVoltage = res;
 	res = res * factor;
 	readBuffer[currentCnt] = res;

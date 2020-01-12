@@ -9,6 +9,8 @@
 	#include "WProgram.h"
 #endif
 
+#include <jsmn.h>
+#include <FirebaseJson.h>
 #include "SensorHandler.h"
 
 class SoilHumiditySensorClass
@@ -19,8 +21,13 @@ class SoilHumiditySensorClass
 
 	 char name[15];
 	 SensorHandlerClass::SensorType sensorType;
+	 struct SoilHumidityTelemetry {
+		 double humPct;
+	 };
+	 SoilHumiditySensorClass::SoilHumidityTelemetry soilTm;
 
 	 void init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType, int _humLimit);
+	 void AddTelemetryJson(FirebaseJson* json);
 	 boolean CheckIfWater();
 	 float GetlastAnalogueReadingWater();
 	 float GetHumidityPct();

@@ -2,7 +2,6 @@
 // 
 // 
 
-#include "globals.h"
 #include "SoilHumiditySensor.h"
 #include "AnalogMux.h"
 #include "LogLib.h"
@@ -18,7 +17,12 @@ void SoilHumiditySensorClass::init(int _pinNbr, char _name[], int _muxChannel, S
 	humLimit = WET_VALUE_HUMIDITY + humLimitPct * (DRY_VALUE_HUMIDITY - WET_VALUE_HUMIDITY) / 100.0;
 
 	pinMode(pinNbr, INPUT);
-	LogLinef(2, __FUNCTION__, "MUX channel:%d   analog pin:%d   name:%s", muxChannel, pinNbr, name);
+	LogLinef(2, __FUNCTION__, "MUX channel:%d   analog pin:%d   name:%s   _humLimit=%d", muxChannel, pinNbr, name, _humLimit);
+}
+
+void SoilHumiditySensorClass::AddTelemetryJson(FirebaseJson* json) {
+	this->soilTm.humPct = (double)this->GetHumidityPct();
+	json->add("Hum", this->soilTm.humPct);
 }
 
 void SoilHumiditySensorClass::SethumLimitPct(int _humLimitPct) {

@@ -22,6 +22,10 @@ void WaterValveClass::init(int _pinNbr, char _name[], int _openSeconds, int _soa
 	Serial.printf("\nWaterValveClass::init: pin:%d name:%s, open:%d, soak:%d\n", pinNbr, name, openSeconds, soakSeconds);
 }
 
+void WaterValveClass::AddTelemetryJson(FirebaseJson* json) {
+	json->add("lastOpen", String(this->valveTm.lastOpenTimestamp));
+	json->add("vlvState", this->valveState);
+}
 
 void WaterValveClass::SetvalveOpenDuration(int valveOpenDuration_){
 	openSeconds = valveOpenDuration_;
@@ -40,7 +44,7 @@ void WaterValveClass::OpenValve() {
 }
 
 void WaterValveClass::KeepOpen() {
-	LogLine(3, __FUNCTION__, "");
+	LogLinef(3, __FUNCTION__, "openSeconds=%d", openSeconds);
 	delay(1000 * openSeconds);
 }
 

@@ -2,10 +2,7 @@
 // What this file does is establish serial comm to that device.
 // 
 
-#include "globals.h"
 #include "GasSensor.h"
-#include "AnalogMux.h"
-#include "LogLib.h"
 #include <SoftwareSerial.h>
 
 SoftwareSerial serialPort(D1, D2); // (Rx, Tx)
@@ -14,9 +11,8 @@ SoftwareSerial serialPort(D1, D2); // (Rx, Tx)
 void GasSensorClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType)
 {
 	// For serial comm to Arduino:
-	//serialPort.begin(9600);
+	serialPort.begin(9600);
 
-	/*
 	strcpy(name, _name);
 	pinNbr = _pinNbr;
 	muxChannel = _muxChannel;
@@ -25,20 +21,54 @@ void GasSensorClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHand
 
 	pinMode(pinNbr, INPUT);
 	//log	LogLine(2, __FUNCTION__, "MUX channel:" + String(muxChannel) + " analog pin:" + String(pinNbr) + " name:" + String(name));
-	*/
 }
 
-void GasSensorClass::ReadSerialJsonOnce(char jsonStr[]) {
+void GasSensorClass::GetTelemetryJson(FirebaseJson *json) {
+	char jsonStr[500];
+	FirebaseJsonData jsonData;
+
+	this->ReadSerialJsonOnce(jsonStr);
+	
+	Serial.println("GasSensorClass::GetTelemetryJson");
+	Serial.println(jsonStr);
+	json->setJsonData(jsonStr);
+
+	// assign internal variables
+	json->get(jsonData, "cur_ppm");		this->gasTm.cur_CO_ppm_measurement = jsonData.doubleValue;
+	json->get(jsonData, "last_ppm");	this->gasTm.last_CO_ppm_measurement = jsonData.doubleValue;
+	json->get(jsonData, "sens_val");	this->gasTm.sens_val = jsonData.doubleValue;
+	json->get(jsonData, "phase");		this->gasTm.phase= jsonData.intValue;
+}
+
+void GasSensorClass::ReadSerialJsonOnce(char *jsonStr) {
+
+	char jsonReplyStr[] = "{ \"cur_CO_ppm_measurement\": 2.2, \"last_CO_ppm_measurement\" : 3.3, \"sens_val\" : 4.01, \"phase\" : 1 }";
+
 	bool noDataReceived = true;
 	int cnt = 0;
 	int i = 0;
 
-	while (noDataReceived && cnt++ < 20) {
+	for (i = 0; i < strlen(jsonReplyStr); i++) {
+		jsonStr[i] = jsonReplyStr[i];
+	}
+	jsonStr[i++] = '\0';
+	Serial.println("GasSensorClass::ReadSerialJsonOnce");
+	Serial.print(jsonStr);
+	return;
+
+	serialPort.write('X');
+	serialPort.flush();
+	Serial.println("X sent");
+
+	delay(1000);
+	while (noDataReceived && cnt++ < 30) {
 		while (Serial.read() > 0) {
 			jsonStr[i++] = Serial.read();
+			Serial.print("*");
 		}
+		Serial.print(".");
 		jsonStr[i] = '\0';
-		if (jsonStr[0] == '\0') {
+/*		if (jsonStr[0] == '\0') {
 			serialPort.write('X');
 			Serial.print(".");
 		}
@@ -46,8 +76,10 @@ void GasSensorClass::ReadSerialJsonOnce(char jsonStr[]) {
 			Serial.println("JSON received and parsed");
 			noDataReceived = false;
 		}
+*/
 		delay(500);
 	}
+
 }
 
 /*

@@ -1,15 +1,14 @@
-#include <ArduinoJson.hpp>
-#include <ArduinoJson.h>
+//#include <ArduinoJson.hpp>
+//#include <ArduinoJson.h>
 #include "PersistentMemory.h"
 #include "LogLib.h"
-
-
 
 void PersistentMemoryClass::init(
 	bool resetMemory, 
 	int _totalSecondsToSleep,
-	const char* _deviceID, 
-	int _valveOpenDuration, 
+	const char* _deviceID,
+	const char* _hardware,
+	int _valveOpenDuration,
 	int _valveSoakTime,
 	int _mainLoopDelay,
 	int _debugLevel) {
@@ -18,31 +17,41 @@ void PersistentMemoryClass::init(
 	LogLinef(2, __FUNCTION__, "EEPROM length: %d", usedSize);
 
 	if (resetMemory) {
-		strcpy(ps.deviceID, _deviceID);
+		// Metadata
+		strcpy(ps.deviceID, _deviceID );
 		strcpy(ps.macAddress, "ABCDEF\0");
 		strcpy(ps.deviceLocation, "not set\0");
+		strcpy(ps.sensorType, "not set\0");
+		strcpy(ps.hardware, _hardware);
+		strcpy(ps.softwareVersion, "AutoIrrigation.ino - Compiled: " __DATE__ " " __TIME__ "\0");
+
+		// State
 		strcpy(ps.wifiSSID, "nohrTDC\0");
 		strcpy(ps.wifiPwd, "RASMUSSEN\0");
-		strcpy(ps.cloudUserName, "initial value\0");
-		strcpy(ps.cloudPwd, "not used\0");
+		ps.runOnce = false;
+		ps.currentSleepCycle = 0; // counts which sleep cycle we are at right now.
+		ps.secondsToSleep = 3;
+		ps.maxSleepCycles = 0;
+
+		// Settings
 		strcpy(ps.runMode, RUNMODE_SOIL.c_str());
+		ps.valveOpenDuration = _valveOpenDuration;
+		ps.valveSoakTime = _valveSoakTime;
+		ps.humLimit = 50; //pct
+		ps.mainLoopDelay = _mainLoopDelay;
+		ps.debugLevel = _debugLevel;
+		ps.deepSleepEnabled = false;
 		for (int i = 0; i < MAX_WAKEUPTIMES; i++) {
 			strcpy(ps.wakeupTime[i], "HHMMSS\0");
 		}
 		strcpy(ps.pauseWakeTime, "HHMMSS\0");
-		ps.totalSecondsToSleep = _totalSecondsToSleep;
-		ps.currentSleepCycle = 0; // counts which sleep cycle we are at right now.
-		ps.secondsToSleep = 30;
-		ps.maxSleepCycles = 0;
-		ps.lastVccSummarizedReading = 0;
-		ps.valveOpenDuration = _valveOpenDuration;
-		ps.valveSoakTime = _valveSoakTime;
-		ps.humLimit = 50; //pct
 		ps.vccAdjustment = 4.01; // Volt
-		ps.vccMinLimit = 3.10; // Volt
-		ps.mainLoopDelay = _mainLoopDelay;
-		ps.debugLevel = _debugLevel;
-		ps.deepSleepEnabled = true;
+		ps.vccMinLimit = 0.00; // Volt
+
+		// Misc, not sent to Firebase
+		ps.totalSecondsToSleep = _totalSecondsToSleep;
+		ps.lastVccSummarizedReading = 0;
+
 		WritePersistentMemory();
 		LogLine(3, __FUNCTION__, "TOTAL RESET");
 	}
@@ -70,6 +79,42 @@ void PersistentMemoryClass::WritePersistentMemory() {
 	delay(200);
 };
 
+void PersistentMemoryClass::AddMetadataJson(FirebaseJson* json) {
+	json->add(FB_macAddress, String(ps.macAddress));
+	json->add(FB_deviceLocation, String(ps.deviceLocation));
+	json->add(FB_deviceID, String(ps.deviceID));
+	json->add(FB_sensorType, String(ps.sensorType));
+	json->add(FB_hardware, String(ps.hardware));
+	json->add(FB_softwareVersion, String(ps.softwareVersion));
+};
+
+void PersistentMemoryClass::AddStateJson(FirebaseJson* json) {
+	json->add(FB_wifiSSID, String(ps.wifiSSID));
+	json->add(FB_secondsToSleep, ps.secondsToSleep);
+	json->add(FB_maxSleepCycles, ps.maxSleepCycles);
+	json->add(FB_currentSleepCycle, ps.currentSleepCycle);
+	json->add(FB_runOnce, ps.runOnce);
+};
+
+void PersistentMemoryClass::AddSettingsJson(FirebaseJson* json) {
+	json->add(FB_runMode, String(ps.runMode));
+	json->add(FB_valveOpenDuration, ps.valveOpenDuration);
+	json->add(FB_valveSoakTime, ps.valveSoakTime);
+	json->add(FB_humLimit, ps.humLimit);
+	json->add(FB_mainLoopDelay, ps.mainLoopDelay);
+	json->add(FB_debugLevel, ps.debugLevel);
+	json->add(FB_deepSleepEnabled, ps.deepSleepEnabled);
+	json->add(FB_wakeupTime "0", String(ps.wakeupTime[0]));
+	json->add(FB_wakeupTime "1", String(ps.wakeupTime[1]));
+	json->add(FB_wakeupTime "2", String(ps.wakeupTime[2]));
+	json->add(FB_wakeupTime "3", String(ps.wakeupTime[3]));
+	json->add(FB_pauseWakeTime, String(ps.pauseWakeTime));
+	json->add(FB_vccAdjustment, ps.vccAdjustment);
+	json->add(FB_vccMinLimit, ps.vccMinLimit);
+};
+
+
+/*
 String PersistentMemoryClass::GetStateJson() {
 	DynamicJsonBuffer  jsonBuffer(200);
 	String jsonStr;
@@ -84,13 +129,12 @@ String PersistentMemoryClass::GetStateJson() {
 
 	root.printTo(jsonStr);
 	return jsonStr;
-}
+}*/
 
 String PersistentMemoryClass::GetDeviceID()			 { return String(ps.deviceID);   }
 String PersistentMemoryClass::GetdeviceLocation()	 { return String(ps.deviceLocation); }
 String PersistentMemoryClass::GetmacAddress()		 { return String(ps.macAddress); }
 String PersistentMemoryClass::GetwifiSSID()			 { return String(ps.wifiSSID); }
-String PersistentMemoryClass::GetCloudUsername()	 { return String(ps.cloudUserName); }
 String PersistentMemoryClass::GetrunMode()			 { return String(ps.runMode); }
 String PersistentMemoryClass::GetWakeTime(int i)     { return String(ps.wakeupTime[i]); }
 String PersistentMemoryClass::GetPauseWakeTime()     { return String(ps.pauseWakeTime); }
@@ -202,29 +246,29 @@ void PersistentMemoryClass::SetdeepSleepEnabled(boolean deepSleepEnabled_) {
 
 void PersistentMemoryClass::Printps() {
 
-	LogLinef(3, __FUNCTION__, "deviceID          %s", ps.deviceID);
-	LogLinef(3, __FUNCTION__, "macAddress        %s", ps.macAddress);
-	LogLinef(3, __FUNCTION__, "deviceLocation    %s", ps.deviceLocation);
-	LogLinef(3, __FUNCTION__, "wifiSSID          %s", ps.wifiSSID);
-	LogLinef(3, __FUNCTION__, "wifiPwd           %s", ps.wifiPwd);
-	LogLinef(3, __FUNCTION__, "cloudUserName     %s", ps.cloudUserName);
-	LogLinef(3, __FUNCTION__, "cloudPwd          %s", ps.cloudPwd);
-	LogLinef(3, __FUNCTION__, "runMode           %s", ps.runMode);
-	LogLinef(3, __FUNCTION__, "wakeTime          %s", ps.wakeupTime[0]);
-	LogLinef(3, __FUNCTION__, "pauseWakeTime     %s", ps.pauseWakeTime);
-	LogLinef(3, __FUNCTION__, "totalSecondsToSleep %d", ps.totalSecondsToSleep);
-	LogLinef(3, __FUNCTION__, "secondsToSleep    %d", ps.secondsToSleep);
-	LogLinef(3, __FUNCTION__, "maxSleepCycles    %d", ps.maxSleepCycles);
-	LogLinef(3, __FUNCTION__, "currentSleepCycle %d", ps.currentSleepCycle);
-	LogLinef(3, __FUNCTION__, "lastVccSummarizedReading %f", ps.lastVccSummarizedReading);
-	LogLinef(3, __FUNCTION__, "valveOpenDuration %d", ps.valveOpenDuration);
-	LogLinef(3, __FUNCTION__, "valveSoakTime %d", ps.valveSoakTime);
-	LogLinef(3, __FUNCTION__, "humLimit %d", ps.humLimit);
-	LogLinef(3, __FUNCTION__, "vccAdjustment %f", ps.vccAdjustment);
-	LogLinef(3, __FUNCTION__, "vccMinLimit %f", ps.vccMinLimit);
-	LogLinef(3, __FUNCTION__, "mainLoopDelay %d", ps.mainLoopDelay);
-	LogLinef(3, __FUNCTION__, "debugLevel %d", ps.debugLevel);
-	LogLinef(3, __FUNCTION__, "deepSleepEnabled %d", (int) ps.deepSleepEnabled);
+	LogLinef(5, __FUNCTION__, "deviceID          %s", ps.deviceID);
+	LogLinef(5, __FUNCTION__, "macAddress        %s", ps.macAddress);
+	LogLinef(5, __FUNCTION__, "deviceLocation    %s", ps.deviceLocation);
+	LogLinef(5, __FUNCTION__, "wifiSSID          %s", ps.wifiSSID);
+	LogLinef(5, __FUNCTION__, "wifiPwd           %s", ps.wifiPwd);
+	LogLinef(5, __FUNCTION__, "hardware          %s", ps.hardware);
+	LogLinef(5, __FUNCTION__, "sw version        %s", ps.softwareVersion);
+	LogLinef(5, __FUNCTION__, "runMode           %s", ps.runMode);
+	LogLinef(5, __FUNCTION__, "wakeTime          %s", ps.wakeupTime[0]);
+	LogLinef(5, __FUNCTION__, "pauseWakeTime     %s", ps.pauseWakeTime);
+	LogLinef(5, __FUNCTION__, "totalSecondsToSleep %d", ps.totalSecondsToSleep);
+	LogLinef(5, __FUNCTION__, "secondsToSleep    %d", ps.secondsToSleep);
+	LogLinef(5, __FUNCTION__, "maxSleepCycles    %d", ps.maxSleepCycles);
+	LogLinef(5, __FUNCTION__, "currentSleepCycle %d", ps.currentSleepCycle);
+	LogLinef(5, __FUNCTION__, "lastVccSummarizedReading %f", ps.lastVccSummarizedReading);
+	LogLinef(5, __FUNCTION__, "valveOpenDuration %d", ps.valveOpenDuration);
+	LogLinef(5, __FUNCTION__, "valveSoakTime %d", ps.valveSoakTime);
+	LogLinef(5, __FUNCTION__, "humLimit %d", ps.humLimit);
+	LogLinef(5, __FUNCTION__, "vccAdjustment %f", ps.vccAdjustment);
+	LogLinef(5, __FUNCTION__, "vccMinLimit %f", ps.vccMinLimit);
+	LogLinef(5, __FUNCTION__, "mainLoopDelay %d", ps.mainLoopDelay);
+	LogLinef(5, __FUNCTION__, "debugLevel %d", ps.debugLevel);
+	LogLinef(5, __FUNCTION__, "deepSleepEnabled %d", (int) ps.deepSleepEnabled);
 	
 }
 
@@ -234,8 +278,6 @@ void PersistentMemoryClass::PrintpsRAW() {
 	Serial.println("deviceLocation    " + String(ps.deviceLocation));
 	Serial.println("wifiSSID          " + String(ps.wifiSSID));
 	Serial.println("wifiPwd           " + String(ps.wifiPwd));
-	Serial.println("cloudUserName     " + String(ps.cloudUserName));
-	Serial.println("cloudPwd          " + String(ps.cloudPwd));
 	Serial.println("runMode           " + String(ps.runMode));
 	Serial.println("wakeTime 0       " + String(ps.wakeupTime[0]));
 	Serial.println("wakeTime 1       " + String(ps.wakeupTime[1]));
@@ -276,8 +318,6 @@ void PersistentMemoryClass::UnitTest() {
 	strcpy(ps.wifiSSID, "xxxxxx");
 	strcpy(ps.wifiSSID, "ccccccc");
 	strcpy(ps.wifiPwd, "ddddddddd");
-	strcpy(ps.cloudUserName, "aaaa");
-	strcpy(ps.cloudPwd, "bbbbb");
 	ps.secondsToSleep = 10;
 	ps.maxSleepCycles = 2;  // The total sleep time before the loop() is executed is secondsToSleep * maxSleepCycles
 	ps.currentSleepCycle = 3; // counts which sleep cycle we are at right now.
@@ -295,8 +335,6 @@ void PersistentMemoryClass::UnitTest() {
 	strcpy(ps.wifiSSID, "xxxxxx");
 	strcpy(ps.wifiSSID, "ccccccc");
 	strcpy(ps.wifiPwd, "ddddddddd");
-	strcpy(ps.cloudUserName, "aaaa");
-	strcpy(ps.cloudPwd, "bbbbb");
 	ps.secondsToSleep = 10;
 	ps.maxSleepCycles = 1;  // The total sleep time before the loop() is executed is secondsToSleep * maxSleepCycles
 	ps.currentSleepCycle = 0; // counts which sleep cycle we are at right now.

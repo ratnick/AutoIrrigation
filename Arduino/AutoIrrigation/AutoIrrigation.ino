@@ -5,41 +5,42 @@
 */
 
 
-//#include <jsmn.h>
-//#include <FirebaseJson.h>
 #include <SoftwareSerial.h>
-#define HARDWARE_DESCRIPTION "PCB v5.2 WeMOS D1 r2, 12V valve switch"
-#define DEVICE_ID "PCB v5.2 - #1"
+#define HARDWARE_DESCRIPTION "PCB v5.3 WeMOS D1 r2, 12V valve switch"
+#define DEVICE_ID "#xx"
 
+// Main modes of operation (also used when developing new features)
 //#define USE_GAS_SENSOR 
 #define USE_WIFI
 
-// Hmmm - which cloud to use:
+// Choose cloud:
 //#define USE_GOOGLE_CLOUD
 //#define USE_AZURE
 #define USE_FIREBASE
 
 // Program control:
-//#define RUN_ONCE
-//#define USE_DEEP_SLEEP				   // When enabling, connect D0 to RST (on Wemos D1 mini)
-#define NBR_OF_LOOPS_BEFORE_SLEEP 1
-#define TOTAL_SECS_TO_SLEEP 20
-
-#define DEEP_SLEEP_SOAK_THRESHOLD 120  // if soaking time exceeds this limit, we will use deep sleep instead of delay()
-#define LOOP_DELAY 10                  //secs
-#define FORCE_NEW_VALUES false         // Will overwrite all values in persistent memory. Enable once, disable and recompile
+//#define RUN_ONCE					   // Debug mode: no looping, just execute once
+#define USE_DEEP_SLEEP				   // [true] When enabling, connect D0 to RST (on Wemos D1 mini)
+#define NBR_OF_LOOPS_BEFORE_SLEEP 1    // [1] How many times will we perform a standard main loop before potentially sleeping
+#define TOTAL_SECS_TO_SLEEP 20		   // [20] Default sleep time
+#define DEEP_SLEEP_SOAK_THRESHOLD 120  // [120] if soaking time exceeds this limit, we will use deep sleep instead of delay()
+#define LOOP_DELAY 10                  // [10] secs
+#define SLEEP_WHEN_LOW_VOLTAGE		   // as the first thing, measure battery voltage. If too low, go immediately to sleep without connecting to wifi.
 //#define MEASURE_INTERNAL_VCC         // When enabling, we cannot use analogue reading of sensor. 
-//#define SLEEP_WHEN_LOW_VOLTAGE
+
+// Development & debugging
+#define FORCE_NEW_VALUES false         // [false] Will overwrite all values in persistent memory. Enable once, disable and recompile
 #define SIMULATE_WATERING false        // open the valve in every loop
 // See also SIMULATE_SENSORS in SensorHandler.h
-#define DEBUGLEVEL 4
+#define DEBUGLEVEL 4					// Has dual function: 1) serving as default value for Firebase Logging (which can be modified at runtime). 2) Defining debug level on serial port.
+
+#include <jsmn.h>
+#include <FirebaseJson.h>
 
 #ifdef USE_WIFI
 #include <SD.h>
 #include <FirebaseESP8266.h>
 #include <ESP8266WiFi.h>
-#include <ArduinoJson.hpp>
-#include <ArduinoJson.h>
 #include <WiFiUdp.h>
 #include <WiFiServer.h>
 #include <WiFiClient.h>
@@ -48,7 +49,6 @@
 #ifdef USE_FIREBASE
 #include <SPI.h>
 #include <FirebaseESP8266HTTPClient.h>
-#include "FirebaseModel.h"
 #endif
 
 #ifdef USE_GOOGLE_CLOUD
@@ -62,6 +62,7 @@
 #include <rBase64.h>
 #include <CertStoreBearSSL.h>
 #include <BearSSLHelpers.h>
+#include "backoff.h"
 #include "backoff.h"
 #endif
 
@@ -109,12 +110,12 @@ const int CHANNEL_WATER = 2;
 SoilHumiditySensorClass soilHumiditySensorA;
 WaterValveClass waterValveA;
 VoltMeterClass externalVoltMeter;
-const int VALVE_OPEN_DURATION = 2;   // time a valve can be open in one run-time cycle, i.e. between deepsleeps
-const int VALVE_SOAK_TIME     = 30;   // time between two valve openings
+const int VALVE_OPEN_DURATION = 2;   // [2] time a valve can be open in one run-time cycle, i.e. between deepsleeps
+const int VALVE_SOAK_TIME     = 3;   // [30] time between two valve openings
 
 // General control
 int loopCount = 0;  // used in conjunction with NBR_OF_LOOPS_BEFORE_SLEEP
-const char SOFTWARE_VERSION[] = "AutoIrrigation.ino - Compiled: " __DATE__ " " __TIME__;
+//const char SOFTWARE_VERSION[] = "AutoIrrigation.ino - Compiled: " __DATE__ " " __TIME__;
 
 #ifdef USE_GOOGLE_CLOUD
 // Google Cloud globals
@@ -141,15 +142,13 @@ void setup() {
 	PersistentMemory.SetdebugLevel(DEBUGLEVEL);
 
 	// read persistent memory
-	PersistentMemory.init(FORCE_NEW_VALUES, TOTAL_SECS_TO_SLEEP, DEVICE_ID, VALVE_OPEN_DURATION, VALVE_SOAK_TIME, LOOP_DELAY, DEBUGLEVEL);   // false: read from memory.  true: initialize
+	PersistentMemory.init(FORCE_NEW_VALUES, TOTAL_SECS_TO_SLEEP, DEVICE_ID, HARDWARE_DESCRIPTION, VALVE_OPEN_DURATION, VALVE_SOAK_TIME, LOOP_DELAY, DEBUGLEVEL);   // false: read from memory.  true: initialize
 	//PersistentMemory.Printps();
 	//PersistentMemory.UnitTest();  // just for testing
 	//PersistentMemory.Printps();
 //	PersistentMemory.SetdebugLevel(debuglevel);
 	Serial.printf("persisten mem debugLevel=%d (should be %d)\n", PersistentMemory.GetdebugLevel(), DEBUGLEVEL);
 	SetFBDebugLevel(PersistentMemory.GetdebugLevel());
-	LogLine(1, __FUNCTION__, "BEGIN");
-
 	LogLinef(1, __FUNCTION__, "Sleep cycle %d of %d", PersistentMemory.ps.currentSleepCycle, PersistentMemory.ps.maxSleepCycles);
 	if (PersistentMemory.ps.currentSleepCycle != 0) {
 		DeepSleepHandler.GoToDeepSleep();
@@ -167,24 +166,18 @@ void setup() {
 	float vccTmp;
 	#ifdef SLEEP_WHEN_LOW_VOLTAGE
 		vccTmp = externalVoltMeter.ReadSingleVoltage();
+		LogLinef(3, __FUNCTION__, "Voltage: %fV. ", vccTmp);
 	#else
 		vccTmp = PersistentMemory.ps.vccMinLimit;
 	#endif
-	LogLinef(3, __FUNCTION__, "Voltage: %fV. ", vccTmp);
+
 	if (vccTmp < PersistentMemory.ps.vccMinLimit) {
 		#ifdef USE_WIFI 
 			ConnectToWifi();
 		#endif
-		#ifdef USE_FIREBASE
-			FB_BasePath = FB_DEVICE_PATH + PersistentMemory.GetmacAddress();
-			Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
-			//RemoveTelemetryFromFirebase(); UploadLog_("Setup(): ALL TELEMETRY REMOVED");
-			InitFirebaseLogging(&firebaseData, FB_BasePath, "log", JSON_BUFFER_LENGTH);
-		#endif
-			LogLinef(0, __FUNCTION__, "Voltage too low: %fV. Go to sleep for 12 hours", vccTmp);
-			DeepSleepHandler.GotoSleepAndWakeAfterDelay(12 * 60 * 60);
-	}
-	
+		LogLinef(0, __FUNCTION__, "Voltage too low: %fV. Go to sleep for 12 hours", vccTmp);
+		DeepSleepHandler.GotoSleepAndWakeAfterDelay(12 * 60 * 60);
+	}	
 
 	String rm = PersistentMemory.GetrunMode();
 	if (rm.equals(RUNMODE_SOIL)) {
@@ -202,6 +195,7 @@ void setup() {
 	
 	waterValveA.init(VALVE_CTRL, "water valve A", PersistentMemory.ps.valveOpenDuration, PersistentMemory.ps.valveSoakTime);
 	#ifdef USE_WIFI 
+
 		ConnectToWifi();
 		WiFi.macAddress(macAddr);
 		PersistentMemory.SetmacAddress(macAddr);
@@ -218,21 +212,22 @@ void setup() {
 		else {
 			LogLine(0, __FUNCTION__, "Time NOT fetched and adjusted");
 		}
-	#endif
 
-	#ifdef USE_GOOGLE_CLOUD
-		device = new CloudIoTCoreDevice(project_id, location, registry_id, device_id, private_key_str);
-		//Serial.println(getJwt());
-		//getJwt();
-		//LogLine(1, __FUNCTION__, "Renewed JWT");
-		//ConnectAndUploadToCloud(GetConfig);
-		//ConnectAndUploadToCloud(UploadState);
-	#endif
-	#ifdef USE_FIREBASE
-		FB_BasePath = FB_DEVICE_PATH + PersistentMemory.GetmacAddress();
-		Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);  
-		//RemoveTelemetryFromFirebase(); UploadLog_("Setup(): ALL TELEMETRY REMOVED");
-		ConnectAndUploadToCloud(UploadStateAndSettings);
+		#ifdef USE_GOOGLE_CLOUD
+			device = new CloudIoTCoreDevice(project_id, location, registry_id, device_id, private_key_str);
+			//Serial.println(getJwt());
+			//getJwt();
+			//LogLine(1, __FUNCTION__, "Renewed JWT");
+			//ConnectAndUploadToCloud(GetConfig);
+			//ConnectAndUploadToCloud(UploadState);
+		#endif
+		#ifdef USE_FIREBASE
+			FB_BasePath = FB_DEVICE_PATH + PersistentMemory.GetmacAddress();
+			Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+			//RemoveTelemetryFromFirebase(); UploadLog_("Setup(): ALL TELEMETRY REMOVED");
+			ConnectAndUploadToCloud(UploadStateAndSettings);
+		#endif
+
 	#endif
 }
 
@@ -251,8 +246,8 @@ boolean WaterIfNeeded() {
 	if ((soilHumiditySensorA.CheckIfWater() == SoilHumiditySensor.DRY) || SIMULATE_WATERING) {
 		LogLine(1, __FUNCTION__, "Low water detected. Watering and soaking.");
 
-		waterValveA.OpenValve();
 		ConnectAndUploadToCloud(UploadTelemetry);
+		waterValveA.OpenValve();
 		waterValveA.KeepOpen();
 
 		waterValveA.CloseValve();
@@ -300,16 +295,11 @@ void loop() {
 	else if (rm.equals(RUNMODE_HARDWARETEST)) {
 		testHardware();
 	}
+#ifdef USE_GAS_SENSOR
 	else if (rm.equals(RUNMODE_GAS)) {
 		if (!PersistentMemory.GetdeepSleepEnabled()) {
-			char jsonStr[1000];
-			jsonStr[0] = '\0';
-//			StaticJsonBuffer<1000> jsonBuffer;
-//			JsonObject& json = jsonBuffer.createObject();
-
-			LogLinef(0, __FUNCTION__, "A");
-			//			gasSensor.ReadSerialJsonOnce(jsonStr);
-			Serial.println(jsonStr);
+			FirebaseJson json;
+			gasSensor.GetTelemetryJson(&json);
 			LogLinef(0, __FUNCTION__, "B");
 			ConnectAndUploadToCloud(UploadTelemetry);
 			LogLinef(0, __FUNCTION__, "C");
@@ -321,17 +311,17 @@ void loop() {
 			DeepSleepHandler.GotoSleepAndWakeAfterDelay(PersistentMemory.GettotalSecondsToSleep());
 		}
 	}
+#endif
 	else {
 		LogLinef(0, __FUNCTION__, "Illegal option chosen: %s . Resetting runMode to normal", rm.c_str());
 		PersistentMemory.SetrunMode(RUNMODE_SOIL);
 		LED_Flashes(200, 100);
 	}
 
-
 	#ifdef RUN_ONCE
 		while (true) {
-			delay(10000);
-			LogLine(1, __FUNCTION__, "wait forever");
+			LogLine(1, __FUNCTION__, "wait forever (controlled by RUN_ONCE directive)");
+			delay(60000);
 		}
 	#else
 	int d = PersistentMemory.GetmainLoopDelay();
@@ -349,28 +339,15 @@ void ConnectAndUploadToCloud(UploadType uploadType, boolean firstRun) {
 	if ( (WiFi.status() == WL_CONNECTED) && IsWifiStrenghtOK() ) {   
 		LogLine(4, __FUNCTION__, "wifi connected OK");
 		#ifdef USE_FIREBASE
-			InitFirebaseLogging(&firebaseData, FB_BasePath, "log", JSON_BUFFER_LENGTH);
-			String s;
-			String s_tmp;
-			DynamicJsonBuffer  jsonBufferRoot(JSON_BUFFER_LENGTH);
-			DynamicJsonBuffer  jsonBufferTele(JSON_BUFFER_LENGTH);
-
-			String jsonStr;
-			// Indents correspond to hierachy
-			JsonObject& jsoStatic = jsonBufferRoot.createObject();
-				JsonObject& jsoMetadata		= jsoStatic.createNestedObject("metadata");
-				JsonObject& jsoSettings		= jsoStatic.createNestedObject("settings");
-				JsonObject& jsoState		= jsoStatic.createNestedObject("state");
-					JsonObject& stateTime			= jsoState.createNestedObject("timestamp");
-				JsonObject& jsoTelemetryCur = jsoStatic.createNestedObject("telemetry_current");
-				JsonObject& jsoTelemetry	= jsoStatic.createNestedObject("telemetry");
-					JsonObject& jsoTeleTimestamp	= jsoTelemetry.createNestedObject("timestamp");
-				JsonObject& jsoLog			= jsoStatic.createNestedObject("log");
-
 			switch (uploadType) {
-				case GetSettings:				GetSettings_(firstRun); break;
-				case UploadStateAndSettings:	UploadStateAndSettings_(stateTime, jsoStatic, jsoMetadata, jsoState, jsoSettings, jsoTelemetryCur, jsoTelemetry, jsoLog);			break;
-				case UploadTelemetry:			UploadTelemetry_(jsoTelemetry, jsoTeleTimestamp);			break;
+				case GetSettings:
+					GetSettingsFromFirebase_(firstRun);
+					InitFirebaseLogging(&firebaseData, FB_BasePath, "log", JSON_BUFFER_LENGTH);
+					break;
+				case UploadStateAndSettings:	UploadStateAndSettings_();
+					break;
+				case UploadTelemetry:			UploadTelemetry_();
+					break;
 				default:
 					LogLine(0, __FUNCTION__, "Error - JSON Command not defined");
 					break;
@@ -440,12 +417,13 @@ void ConnectAndUploadToCloud(UploadType uploadType, boolean firstRun) {
 
 boolean IsPersistentMemorySet() {
 	// Check if values are reasonable. Not bullit proof!
-	return (PersistentMemory.GetCloudUsername().equals("initial value"));
+//dbg1	return (PersistentMemory.GetCloudUsername().equals("initial value"));
+	return true;
 }
 
 void InitPersistentMemoryIfNeeded() {
 	if (!IsPersistentMemorySet() || FORCE_NEW_VALUES) {
-		PersistentMemory.init(true, TOTAL_SECS_TO_SLEEP, DEVICE_ID, VALVE_OPEN_DURATION, VALVE_SOAK_TIME, LOOP_DELAY, DEBUGLEVEL);   // false: read from memory.  true: initialize
+		PersistentMemory.init(true, TOTAL_SECS_TO_SLEEP, DEVICE_ID, HARDWARE_DESCRIPTION, VALVE_OPEN_DURATION, VALVE_SOAK_TIME, LOOP_DELAY, DEBUGLEVEL);   // false: read from memory.  true: initialize
 		WiFi.macAddress(macAddr);
 		PersistentMemory.SetmacAddress(macAddr);
 		#if defined (USE_DEEP_SLEEP)
@@ -459,14 +437,14 @@ void InitPersistentMemoryIfNeeded() {
 #ifdef USE_FIREBASE
 
 boolean IsSettingsDataUpdatedByUser() {
-	String s = FB_BasePath + "/settings/" + fb.UserUpdate;
+	String s = FB_BasePath + "/settings/" + FB_UserUpdate;
 	if (Firebase.getBool(firebaseData, s)) {
 		if (firebaseData.boolData()) {
-			LogLinef(4, __FUNCTION__, "true - %s" , s.c_str());
+			LogLinef(4, __FUNCTION__, "true - %s  " , s.c_str());
 			return true;
 		}
 		else {
-			LogLinef(4, __FUNCTION__, "false (not set by user) - %s", s.c_str());
+			LogLinef(4, __FUNCTION__, "false (not set by user) - %s   ", s.c_str());
 		}
 	}
 	else {
@@ -477,12 +455,12 @@ boolean IsSettingsDataUpdatedByUser() {
 }
 
 boolean DeviceExistsInFirebase() {
-	if (!Firebase.getString(firebaseData, FB_BasePath + "/state/" + fb.SSID)) {
+	if (!Firebase.getString(firebaseData, FB_BasePath + "/state/" + FB_wifiSSID)) {
 		//UploadLog_("Device seems not to exist. Double checking.");
 		Serial.println("XXXXXXXXXXXXXXXX");
 		PersistentMemory.PrintpsRAW();
 		Serial.println("XXXXXXXXXXXXXXXX");
-		if (!Firebase.getString(firebaseData, FB_BasePath + "/metadata/" + fb.macAddr)) {
+		if (!Firebase.getString(firebaseData, FB_BasePath + "/metadata/" + FB_macAddress)) {
 			LogLine(0, __FUNCTION__, "** Device does not exist");
 			return false;
 		}
@@ -508,241 +486,184 @@ void RemoveTelemetryFromFirebase() {
 	Firebase.deleteNode(firebaseData, s);
 }
 
-void GetSettings_(boolean firstRun) {
+void GetSettingsFromFirebase_(boolean firstRun) {
 	int val;
 	boolean b;
 	String str;
 
 	LogLine(4, __FUNCTION__, "begin");
 	if (firstRun || IsSettingsDataUpdatedByUser()) {
-		LogLinef(4, __FUNCTION__, "2 %s", FB_BasePath.c_str());
-		LogLinef(4, __FUNCTION__, "2 %s", fb.location.c_str());
-		str = FB_BasePath + "/metadata/" + fb.location;
+		LogLinef(4, __FUNCTION__, "2 %s  ", FB_BasePath.c_str());
+		str = FB_BasePath + "/metadata/" + FB_deviceLocation;
 		if (Firebase.getString(firebaseData, str)) {
-			LogLinef(4, __FUNCTION__, " 2.1");
 			PersistentMemory.SetdeviceLocation(firebaseData.stringData());
-			LogLinef(4, __FUNCTION__, " 2.2");
+			LogLinef(5, __FUNCTION__, " %s = %s", FB_deviceLocation, firebaseData.stringData().c_str());
 		}
-		LogLinef(4, __FUNCTION__, " 3");
-		if (Firebase.getString(firebaseData, FB_BasePath + "/metadata/" + fb.deviceID)) {
+		if (Firebase.getString(firebaseData, FB_BasePath + "/metadata/" + FB_deviceID)) {
 			PersistentMemory.SetdeviceID(firebaseData.stringData()); 
+			LogLinef(5, __FUNCTION__, " %s = %s", FB_deviceID, firebaseData.stringData().c_str());
 		}
-		LogLinef(4, __FUNCTION__, " 4");
-		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.mainLoopDelay)) {
+		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + FB_mainLoopDelay)) {
 			PersistentMemory.SetmainLoopDelay(firebaseData.intData());
+			LogLinef(5, __FUNCTION__, " %s = %s", FB_mainLoopDelay, firebaseData.stringData().c_str());
 		}
-		LogLinef(4, __FUNCTION__, " 5");
-		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.debugLevel)) {
+		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + FB_debugLevel)) {
 			int d = firebaseData.intData();
 			PersistentMemory.SetdebugLevel(d);
 			SetFBDebugLevel(d);
+			LogLinef(5, __FUNCTION__, " %s = %d", FB_debugLevel, firebaseData.intData());
 		}
-		LogLinef(4, __FUNCTION__, " 10");
 		String fullPath;
 		for (int i = 0; i < MAX_WAKEUPTIMES; i++) {
-			fullPath = FB_BasePath + "/settings/" + fb.wakeupTime + String(i);
+			fullPath = FB_BasePath + "/settings/" + FB_wakeupTime + String(i);
 			if (Firebase.getString(firebaseData, fullPath)) {
-				LogLinef(3, __FUNCTION__, " %s = %s", fullPath.c_str(), firebaseData.stringData().c_str());
+				LogLinef(5, __FUNCTION__, " %s = %s", fullPath.c_str(), firebaseData.stringData().c_str());
 				PersistentMemory.SetWakeTime(i, firebaseData.stringData());
 			}
 		}
-		if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + fb.pauseWakeTime)) {
-			LogLinef(3, __FUNCTION__, " %s = %s", fb.pauseWakeTime.c_str(), firebaseData.stringData().c_str());
+		if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + FB_pauseWakeTime)) {
+			LogLinef(5, __FUNCTION__, " %s = %s", FB_pauseWakeTime, firebaseData.stringData().c_str());
 			PersistentMemory.SetPauseWakeTime(firebaseData.stringData());
 		}
-		LogLinef(4, __FUNCTION__, " 20");
-		if (Firebase.getBool(firebaseData, FB_BasePath + "/settings/" + fb.deepSleepEnabled)) {
+		if (Firebase.getBool(firebaseData, FB_BasePath + "/settings/" + FB_deepSleepEnabled)) {
 			b = firebaseData.boolData();
-			LogLinef(3, __FUNCTION__, " %s = %b", fb.deepSleepEnabled.c_str(), b);
 			PersistentMemory.SetdeepSleepEnabled(b);
+			LogLinef(5, __FUNCTION__, " %s = %b", FB_deepSleepEnabled, b);
 		}
-		if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + fb.runMode)) {
-			LogLinef(3, __FUNCTION__, " %s = %s", fb.runMode.c_str(), firebaseData.stringData().c_str());
+		if (Firebase.getString(firebaseData, FB_BasePath + "/settings/" + FB_runMode)) {
 			PersistentMemory.SetrunMode(firebaseData.stringData());
+			LogLinef(5, __FUNCTION__, " %s = %s", FB_runMode, firebaseData.stringData().c_str());
 		}
-		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.totalSecondsToSleep)) {
+		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + FB_totalSecondsToSleep)) {
 			PersistentMemory.SettotalSecondsToSleep(firebaseData.intData());
 		}
-		LogLinef(4, __FUNCTION__, " 30");
-		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.openDur)) {
+		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + FB_valveOpenDuration)) {
 			val = firebaseData.intData();
 			PersistentMemory.SetvalveOpenDuration(val);
 			waterValveA.SetvalveOpenDuration(val);
 		}
-		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.humLimit)) {
+		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + FB_humLimit)) {
 			val = firebaseData.intData();
 			PersistentMemory.SethumLimit(val);
 			soilHumiditySensorA.SethumLimitPct(val);
 		}
-		if (Firebase.getFloat(firebaseData, FB_BasePath + "/settings/" + fb.vccAdjustment)) {
+		if (Firebase.getFloat(firebaseData, FB_BasePath + "/settings/" + FB_vccAdjustment)) {
 			float f = firebaseData.floatData();
 			PersistentMemory.SetvccAdjustment(f);
 		}
-		if (Firebase.getFloat(firebaseData, FB_BasePath + "/settings/" + fb.vccMinLimit)) {
+		if (Firebase.getFloat(firebaseData, FB_BasePath + "/settings/" + FB_vccMinLimit)) {
 			float f = firebaseData.floatData();
 			PersistentMemory.SetvccMinLimit(f);
 		}
-		LogLinef(4, __FUNCTION__, " 40");
 
-		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + fb.soakTime)) {
+		if (Firebase.getInt(firebaseData, FB_BasePath + "/settings/" + FB_valveSoakTime)) {
 			val = firebaseData.intData();
-			LogLinef(3, __FUNCTION__, " %s = %d", fb.soakTime.c_str(), val);
+			LogLinef(5, __FUNCTION__, " %s = %d", FB_valveSoakTime, val);
 			PersistentMemory.SetvalveSoakTime(val);
 			waterValveA.SetvalveSoakTime(val);
 		}
 
-		Firebase.setBool(firebaseData, FB_BasePath + "/settings/" + fb.UserUpdate, false);
+		Firebase.setBool(firebaseData, FB_BasePath + "/settings/" + FB_UserUpdate, false);
 
 		PersistentMemory.Printps();
 		LogLine(2, __FUNCTION__, "New settings read");
 	}
 }
 
-void CreateNewDevice(
-	JsonObject& jsoStatic, JsonObject& jsoMetadata, JsonObject& jsoState, JsonObject& jsoSettings,
-	JsonObject& jsoTelemetryCur, JsonObject& jsoTelemetry, JsonObject& jsoLog) {
+void CreateNewDevice() {
+	FirebaseJson jsoMetadata;
+	FirebaseJson jsoState;
+	FirebaseJson jsoSettings;
+	FirebaseJson jsoDummy;
 
 	InitPersistentMemoryIfNeeded();
 
-	jsoTelemetryCur["x"] = "-";
-	jsoTelemetry["x"] = "-";
-	jsoLog["x"] = "-";
+	PersistentMemory.AddMetadataJson(&jsoMetadata);
+	PersistentMemory.AddStateJson(&jsoState);
+	PersistentMemory.AddSettingsJson(&jsoSettings);
 
-	jsoMetadata[fb.macAddr] = PersistentMemory.GetmacAddress();
-	jsoState[fb.SSID] = PersistentMemory.GetwifiSSID();
-	jsoSettings[fb.runMode] = RUNMODE_SOIL;
-	jsoSettings[fb.mainLoopDelay] = PersistentMemory.GetmainLoopDelay();
-	jsoSettings[fb.debugLevel] = PersistentMemory.GetdebugLevel();
-	jsoSettings[fb.totalSecondsToSleep] = PersistentMemory.GettotalSecondsToSleep();
-	jsoSettings[fb.UserUpdate] = false;
-	for (int i = 0; i < MAX_WAKEUPTIMES; i++) {
-		jsoSettings[fb.wakeupTime + String(i)] = PersistentMemory.GetWakeTime(i);
-	}
-	jsoSettings[fb.pauseWakeTime] = PersistentMemory.GetPauseWakeTime();
-	jsoSettings[fb.openDur] = PersistentMemory.GetvalveOpenDuration();
-	jsoSettings[fb.soakTime] = PersistentMemory.GetvalveSoakTime();
-	jsoSettings[fb.humLimit] = PersistentMemory.GethumLimit();
-	jsoSettings[fb.vccAdjustment] = PersistentMemory.GetvccAdjustment();
-	jsoSettings[fb.vccMinLimit] = PersistentMemory.GetvccMinLimit();
-	if (PersistentMemory.GetdeepSleepEnabled()) {  // It only works if using "true" or "false". ??
-		jsoSettings[fb.deepSleepEnabled] = true;
-	}
-	else {
-		jsoSettings[fb.deepSleepEnabled] = false;
-	}
+	SendToFirebase("set", "metadata", &jsoMetadata);
+	SendToFirebase("set", "state", &jsoState);
+	SendToFirebase("set", "settings", &jsoSettings);
 
-	jsoStatic.prettyPrintTo(Serial);
-	Firebase.setJSON(firebaseData, FB_BasePath, ConvertJsonToString(jsoStatic));
+	// add some dummies so we can use "push" consistently for log and telemetry
+	jsoDummy.set("x", "-");
+	SendToFirebase("set", "log", &jsoDummy);
 
-	SendToFirebase("set", "metadata", jsoMetadata);
-	SendToFirebase("set", "state", jsoState);
-	SendToFirebase("set", "settings", jsoSettings);
 }
 
-void UploadStateAndSettings_(
-	JsonObject& stateTime, JsonObject& jsoStatic, JsonObject& jsoMetadata, 
-	JsonObject& jsoState, JsonObject& jsoSettings, JsonObject& jsoTelemetryCur, JsonObject& jsoTelemetry,
-	JsonObject& jsoLog) {
+void UploadStateAndSettings_() {
 
 	boolean settingsUpdatedByUser = false;
 	LogLine(4, __FUNCTION__, "begin");
 
 	// Check if device has been created. 
-	// If not, create it. 
-	// If it exists, read current state values from Firebase into persistent memory
-	if ( !DeviceExistsInFirebase() ) {
-		CreateNewDevice(jsoStatic, jsoMetadata, jsoState, jsoSettings, jsoTelemetryCur, jsoTelemetry, jsoLog);
-		LogLinef(3, __FUNCTION__, "%s created", FB_BasePath.c_str());
-//		UploadLog_(FB_BasePath + " created");
+	// If it exists, read current state values from Firebase into persistent memory, otherwise create it. 
+	if ( DeviceExistsInFirebase() ) {
+		ConnectAndUploadToCloud(GetSettings);
 	}
 	else {
-		ConnectAndUploadToCloud(GetSettings);
-		RemoveDummiesFromFirebase("/telemetry/x");
+		CreateNewDevice();
+		LogLinef(3, __FUNCTION__, "%s created", FB_BasePath.c_str());
 	}
 	if (IsSettingsDataUpdatedByUser()) {
 		ConnectAndUploadToCloud(GetSettings);
 	}
-
-	// update values in persistent memory and write them back to Firebase
-	stateTime[".sv"] = "timestamp";
-
-	jsoMetadata[fb.macAddr] = PersistentMemory.GetmacAddress();
-	jsoMetadata[fb.location] = PersistentMemory.GetdeviceLocation();
-	jsoMetadata[fb.deviceID] = PersistentMemory.GetDeviceID();
-	#ifdef USE_GAS_SENSOR
-		jsoMetadata[fb.sensorType] = "MQ-7 CO";
-	#else
-		jsoMetadata[fb.sensorType] = "Humidity"; //TODO: either "water", "soil" or "gas"
-	#endif
-	jsoMetadata[fb.softwareVersion] = SOFTWARE_VERSION;
-	jsoMetadata[fb.hardware] = HARDWARE_DESCRIPTION;
-	SendToFirebase("set", "metadata", jsoMetadata);
-
-	jsoState[fb.SSID] = PersistentMemory.GetwifiSSID();
-	jsoState[fb.secsToSleep] = PersistentMemory.GetsecondsToSleep();
-	jsoState[fb.maxSlpCycles] = PersistentMemory.GetmaxSleepCycles();
-	jsoState[fb.curSleepCycle] = PersistentMemory.GetcurrentSleepCycle();
-	#ifdef RUN_ONCE
-		jsoState[fb.runOnce] = true;
-	#else
-		jsoState[fb.runOnce] = false;
-	#endif
-	SendToFirebase("set", "state", jsoState);
 }
 
-void UploadTelemetry_(JsonObject& jsoTelemetry, JsonObject& jsoTeleTimestamp) {
+void UploadTelemetry_() {
+
+	FirebaseJson jsoTelemetry;
+	FirebaseJson jsoTeleTimestamp;
+
 	LogLine(4, __FUNCTION__, "begin");
+	// Build the telemetry. This is partly dependent on which sensors are present.
 
-	jsoTeleTimestamp[".sv"] = "timestamp";
+	#ifdef USE_GAS_SENSOR
+		gasSensor.GetTelemetryJson(jsoTelemetry); 
+	#else
+		soilHumiditySensorA.AddTelemetryJson(&jsoTelemetry);
+		waterValveA.AddTelemetryJson(&jsoTelemetry);
+	#endif
+	externalVoltMeter.AddTelemetryJson(&jsoTelemetry);
+
 	int32_t wifiStrength = WiFi.RSSI();
-	jsoTelemetry[fb.wifi] = wifiStrength; // signal strength
-#ifdef USE_GAS_SENSOR
-	jsoTelemetry[fb.lastPPM] = gasSensor.GetlastPPM();
-#else
-	jsoTelemetry[fb.lastOpenTimestamp] = waterValveA.lastOpenTimestamp;
-	jsoTelemetry[fb.humidity] = soilHumiditySensorA.GetHumidityPct();
-	jsoTelemetry[fb.valveState] = waterValveA.valveState;
-#endif
-	jsoTelemetry[fb.Vcc] = externalVoltMeter.GetlastSummarizedReading();
-	jsoTelemetry[fb.lastAnalogueReading] = externalVoltMeter.GetlastAnalogueReadingVoltage();
-
-	SendToFirebase("set", "telemetry_current", jsoTelemetry);
-	if (PersistentMemory.GetrunMode().equals(RUNMODE_SOIL)) {
-		SendToFirebase("push", "telemetry", jsoTelemetry);
-	}
+	jsoTelemetry.add(FB_wifi, wifiStrength); 
+	SendToFirebase("set", "telemetry_current", &jsoTelemetry);
+	SendToFirebase("timestamp", "telemetry_current/timestamp", &jsoTelemetry);
+	SendToFirebase("push", "telemetry", &jsoTelemetry);
+	SendToFirebase("appendtimestamp", "", &jsoTelemetry);
 }
 
-String ConvertJsonToString(JsonObject& jso) {
-	String jsonStr;
-	jso.printTo(jsonStr);
-	return jsonStr;
-}
+String pushPath;
+void SendToFirebase(String cmd, String subPath, FirebaseJson* jso) {
 
-void SendToFirebase(String cmd, String subPath, JsonObject& jso) {
-
+	String jsoStr;
 	boolean res = true;
 	// NOTE: If Firebase makes error apparantly without reason, try to update the fingerprint in FirebaseHttpClient.h. See https://github.com/FirebaseExtended/firebase-arduino/issues/328
 
 	String s = FB_BasePath + "/" + subPath + "/";
-	LogLinef(3, __FUNCTION__, " Firebase command:%s    path: %s    length=%d", cmd.c_str(), s.c_str(), jso.measurePrettyLength());
-	jso.prettyPrintTo(Serial);
+	(*jso).toString(jsoStr, true);
+	LogLinef(3, __FUNCTION__, " Firebase command:%s    path: %s    JSON:\n%s", cmd.c_str(), s.c_str(), jsoStr.c_str());
 
-	if (jso.measureLength() < JSON_BUFFER_LENGTH) {
-		if (cmd.equals("set"))    { res = Firebase.setJSON(firebaseData, s, ConvertJsonToString(jso)); }
-		if (cmd.equals("update")) { res = Firebase.updateNode(firebaseData, s, ConvertJsonToString(jso)); }
-		if (cmd.equals("push"))   { res = Firebase.pushJSON(firebaseData, s, ConvertJsonToString(jso)); }
-		LogLinef(4, __FUNCTION__, "res = %d", res);
-
-		if (res == false) {
-			//LogLinef(0, __FUNCTION__, "** SET/PUSH FAILED: %s - Firebase error msg:", s.c_str());
-			// will crash: Serial.println(firebaseData.errorReason());
+	if (cmd.equals("set"))		 { 
+		res = Firebase.setJSON(firebaseData, s, *jso);
+		if (!res) {
+			delay(500);
+			res = Firebase.setJSON(firebaseData, s, *jso);
 		}
 	}
-	else {
-		Serial.println(jso.measureLength());
-		jso.prettyPrintTo(Serial);
-		LogLine(0, __FUNCTION__, "**** ERROR SET/PUSH FAILED: JSON too long. CRASHING ON PURPOSE");
-		int i = 0 / 0;  // crash
+	if (cmd.equals("timestamp")) { res = Firebase.setTimestamp(firebaseData, s); }
+	if (cmd.equals("update"))	 { res = Firebase.updateNode(firebaseData, s, *jso); }
+	if (cmd.equals("push"))		 { 
+		res = Firebase.pushJSON(firebaseData, s, *jso); 
+		pushPath = firebaseData.dataPath() + "/" + firebaseData.pushName();
+	}
+	if (cmd.equals("appendtimestamp")) { 
+		res = Firebase.setTimestamp(firebaseData, pushPath + "/timestamp");
+	}
+	if (!res) {
+		LogLinef(0, __FUNCTION__, "Firebase SET command failed %s", s.c_str());
 	}
 }
 
@@ -1163,7 +1084,7 @@ void InitUnitTest() {
 
 	// check for crazy values
 	if (PersistentMemory.ps.currentSleepCycle >= 12 || PersistentMemory.ps.maxSleepCycles >= 12) {
-		LogLine(2, __FUNCTION__, "Resetting counters##########################");
+		LogLine(2, __FUNCTION__, "Resetting counters");
 		PersistentMemory.SetmaxSleepCycles(0);
 		PersistentMemory.SetvalveOpenDuration(0);
 		PersistentMemory.ps.currentSleepCycle = 0;

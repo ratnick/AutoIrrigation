@@ -10,7 +10,10 @@
 #endif
 
 #include <EEPROM.h>
+#include <jsmn.h>
+#include <FirebaseJson.h>
 #include "globals.h"
+//#include "FirebaseModel.h"
 
 class PersistentMemoryClass
 {
@@ -24,19 +27,23 @@ class PersistentMemoryClass
 		 bool resetMemory, 
 		 int _totalSecondsToSleep = 0,
 		 const char* _deviceID="n/a", 
-		 int _valveOpenDuration = 1, 
+		 const char* _sw_vers="n/a",
+		 int _valveOpenDuration = 1,
 		 int _valveSoakTime = 1, 
 		 int _mainLoopDelay = 600,
 		 int _debugLevel = 0);
 	 void ReadPersistentMemory();
 	 void WritePersistentMemory();
 
-	 String GetStateJson();
+	 void AddMetadataJson(FirebaseJson* json);
+	 void AddStateJson(FirebaseJson* json);
+	 void AddSettingsJson(FirebaseJson* json);
+
+	 //String GetStateJson();
 	 String GetDeviceID();
 	 String GetdeviceLocation();
 	 String GetmacAddress();
 	 String GetwifiSSID();
-	 String GetCloudUsername();
 	 String GetrunMode();
 	 String GetWakeTime(int i);
 	 String GetPauseWakeTime();

@@ -1,41 +1,45 @@
 // FirebaseModel.h
 
-struct FirebaseModelStruct {
-	const String macAddr = "mac";
-	const String location = "loc";
-	const String deviceID = "device";
-	const String sensorType = "sensor type";
-	const String hardware = "hw";
-	const String softwareVersion = "sw";
-	const String SSID = "SSID";
-	const String runMode = "runMode";
-	const String vccAdjustment = "vadj";
-	const String vccMinLimit = "vMin";
-	const String runOnce = "runOnce";
-	const String timestamp = "timestamp";
-	const String curSleepCycle = "slpCurCyc";
-	const String secsToSleep = "slpDura";
-	const String maxSlpCycles = "slpMxCyc";
-	const String UserUpdate = "Updated";
-	const String deepSleepEnabled = "slpEnabl";
-	const String totalSecondsToSleep = "totSlp";
-	const String openDur = "vlvOpen";
-	const String soakTime = "vlvSoak";
-	const String mainLoopDelay = "loopSec";
-	const String debugLevel = "db";
-	const String wakeupTime = "wakeTime";
-	const String pauseWakeTime = "pauseTime";
-	const String Vcc = "Vcc";
-	const String humidity = "Hum";
-	const String humLimit = "humLim";
-	const String lastAnalogueReading = "lastAnalog";
-	const String lastOpenTimestamp = "lastOpen";
-	const String lastPPM = "lastPPM";
-	const String valveState = "vlvState";
-	const String wifi = "Wifi";
-	const String time = "timestamp";
-	const String text = "txt";
+#ifndef _FIREBASEMODEL_h
+#define _FIREBASEMODEL_h
 
-};
+// JSON field names used in Firebase
 
-FirebaseModelStruct fb;
+#define FB_macAddress "mac"
+#define FB_deviceLocation "loc"
+#define FB_deviceID "device"
+#define FB_sensorType "sensor type"
+#define FB_hardware "hw"
+#define FB_softwareVersion "sw"
+#define FB_wifiSSID "SSID"
+#define FB_runMode "runMode"
+#define FB_vccAdjustment "vadj"
+#define FB_vccMinLimit "vMin"
+#define FB_runOnce "runOnce"
+#define FB_timestamp "timestamp"
+#define FB_currentSleepCycle "slpCurCyc"
+#define FB_secondsToSleep "slpDura"
+#define FB_maxSleepCycles "slpMxCyc"
+#define FB_UserUpdate "Updated"
+#define FB_deepSleepEnabled "slpEnabl"
+#define FB_totalSecondsToSleep "totSlp"
+#define FB_valveOpenDuration "vlvOpen"
+#define FB_valveSoakTime "vlvSoak"
+#define FB_mainLoopDelay "loopSec"
+#define FB_debugLevel "db"
+#define FB_wakeupTime "wakeTime"
+#define FB_pauseWakeTime "pauseTime"
+#define FB_Vcc "Vcc"
+#define FB_humidity "Hum"
+#define FB_humLimit "humLim"
+#define FB_lastAnalogueReading "lastAnalog"
+#define FB_lastOpenTimestamp "lastOpen"
+#define FB_lastPPM "lastPPM"
+#define FB_valveState "vlvState"
+#define FB_wifi "Wifi"
+#define FB_time "timestamp"
+#define FB_text "txt"
+
+
+
+#endif

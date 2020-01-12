@@ -9,22 +9,31 @@
 	#include "WProgram.h"
 #endif
 
+#include <jsmn.h>
+#include <FirebaseJson.h>
 #include "SensorHandler.h"
-#include <ArduinoJson.hpp>
-#include <ArduinoJson.h>
 
 
 class GasSensorClass
 {
  public:
-	 char name[15];
-	 SensorHandlerClass::SensorType sensorType;
+	char name[15];
+	SensorHandlerClass::SensorType sensorType;
+	struct GasTelemetry {
+		float cur_CO_ppm_measurement;
+		float last_CO_ppm_measurement;
+		float sens_val;
+		int phase;
+	};
 
-	 void init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType);
-	 void ReadSerialJsonOnce(char jsonStr[]);
-	 float TestSensor();
-	 float GetlastPPM();
-	 float ConvertToPPM(float rawVal);
+	GasSensorClass::GasTelemetry gasTm;
+
+	void init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType);
+	void GetTelemetryJson(FirebaseJson *json);
+	void ReadSerialJsonOnce(char *jsonStr);
+	float TestSensor();
+	float GetlastPPM();
+	float ConvertToPPM(float rawVal);
 
 private:
 	int muxChannel;

@@ -9,6 +9,7 @@
 #include "WProgram.h"
 #endif
 
+#include "FirebaseModel.h"
 const int LED_PIN = LED_BUILTIN;
 
 #define MAX_DEEP_SLEEP 3600000000   // micro seconds
@@ -18,34 +19,45 @@ const int LED_PIN = LED_BUILTIN;
 #define WAKEUP_IDX_SIMPLEDELAY 3  // Used to deep sleep for a number of seconds
 
 struct PersistentDataStruct {
-	char deviceID[20];
+	// Metadata
 	char macAddress[28];
 	char deviceLocation[28];
+	char deviceID[20];
+	char sensorType[20];
+	char hardware[50];
+	char softwareVersion[80];
+
+	// state
 	char wifiSSID[20];
 	char wifiPwd[16];
-	char runMode[16];
-	float vccAdjustment;
-	float vccMinLimit;
-	char wakeupTime[MAX_WAKEUPTIMES][7];  // 4 sets of 6 chars. Format: HHMMSS
-	char pauseWakeTime[7];  // Format: HHMMSS
-	int totalSecondsToSleep;
+	boolean runOnce;
+		// timestamp assigned on server side. not used in arduino.
 	int currentSleepCycle; // counts which sleep cycle we are at right now.
 	int secondsToSleep;
-	int maxSleepCycles;  
-	float lastVccSummarizedReading;
+	int maxSleepCycles;
+
+	// settings
+		// userupdate assigned on server side. not used in arduino.
+	char runMode[16];
 	int valveOpenDuration;
 	int valveSoakTime;
 	int humLimit;
 	int mainLoopDelay;
 	int debugLevel;
 	boolean deepSleepEnabled;
-	char cloudUserName[16];
-	char cloudPwd[16];
+	char wakeupTime[MAX_WAKEUPTIMES][7];  // 4 sets of 6 chars. Format: HHMMSS
+	char pauseWakeTime[7];  // Format: HHMMSS
+	double vccAdjustment;
+	double vccMinLimit;
 
-//TODO	boolean stopInstantly;   /* if the sensor thinks something is wrong, this bit is flipped, and it will never open the valve until reset*/
-//TODO	time_t lastValveopenTimeStamp;
-//TODO	time_t lastValveopenDuration;
-//	char logLines[MAX_KEPT_LOGLINES][MAX_LINE_LENGTH];
+	// not sent to Firebase
+	int totalSecondsToSleep;
+	float lastVccSummarizedReading;
+
+	//TODO	boolean stopInstantly;   /* if the sensor thinks something is wrong, this bit is flipped, and it will never open the valve until reset*/
+	//TODO	time_t lastValveopenTimeStamp;
+	//TODO	time_t lastValveopenDuration;
+	//	char logLines[MAX_KEPT_LOGLINES][MAX_LINE_LENGTH];
 };
 
 enum HTTPRequestReturnType {

@@ -9,6 +9,8 @@
 	#include "WProgram.h"
 #endif
 
+#include <jsmn.h>
+#include <FirebaseJson.h>
 #include "SensorHandler.h"
 
 class VoltMeterClass
@@ -17,8 +19,14 @@ class VoltMeterClass
 
  public:
 	 SensorHandlerClass::SensorType sensorType;
+	 struct VoltageTelemetry {
+		 double voltage;
+		 int lastAnalogueReadingVoltage;
+	 };
+	 VoltMeterClass::VoltageTelemetry voltTm;
 
 	 void init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType, float _lastSummarizedReading);
+	 void AddTelemetryJson(FirebaseJson* json);
 	 float ReadVoltage();
 	 float ReadSingleVoltage();
 	 float GetlastAnalogueReadingVoltage();

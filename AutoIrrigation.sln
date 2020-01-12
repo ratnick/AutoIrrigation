@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoIrrigation", "Arduino\A
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "co_monitor", "..\AirQuality\Arduino\co_monitor\co_monitor.vcxproj", "{51B0E9DF-658C-4C10-BE3E-53AAAA141126}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestStruct", "..\..\src\Arduino\TestStructJson\TestStruct\TestStruct.vcxproj", "{86139963-8C05-438E-847D-A5935C6C772F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -27,6 +29,12 @@ Global
 		{51B0E9DF-658C-4C10-BE3E-53AAAA141126}.Release|x64.ActiveCfg = Release|Win32
 		{51B0E9DF-658C-4C10-BE3E-53AAAA141126}.Release|x86.ActiveCfg = Release|Win32
 		{51B0E9DF-658C-4C10-BE3E-53AAAA141126}.Release|x86.Build.0 = Release|Win32
+		{86139963-8C05-438E-847D-A5935C6C772F}.Debug|x64.ActiveCfg = Debug|Win32
+		{86139963-8C05-438E-847D-A5935C6C772F}.Debug|x86.ActiveCfg = Debug|Win32
+		{86139963-8C05-438E-847D-A5935C6C772F}.Debug|x86.Build.0 = Debug|Win32
+		{86139963-8C05-438E-847D-A5935C6C772F}.Release|x64.ActiveCfg = Release|Win32
+		{86139963-8C05-438E-847D-A5935C6C772F}.Release|x86.ActiveCfg = Release|Win32
+		{86139963-8C05-438E-847D-A5935C6C772F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
