@@ -5,12 +5,13 @@
 */
 
 
+#include "serialPortHandler.h"
 #include <SoftwareSerial.h>
 #define HARDWARE_DESCRIPTION "PCB v5.3 WeMOS D1 r2, 12V valve switch"
 #define DEVICE_ID "#xx"
 
 // Main modes of operation (also used when developing new features)
-//#define USE_GAS_SENSOR 
+#define USE_GAS_SENSOR 
 #define USE_WIFI
 
 // Choose cloud:
@@ -298,11 +299,7 @@ void loop() {
 #ifdef USE_GAS_SENSOR
 	else if (rm.equals(RUNMODE_GAS)) {
 		if (!PersistentMemory.GetdeepSleepEnabled()) {
-			FirebaseJson json;
-			gasSensor.GetTelemetryJson(&json);
-			LogLinef(0, __FUNCTION__, "B");
 			ConnectAndUploadToCloud(UploadTelemetry);
-			LogLinef(0, __FUNCTION__, "C");
 		}
 		else {
 			DeepSleepHandler.GotoSleepAndWakeAfterDelay(waterValveA.soakSeconds);
@@ -615,12 +612,14 @@ void UploadTelemetry_() {
 
 	FirebaseJson jsoTelemetry;
 	FirebaseJson jsoTeleTimestamp;
+	boolean newTelemetry = true;  // so far only used for gassensor
 
 	LogLine(4, __FUNCTION__, "begin");
 	// Build the telemetry. This is partly dependent on which sensors are present.
 
 	#ifdef USE_GAS_SENSOR
-		gasSensor.GetTelemetryJson(jsoTelemetry); 
+		newTelemetry = gasSensor.GetTelemetryJson(&jsoTelemetry);
+		LogLine(4, __FUNCTION__, "telemetry fetched from gas sensor");
 	#else
 		soilHumiditySensorA.AddTelemetryJson(&jsoTelemetry);
 		waterValveA.AddTelemetryJson(&jsoTelemetry);
@@ -629,10 +628,12 @@ void UploadTelemetry_() {
 
 	int32_t wifiStrength = WiFi.RSSI();
 	jsoTelemetry.add(FB_wifi, wifiStrength); 
-	SendToFirebase("set", "telemetry_current", &jsoTelemetry);
-	SendToFirebase("timestamp", "telemetry_current/timestamp", &jsoTelemetry);
-	SendToFirebase("push", "telemetry", &jsoTelemetry);
-	SendToFirebase("appendtimestamp", "", &jsoTelemetry);
+	if (newTelemetry) {
+		SendToFirebase("set", "telemetry_current", &jsoTelemetry);
+		SendToFirebase("timestamp", "telemetry_current/timestamp", &jsoTelemetry);
+		SendToFirebase("push", "telemetry", &jsoTelemetry);
+		SendToFirebase("appendtimestamp", "", &jsoTelemetry);
+	}
 }
 
 String pushPath;
@@ -644,7 +645,8 @@ void SendToFirebase(String cmd, String subPath, FirebaseJson* jso) {
 
 	String s = FB_BasePath + "/" + subPath + "/";
 	(*jso).toString(jsoStr, true);
-	LogLinef(3, __FUNCTION__, " Firebase command:%s    path: %s    JSON:\n%s", cmd.c_str(), s.c_str(), jsoStr.c_str());
+	LogLinef(3, __FUNCTION__, " Firebase command:%s    path: %s    ", cmd.c_str(), s.c_str());
+	LogLinef(5, __FUNCTION__, " JSON:\n%s", jsoStr.c_str());
 
 	if (cmd.equals("set"))		 { 
 		res = Firebase.setJSON(firebaseData, s, *jso);

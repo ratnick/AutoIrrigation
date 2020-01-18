@@ -29,8 +29,7 @@ class GasSensorClass
 	GasSensorClass::GasTelemetry gasTm;
 
 	void init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType);
-	void GetTelemetryJson(FirebaseJson *json);
-	void ReadSerialJsonOnce(char *jsonStr);
+	boolean GetTelemetryJson(FirebaseJson *json);
 	float TestSensor();
 	float GetlastPPM();
 	float ConvertToPPM(float rawVal);

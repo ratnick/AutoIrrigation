@@ -38,7 +38,7 @@ boolean isValidTimeString(String str) {
 	buf[2] = '\0';
 
 	if (isNotValidNumber(str)) {
-		LogLinef(4, __FUNCTION__, "invalid number: %s", str.c_str());
+		LogLinef(5, __FUNCTION__, "invalid number: %s", str.c_str());
 		return false;
 	}
 	else {
@@ -109,7 +109,7 @@ uint64_t GetNearestWakeupTime() {
 	for (int i = 0; i < MAX_WAKEUPTIMES; i++) {
 		wakeupTime = PersistentMemory.GetWakeTime(i);
 		if (isValidTimeString(wakeupTime)) {
-			LogLinef(4, __FUNCTION__, "Sleep time %d OK: %s", i, wakeupTime.c_str());
+			LogLinef(5, __FUNCTION__, "Sleep time %d OK: %s", i, wakeupTime.c_str());
 	
 			char str[3];
 			wakeupTime.substring(0, 2).toCharArray(str, 3);
