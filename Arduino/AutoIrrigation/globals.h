@@ -35,6 +35,7 @@ struct PersistentDataStruct {
 	int currentSleepCycle; // counts which sleep cycle we are at right now.
 	int secondsToSleep;
 	int maxSleepCycles;
+	int deviceStatus;  // 0:OK, see definitions below of DEVICE_STATUS_xx
 
 	// settings
 		// userupdate assigned on server side. not used in arduino.
@@ -101,6 +102,13 @@ const String RUNMODE_GAS = "gas";
 const String RUNMODE_SENSORTEST = "sensor";
 const String RUNMODE_BATTERYTEST = "batt";
 const String RUNMODE_HARDWARETEST = "testhw";
+
+// all above 10 is treated as a fault
+const int DEVICE_STATUS_OK = 0;
+const int DEVICE_STATUS_LOW_BATTERY = 1;
+const int DEVICE_STATUS_WARNING = 2;
+const int DEVICE_STATUS_FAULT = 10;
+
 
 /*
 Google Cloud Names

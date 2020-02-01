@@ -30,7 +30,7 @@
 //#define MEASURE_INTERNAL_VCC         // When enabling, we cannot use analogue reading of sensor. 
 
 // Development & debugging
-#define FORCE_NEW_VALUES false         // [false] Will overwrite all values in persistent memory. Enable once, disable and recompile
+#define FORCE_NEW_VALUES false           // [false] Will overwrite all values in persistent memory. Enable once, disable and recompile
 #define SIMULATE_WATERING false        // open the valve in every loop
 // See also SIMULATE_SENSORS in SensorHandler.h
 #define DEBUGLEVEL 4					// Has dual function: 1) serving as default value for Firebase Logging (which can be modified at runtime). 2) Defining debug level on serial port.

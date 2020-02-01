@@ -7,6 +7,8 @@ typedef struct
 } hotspot_cred;
 const int MAX_HOTSPOTS = 7;
 
+const bool INIT_HOTSPOT = true;  // false: start trying what's already stored in EEPROM from last successful connection
+
 #include "wifipasswords.h"
 /* The file wifipasswords.h is private and has the following format:
 
@@ -50,7 +52,7 @@ int initWifi(char _wifiSSID[], char _wifiPwd[]) {
 		while (true);  // don't continue
 	}
 
-	if ( (WiFi.status() == WL_CONNECTED) && IsWifiStrenghtOK() ) {   
+	if ( (WiFi.status() == WL_CONNECTED) && IsWifiStrenghtOK() && !INIT_HOTSPOT ) {   
 		return 200;
 	}
 	else {
@@ -60,7 +62,7 @@ int initWifi(char _wifiSSID[], char _wifiPwd[]) {
 			wifiDevice.WifiIndex = -1;
 			Serial.println("Not connected. Trying all known wifi hotspots.");
 
-			if (_wifiSSID[0] != 0) {
+			if (_wifiSSID[0] != 0 && !INIT_HOTSPOT) {
 				Serial.print("initWifi: disconnect before retrying - ");
 				WiFi.disconnect();
 				Serial.print("initWifi: trying the SSID and pwd stored in EEPROM: "); // +String(_wifiSSID));

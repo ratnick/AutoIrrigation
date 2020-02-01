@@ -7,15 +7,14 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 @IgnoreExtraProperties
 public class IrrDevice {
     public enum DeviceStatus {OK, WARNING, FAULT};
-    public DeviceStatus overallStatus;
     public IrrDeviceMetadata metadata;
     public IrrDeviceState state;
     public IrrDeviceSettings settings;
     public IrrDeviceTelemetry telemetry_current;
     public IrrDeviceTelemetry telemetry;
     public LineGraphSeries<DataPoint> xSeriesVcc;
-    public LineGraphSeries<DataPoint> xSeriesValveState;
-    public LineGraphSeries<DataPoint> xSeriesHumidity;
+    public LineGraphSeries<DataPoint> xSeriesSecTm;
+    public LineGraphSeries<DataPoint> xSeriesPrimaryTm;
     public int nbrOfTelemetry;
     public int nbrOfLogs;
 
@@ -27,8 +26,8 @@ public class IrrDevice {
         this.settings = new IrrDeviceSettings();
         this.telemetry_current = new IrrDeviceTelemetry();
         xSeriesVcc = new LineGraphSeries();
-        xSeriesValveState =new LineGraphSeries();
-        xSeriesHumidity = new LineGraphSeries();
+        xSeriesSecTm =new LineGraphSeries();
+        xSeriesPrimaryTm = new LineGraphSeries();
         nbrOfTelemetry = -1;
         nbrOfLogs = -1;
 

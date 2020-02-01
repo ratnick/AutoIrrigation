@@ -6,11 +6,12 @@ import com.google.firebase.database.IgnoreExtraProperties;
 public class IrrDeviceState {
 
     public String SSID;
-    public int slpCurCyc;
-    public int slpMxCyc;
     public boolean runOnce;
-    public long ts;
+    public int slpCurCyc;
     public int slpDura;
+    public int slpMxCyc;
+    public long ts;
+    public int deviceStatus;
 
     public IrrDeviceState() {
         // Default constructor required for calls to DataSnapshot.getValue(Comment.class)

@@ -34,6 +34,9 @@ public class FirebaseObject implements Serializable {
     private static boolean firebase_initialized = false;
     private static boolean firebase_listeners_initialized = false;
 
+    private static IrrDeviceTelemetry[] tm;
+    private static int nbrOfTmPoints;
+
     public FirebaseObject() {
     }
 
@@ -61,13 +64,13 @@ public class FirebaseObject implements Serializable {
                             dbIrrDevice[i].nbrOfTelemetry = (int) postSnapshot.child("telemetry").getChildrenCount();
                             dbIrrDevice[i].nbrOfLogs = (int) postSnapshot.child("log").getChildrenCount();
                             // set the device run state:
-                            if (dbIrrDevice[i].telemetry_current.Vcc < 3.6) {
-                                dbIrrDevice[i].overallStatus = IrrDevice.DeviceStatus.FAULT;
-                            } else if (dbIrrDevice[i].telemetry_current.Vcc < 3.8) {
-                                dbIrrDevice[i].overallStatus = IrrDevice.DeviceStatus.WARNING;
-                            } else {
-                                dbIrrDevice[i].overallStatus = IrrDevice.DeviceStatus.OK;
-                            }
+//                            if (dbIrrDevice[i].state.deviceStatus == 0) {
+//                                dbIrrDevice[i].overallStatus = IrrDevice.DeviceStatus.OK;
+//                            } else if (dbIrrDevice[i].state.deviceStatus < 10) {
+//                                dbIrrDevice[i].overallStatus = IrrDevice.DeviceStatus.WARNING;
+//                            } else {
+//                                dbIrrDevice[i].overallStatus = IrrDevice.DeviceStatus.FAULT;
+//                            }
                             i++;
                         }
 
@@ -133,13 +136,35 @@ public class FirebaseObject implements Serializable {
                                 }
                             }
 
+                            // Firebase will fire two events: one for child creation, and one when timestamp is updated.
+                            // https://stackoverflow.com/questions/37929003/firebase-ondatachanged-fire-twice-when-using-servervalue-timestamp-android?noredirect=1&lq=1
+                            // This is dealt with through
                             if (dataKey.equals("telemetry")) {
                                 String dKey = dataSnapshot.getRef().getParent().getKey();
                                 if (dKey == dbIrrDeviceStrings[k]) {
+                                    LoadDataSnapshop(dataSnapshot);
                                     Log.e("Count ", "" + dataSnapshot.getChildrenCount());
-                                    dbIrrDevice[k].xSeriesVcc.resetData(readAllData(dataSnapshot, "Vcc"));
-                                    dbIrrDevice[k].xSeriesHumidity.resetData(readAllData(dataSnapshot, "Hum"));
-                                    dbIrrDevice[k].xSeriesValveState.resetData(readAllData(dataSnapshot, "vlvState"));
+                                    if(LastTimestampIsOK(dataSnapshot)) {
+                                        switch (dbIrrDevice[k].metadata.sensorType) {
+                                            case DEVICE_TYPE_SOIL_STR:
+                                                dbIrrDevice[k].xSeriesVcc.resetData(readAllData("Vcc"));
+                                                dbIrrDevice[k].xSeriesPrimaryTm.resetData(readAllData( "Hum"));
+                                                dbIrrDevice[k].xSeriesSecTm.resetData(readAllData( "vlvState"));
+                                                //                            dbDeviceLoaded[k] = true;
+                                                break;
+                                            case DEVICE_TYPE_GAS_STR:
+                                                dbIrrDevice[k].xSeriesVcc.resetData(readAllData( "Wifi"));
+                                                dbIrrDevice[k].xSeriesPrimaryTm.resetData(readAllData( "cur_ppm"));
+                                                dbIrrDevice[k].xSeriesSecTm.resetData(readAllData( "phase"));
+                                                //                            dbDeviceLoaded[k] = true;
+                                                break;
+
+                                            default:
+                                                break;
+                                        }
+                                    } else {
+                                        Log.e("Event ignored. Timestamp is zero ", "");
+                                    }
                                 }
                             }
                         }
@@ -162,7 +187,6 @@ public class FirebaseObject implements Serializable {
         }
     }
 
-
     public void LoadDeviceTelemetry(int _k) {
 
         final int k = _k;
@@ -179,10 +203,23 @@ public class FirebaseObject implements Serializable {
                         i = dbIrrDeviceStrings.length;
                         //                    dbIrrDevice[i] = new IrrDevice();
                     }
-                    dbIrrDevice[i].xSeriesVcc.resetData(readAllData(dataSnapshot, "Vcc"));
-                    dbIrrDevice[i].xSeriesHumidity.resetData(readAllData(dataSnapshot, "Hum"));
-                    dbIrrDevice[i].xSeriesValveState.resetData(readAllData(dataSnapshot, "vlvState"));
-                    dbDeviceLoaded[i] = true;
+                    LoadDataSnapshop(dataSnapshot);
+                    switch (dbIrrDevice[i].metadata.sensorType) {
+                        case DEVICE_TYPE_SOIL_STR:
+                            dbIrrDevice[i].xSeriesVcc.resetData(readAllData( "Vcc"));
+                            dbIrrDevice[i].xSeriesPrimaryTm.resetData(readAllData( "Hum"));
+                            dbIrrDevice[i].xSeriesSecTm.resetData(readAllData( "vlvState"));
+                            dbDeviceLoaded[i] = true;
+                            break;
+                        case DEVICE_TYPE_GAS_STR:
+                            dbIrrDevice[i].xSeriesVcc.resetData(readAllData( "Wifi"));
+                            dbIrrDevice[i].xSeriesPrimaryTm.resetData(readAllData( "cur_ppm"));
+                            dbIrrDevice[i].xSeriesSecTm.resetData(readAllData( "phase"));
+                            dbDeviceLoaded[i] = true;
+                            break;
+                        default:
+                            break;
+                    }
                 }
 
                 @Override
@@ -190,6 +227,36 @@ public class FirebaseObject implements Serializable {
                 }
             }
         );
+    }
+
+
+    private void LoadDataSnapshop(DataSnapshot ds){
+        // are we on telemetry level or on child level?
+        DataSnapshot tmSnapshot;
+        String parentKey = ds.getRef().getParent().getKey();
+        if (parentKey.equals("irrdevices")) {
+            tmSnapshot = ds.child("telemetry");
+        }
+        else if (ds.getKey().equals("telemetry")) {
+            tmSnapshot = ds;
+        } else {
+            tmSnapshot = null;
+            int except = 0/0;
+        }
+        nbrOfTmPoints = (int) tmSnapshot.getChildrenCount();
+        tm=new IrrDeviceTelemetry[nbrOfTmPoints];
+        int i=0;
+        long last_timestamp = 0;
+        IrrDeviceTelemetry cur_tm;
+        for (DataSnapshot postSnapshot : tmSnapshot.getChildren()) {
+            cur_tm = postSnapshot.getValue(IrrDeviceTelemetry.class);
+            tm[i] = new IrrDeviceTelemetry(cur_tm);
+            if (tm[i].timestamp == 0) {
+                tm[i].timestamp = last_timestamp + 1;
+            }
+            last_timestamp = tm[i].timestamp;
+            i++;
+        }
     }
 
     private int FindKeyInList(String key) {  //return -1 if not found
@@ -202,7 +269,7 @@ public class FirebaseObject implements Serializable {
         return (int) -1;
     }
 
-    private DataPoint[] readAllData(DataSnapshot dataSnapshot, String parameterName)  {
+    boolean LastTimestampIsOK(DataSnapshot dataSnapshot) {
         // are we on telemetry level or on child level?
         DataSnapshot teledataSnapshot;
         String parentKey = dataSnapshot.getRef().getParent().getKey();
@@ -215,52 +282,85 @@ public class FirebaseObject implements Serializable {
             teledataSnapshot = null;
             int except = 0/0;
         }
-        int count = (int) teledataSnapshot.getChildrenCount();
+
+        // Only way to find the last element is to iterate through all children.
+        IrrDeviceTelemetry post = new IrrDeviceTelemetry();
+        for (DataSnapshot postSnapshot : teledataSnapshot.getChildren()) {
+            post = postSnapshot.getValue(IrrDeviceTelemetry.class);
+        }
+        if (post.timestamp != 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    private DataPoint[] readAllData(String parameterName)  {
+        // are we on telemetry level or on child level?
 
         if (parameterName.equals("vlvState")) {
-            DataPoint[] values = new DataPoint[count*2];
+            DataPoint[] values = new DataPoint[nbrOfTmPoints*2];
             int i = 0;
+            int j=0;  // counts the number of added points
             IrrDeviceTelemetry post;
 
             float prevValveState = 0;
-            for (DataSnapshot postSnapshot : teledataSnapshot.getChildren()) {
+            for (i=0;i<nbrOfTmPoints;i++) {
                 float factor = 20;
-                post = postSnapshot.getValue(IrrDeviceTelemetry.class);
-                if (prevValveState != post.vlvState) {  // insert extra point before real point to make a sharp edge on the graph
-                    DataPoint x = new DataPoint(post.timestamp -1, (float) factor * prevValveState);
-                    values[i++] = x;
+                if (prevValveState != tm[i].vlvState) {  // insert extra point before real point to make a sharp edge on the graph
+                    DataPoint x = new DataPoint(tm[i].timestamp -1, (float) factor * prevValveState);
+                    values[i+j] = x;
+                    j++;
                 }
-                DataPoint v = new DataPoint(post.timestamp, (float) factor * post.vlvState);
-                values[i++] = v;
-                prevValveState = post.vlvState;
+                DataPoint v = new DataPoint(tm[i].timestamp, (float) factor * tm[i].vlvState);
+                values[i+j] = v;
+                prevValveState = tm[i].vlvState;
             }
-            Log.d("data fetch", "i=" + Integer.toString(i) + "  count=" + Integer.toString(count*2));
-            while (i < count*2) {
-                DataPoint x = new DataPoint(values[i-1].getX()+2, (float) 0.0);
-                values[i++] = x;
+            //Log.d("data fetch", "i=" + Integer.toString(i) + "  nbrOfTmPoints=" + Integer.toString(nbrOfTmPoints*2));
+            while (j < nbrOfTmPoints) {
+                DataPoint x = new DataPoint(values[i+j-1].getX()+2, (float) 0.0);
+                values[i+j] = x;
+                j++;
             }
-            Log.d("data fetch", "i=" + Integer.toString(i) + "  count=" + Integer.toString(count*2));
+            //Log.d("data fetch", "i=" + Integer.toString(i) + "  nbrOfTmPoints=" + Integer.toString(nbrOfTmPoints*2));
             return values;
 
         } else {
 
-            DataPoint[] values = new DataPoint[count];
+            DataPoint[] values = new DataPoint[nbrOfTmPoints];
             int i = 0;
             IrrDeviceTelemetry post;
 
             switch (parameterName) {
                 case "Vcc":
-                    for (DataSnapshot postSnapshot : teledataSnapshot.getChildren()) {
-                        post = postSnapshot.getValue(IrrDeviceTelemetry.class);
-                        DataPoint v = new DataPoint(post.timestamp, post.Vcc);
-                        values[i++] = v;
+                    for (i=0;i<nbrOfTmPoints;i++) {
+                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].Vcc);
+                        values[i] = v;
                     }
                     break;
                 case "Hum":
-                    for (DataSnapshot postSnapshot : teledataSnapshot.getChildren()) {
-                        post = postSnapshot.getValue(IrrDeviceTelemetry.class);
-                        DataPoint v = new DataPoint(post.timestamp, (float) post.Hum);
-                        values[i++] = v;
+                    for (i=0;i<nbrOfTmPoints;i++) {
+                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].Hum);
+                        values[i] = v;
+                    }
+                    break;
+                case "cur_ppm":
+                    for (i=0;i<nbrOfTmPoints;i++) {
+                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].last_ppm);  // or cur_ppm
+                        values[i] = v;
+                    }
+                    break;
+                case "phase":
+                    for (i=0;i<nbrOfTmPoints;i++) {
+                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].phase);
+                        values[i] = v;
+                    }
+                    break;
+                case "Wifi":
+                    for (i=0;i<nbrOfTmPoints;i++) {
+                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].Wifi);
+                        values[i] = v;
                     }
                     break;
                 default:
@@ -282,14 +382,10 @@ public class FirebaseObject implements Serializable {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     int count = (int) dataSnapshot.getChildrenCount();
                     if (count > 0) {
-                        IrrDeviceLog post;
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                            post = postSnapshot.getValue(IrrDeviceLog.class);
-                            //System.out.println(" timestamp " + post.timestamp + "  Vcc=" + post.Vcc);
                             allLog.child(postSnapshot.getKey()).removeValue();
                         }
                     }
-                    //showToast("Deleted " + count + " log posts");
                 }
 
                 @Override
@@ -308,12 +404,10 @@ public class FirebaseObject implements Serializable {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     int count = (int) dataSnapshot.getChildrenCount();
                     if (count > 0) {
-                        IrrDeviceLog post;
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                            //allTele.child(postSnapshot.getKey()).removeValue();
+                            allTele.child(postSnapshot.getKey()).removeValue();
                         }
                     }
-                    //showToast("Deleted " + count + " telemetry posts");
                 }
 
                 @Override

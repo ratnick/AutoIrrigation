@@ -31,16 +31,16 @@
         app:layout_constraintStart_toStartOf="@+id/gLeftMargin"
         app:layout_constraintTop_toTopOf="@+id/gTopOfTitles" />
 
-    <TextView
-        android:id="@+id/tvHumTitle"
-        style="@style/TextViewStyleParent"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:text="Humidity %"
-        android:textStyle="italic"
-        app:layout_constraintBottom_toTopOf="@+id/gBottomOfTitles"
-        app:layout_constraintEnd_toStartOf="@+id/g2"
-        app:layout_constraintTop_toTopOf="@+id/gTopOfTitles" />
+ <TextView
+     android:id="@+id/tvHumTitle"
+     style="@style/TextViewStyleParent"
+     android:layout_width="wrap_content"
+     android:layout_height="0dp"
+     android:text="Hum % / PPM"
+     android:textStyle="italic"
+     app:layout_constraintBottom_toTopOf="@+id/gBottomOfTitles"
+     app:layout_constraintEnd_toStartOf="@+id/g2"
+     app:layout_constraintTop_toTopOf="@+id/gTopOfTitles" />
 
     <TextView
         android:id="@+id/tvVccTitle"

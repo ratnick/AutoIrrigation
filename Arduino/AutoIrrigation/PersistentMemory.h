@@ -47,7 +47,8 @@ class PersistentMemoryClass
 	 String GetrunMode();
 	 String GetWakeTime(int i);
 	 String GetPauseWakeTime();
-	 int GettotalSecondsToSleep();
+	 int GetdeviceStatus();
+     int GettotalSecondsToSleep();
 	 int GetsecondsToSleep();
 	 int GetmaxSleepCycles();
 	 int GetcurrentSleepCycle();
@@ -68,6 +69,7 @@ class PersistentMemoryClass
 	 void SetWakeTime(int i, String wakeTime_);
 	 void SetPauseWakeTime(String wakeTime_);
 	 void SetmacAddress(byte* mac);
+	 void SetDeviceStatus(int deviceStatus_);
 	 void SettotalSecondsToSleep(int totalSecondsToSleep_);
 	 void SetsecondsToSleep(int secondsToSleep_);
 	 void SetmaxSleepCycles(int maxSleepCycles_);

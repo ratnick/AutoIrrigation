@@ -6,20 +6,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vanding.datamodel.DeviceData;
-import com.vanding.datamodel.IrrDevice;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
+import static android.graphics.Color.BLACK;
 import static android.graphics.Color.RED;
 import static android.graphics.Color.YELLOW;
 import static com.vanding.irrigation.FirebaseService.DEVICE_NBR;
+import static com.vanding.irrigation.db.DEVICE_TYPE_GAS_STR;
+import static com.vanding.irrigation.db.DEVICE_TYPE_SOIL_STR;
 import static com.vanding.irrigation.db.dbIrrDevice;
 import static com.vanding.irrigation.db.dbSelectedIrrDeviceK;
 
@@ -35,9 +37,11 @@ public class DevicesAdapter extends
         // for any view that will be set as you render a row
 
         public TextView tLocation ;
+        public TextView tSensorType;
         public TextView tTimestamp ;
         public TextView tHumidity ;
         public TextView tVcc ;
+        public ImageView imStatusColor;
         protected Button btnSelectDevice ;
 
 
@@ -49,9 +53,11 @@ public class DevicesAdapter extends
             super(itemView);
 
             tLocation = (TextView) itemView.findViewById(R.id.tLocation);
+            tSensorType = (TextView) itemView.findViewById(R.id.tSensorType);
             tTimestamp = (TextView) itemView.findViewById(R.id.tTimestamp);
             tHumidity = (TextView) itemView.findViewById(R.id.tHumidity);
             tVcc = (TextView) itemView.findViewById(R.id.tVcc);
+            imStatusColor = (ImageView) itemView.findViewById(R.id.imStatusColor);
             btnSelectDevice = (Button) itemView.findViewById(R.id.btnSelectDevice);
             //btnSelectDevice.setTag(R.integer.btnSelectDevice, itemView);
             btnSelectDevice.setOnClickListener(this);
@@ -94,22 +100,37 @@ public class DevicesAdapter extends
         // Get the data model based on position0
 
         TextView tLocation = viewHolder.tLocation;
+        TextView tSensorType = viewHolder.tSensorType;
         TextView tTimestamp = viewHolder.tTimestamp;
         TextView tHumidity = viewHolder.tHumidity;
         TextView tVcc = viewHolder.tVcc;
+        ImageView imStatusColor = viewHolder.imStatusColor;
         Button btnSelectDevice = viewHolder.btnSelectDevice;
 
         // Set item views based on your views and data model
         tLocation.setText(dbIrrDevice[position].metadata.loc);
+        tSensorType.setText(dbIrrDevice[position].metadata.sensorType);
         SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-        tTimestamp.setText(sfd.format(new Date(dbIrrDevice[position].telemetry_current.timestamp)));
-        tHumidity.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Hum));
+        tTimestamp.setText("reimplement in Arduino");
+//TODO:reimplement in Arduino        tTimestamp.setText(sfd.format(new Date(dbIrrDevice[position].telemetry_current.timestamp)));
+        switch (dbIrrDevice[position].metadata.sensorType) {
+            case DEVICE_TYPE_SOIL_STR:
+                tHumidity.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Hum));
+                break;
+            case DEVICE_TYPE_GAS_STR:
+                tHumidity.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.cur_ppm));
+                break;
+            default:
+                break;
+        }
         tVcc.setText(String.format("%.2f",dbIrrDevice[position].telemetry_current.Vcc));
 
-        if (dbIrrDevice[position].overallStatus == IrrDevice.DeviceStatus.WARNING) {
-            tLocation.setTextColor(YELLOW);
-        } else if (dbIrrDevice[position].overallStatus == IrrDevice.DeviceStatus.FAULT) {
-            tLocation.setBackgroundColor(RED);
+        if (dbIrrDevice[position].state.deviceStatus >= 10) {
+            imStatusColor.setBackgroundColor(RED);
+        } else if (dbIrrDevice[position].state.deviceStatus > 0) {
+            imStatusColor.setBackgroundColor(YELLOW);
+        } else {
+            imStatusColor.setBackgroundColor(BLACK);
         }
 
         btnSelectDevice.setText("DETAILS");

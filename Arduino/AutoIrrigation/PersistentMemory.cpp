@@ -32,6 +32,7 @@ void PersistentMemoryClass::init(
 		ps.currentSleepCycle = 0; // counts which sleep cycle we are at right now.
 		ps.secondsToSleep = 3;
 		ps.maxSleepCycles = 0;
+		ps.deviceStatus = DEVICE_STATUS_OK;
 
 		// Settings
 		strcpy(ps.runMode, RUNMODE_SOIL.c_str());
@@ -94,6 +95,7 @@ void PersistentMemoryClass::AddStateJson(FirebaseJson* json) {
 	json->add(FB_maxSleepCycles, ps.maxSleepCycles);
 	json->add(FB_currentSleepCycle, ps.currentSleepCycle);
 	json->add(FB_runOnce, ps.runOnce);
+	json->add(FB_deviceStatus, ps.deviceStatus);
 };
 
 void PersistentMemoryClass::AddSettingsJson(FirebaseJson* json) {
@@ -138,6 +140,7 @@ String PersistentMemoryClass::GetwifiSSID()			 { return String(ps.wifiSSID); }
 String PersistentMemoryClass::GetrunMode()			 { return String(ps.runMode); }
 String PersistentMemoryClass::GetWakeTime(int i)     { return String(ps.wakeupTime[i]); }
 String PersistentMemoryClass::GetPauseWakeTime()     { return String(ps.pauseWakeTime); }
+int PersistentMemoryClass::GetdeviceStatus()		 { return ps.deviceStatus; }
 int PersistentMemoryClass::GettotalSecondsToSleep()  { return ps.totalSecondsToSleep; }
 int PersistentMemoryClass::GetsecondsToSleep()		 { return ps.secondsToSleep; }
 int PersistentMemoryClass::GetmaxSleepCycles()		 { return ps.maxSleepCycles;}
@@ -199,6 +202,10 @@ void PersistentMemoryClass::SetPauseWakeTime(String wakeTime_) {
 	strcpy(ps.pauseWakeTime, wakeTime_.c_str());
 	WritePersistentMemory();
 }
+void PersistentMemoryClass::SetDeviceStatus(int deviceStatus_) {
+	ps.deviceStatus, deviceStatus_;
+	WritePersistentMemory();
+}
 void PersistentMemoryClass::SettotalSecondsToSleep(int totalSecondsToSleep_) {
 	ps.totalSecondsToSleep = totalSecondsToSleep_;
 	WritePersistentMemory();
@@ -256,6 +263,7 @@ void PersistentMemoryClass::Printps() {
 	LogLinef(5, __FUNCTION__, "runMode           %s", ps.runMode);
 	LogLinef(5, __FUNCTION__, "wakeTime          %s", ps.wakeupTime[0]);
 	LogLinef(5, __FUNCTION__, "pauseWakeTime     %s", ps.pauseWakeTime);
+	LogLinef(5, __FUNCTION__, "deviceStatus      %d", ps.deviceStatus);
 	LogLinef(5, __FUNCTION__, "totalSecondsToSleep %d", ps.totalSecondsToSleep);
 	LogLinef(5, __FUNCTION__, "secondsToSleep    %d", ps.secondsToSleep);
 	LogLinef(5, __FUNCTION__, "maxSleepCycles    %d", ps.maxSleepCycles);
@@ -284,6 +292,7 @@ void PersistentMemoryClass::PrintpsRAW() {
 	Serial.println("wakeTime 2       " + String(ps.wakeupTime[2]));
 	Serial.println("wakeTime 3       " + String(ps.wakeupTime[3]));
 	Serial.println("pauseWakeTime     " + String(ps.pauseWakeTime));
+	Serial.println("deviceStatus      " + String(ps.deviceStatus));
 	Serial.println("totalSecondsToSleep " + String(ps.totalSecondsToSleep));
 	Serial.println("secondsToSleep    " + String(ps.secondsToSleep));
 	Serial.println("maxSleepCycles    " + String(ps.maxSleepCycles));

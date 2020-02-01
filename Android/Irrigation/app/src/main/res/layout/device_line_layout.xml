@@ -15,6 +15,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+                <ImageView
+                    android:id="@+id/imStatusColor"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintBottom_toTopOf="@+id/guideline3"
+                    app:layout_constraintEnd_toStartOf="@+id/gLeftMargin"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/gTopOfTitles"
+                    app:layout_constraintVertical_bias="1.0"
+                    app:srcCompat="@android:drawable/alert_dark_frame" />
+
                 <TextView
                     android:id="@+id/tLocation"
                     style="@style/TextViewStyleParent"
@@ -23,9 +34,25 @@
                     android:text="Device location"
                     android:textSize="18sp"
                     app:layout_constraintBottom_toTopOf="@+id/gBottomOfTitles"
-                    app:layout_constraintEnd_toStartOf="@+id/g3"
+                    app:layout_constraintEnd_toStartOf="@+id/g2"
                     app:layout_constraintStart_toStartOf="@+id/gLeftMargin"
-                    app:layout_constraintTop_toTopOf="@+id/gTopOfTitles" />
+                    app:layout_constraintTop_toTopOf="@+id/gTopOfTitles"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <TextView
+                    android:id="@+id/tSensorType"
+                    style="@style/TextViewStyleParent"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:foregroundGravity="bottom"
+                    android:text="Sensor type"
+                    android:textAlignment="textEnd"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toTopOf="@+id/gBottomOfTitles"
+                    app:layout_constraintEnd_toStartOf="@+id/g3"
+                    app:layout_constraintStart_toStartOf="@+id/g2"
+                    app:layout_constraintTop_toTopOf="@+id/gTopOfTitles"
+                    app:layout_constraintVertical_bias="0.0" />
 
                 <TextView
                     android:id="@+id/tTimestamp"
@@ -84,7 +111,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    app:layout_constraintGuide_begin="16dp" />
+                    app:layout_constraintGuide_begin="13dp" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/gBottomOfTitles"

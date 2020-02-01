@@ -334,7 +334,7 @@
                         <TextView
                             android:id="@+id/tvHumTxt"
                             style="@style/TextViewStyle"
-                            android:text="Humidity %" />
+                            android:text="Humidity % or PPM" />
 
                         <TextView
                             android:id="@+id/tvHum"
