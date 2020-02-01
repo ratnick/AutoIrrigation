@@ -7,6 +7,7 @@ Autonomous watering system based on Arduino WEMOS D1 mini, controlled via
 Android app through Firebase cloud. PCB design. Case designed and 3D printed.
 Key features: Wifi multi-hotspot, Timed Deep sleep / wake-up, persistent memory
 in sync with cloud, multiplexing of analogue inputs, Secure Cloud communication.
+Updated to also support an MQ-7 CO monitor (https://www.instructables.com/id/Arduino-CO-Monitor-Using-MQ-7-Sensor/).
 
 Table of contents
 =================
