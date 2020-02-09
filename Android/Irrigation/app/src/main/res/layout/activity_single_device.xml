@@ -308,8 +308,18 @@
 
                     <Button
                         android:id="@+id/refreshButton"
-                        android:text="REFRESH"
-                        style="@style/ButtonStyle"/>
+                        style="@style/ButtonStyle"
+                        android:text="RESET" />
+
+                    <Space
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <Button
+                        android:id="@+id/detailButton"
+                        style="@style/ButtonStyle"
+                        android:text="DETAIL" />
 
                     <Space
                         android:layout_width="wrap_content"

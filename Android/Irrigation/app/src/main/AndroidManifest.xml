@@ -55,6 +55,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.vanding.irrigation.MainActivity" />
         </activity>
+        <activity
+            android:name=".DetailedGraph"
+            android:parentActivityName=".SingleDevice"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.vanding.irrigation.SingleDevice" />
+        </activity>
 
         <service
             android:name=".FirebaseService"

@@ -347,7 +347,7 @@ public class FirebaseObject implements Serializable {
                     break;
                 case "cur_ppm":
                     for (i=0;i<nbrOfTmPoints;i++) {
-                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].last_ppm);  // or cur_ppm
+                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].last_ppm);  // cur_ppm is the current measured CO value. last_ppm is the last CORRECT measurement
                         values[i] = v;
                     }
                     break;
@@ -359,7 +359,7 @@ public class FirebaseObject implements Serializable {
                     break;
                 case "Wifi":
                     for (i=0;i<nbrOfTmPoints;i++) {
-                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].Wifi);
+                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].Wifi); // default: wifi
                         values[i] = v;
                     }
                     break;

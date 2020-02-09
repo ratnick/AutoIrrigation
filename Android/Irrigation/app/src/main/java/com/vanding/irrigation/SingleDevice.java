@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.util.Log;
+import android.view.OrientationEventListener;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -44,6 +45,7 @@ public class SingleDevice extends AppCompatActivity {
 
     @BindView(R.id.purgeButton)                 Button purgeButton;
     @BindView(R.id.refreshButton)               Button refreshButton;
+    @BindView(R.id.detailButton)                Button detailButton;
     @BindView(R.id.executeButton)               Button executeButton;
 
     @BindView(R.id.tvDeviceID)                  EditText tvDeviceID;
@@ -70,7 +72,7 @@ public class SingleDevice extends AppCompatActivity {
     @BindView(R.id.tvWifi)                      TextView tvWifi;
     @BindView(R.id.tvTimestampTelemetryTxt)     TextView tvTimestampTelemetryTxt;
     @BindView(R.id.tvTimestampTelemetryTime)    TextView tvTimestampTelemetryTime;
-    private GraphView graph;
+    public static GraphView graph;
 
     public class GraphSettings {
         public String titlePrim;
@@ -94,7 +96,10 @@ public class SingleDevice extends AppCompatActivity {
     }
 
     int selectedDevice = -1;
-    GraphSettings[] gs = new GraphSettings[2];
+    public static GraphSettings[] gs;
+    {
+        gs = new GraphSettings[2];
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +143,7 @@ public class SingleDevice extends AppCompatActivity {
                 toast.show();
             }
         });
+
         refreshButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent commandIntent2 = new Intent(getApplicationContext(), FirebaseService.class);
@@ -151,6 +157,15 @@ public class SingleDevice extends AppCompatActivity {
                 toast.show();
             }
         });
+
+        detailButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(SingleDevice.this, DetailedGraph.class);
+                intent.putExtra(DEVICE_NBR, dbSelectedIrrDeviceK);
+                startActivity(intent);
+            }
+        });
+
         executeButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 dbIrrDevice[dbSelectedIrrDeviceK].metadata.loc = tvLocation.getText().toString();
@@ -172,6 +187,25 @@ public class SingleDevice extends AppCompatActivity {
                 toast.show();
             }
         });
+
+        /*
+        OrientationEventListener mOrientationEventListener;
+        mOrientationEventListener = new OrientationEventListener(this) {
+
+            // This is either Surface.Rotation_0, _90, _180, _270, or -1 (invalid).
+            private int mLastKnownRotation = -1;
+
+            @Override
+            public void onOrientationChanged(int orientation) {
+                Context context = getApplicationContext();
+                Toast toast = Toast.makeText(context, "SCREEN ROTATED TO: " + Integer.toString(orientation), Toast.LENGTH_SHORT);
+                if (orientation == OrientationEventListener.ORIENTATION_UNKNOWN) {
+                    return;
+                }
+            }
+        };
+        mOrientationEventListener.enable();
+        */
     }
 
     public void writeStateToFirebase() {
@@ -293,8 +327,13 @@ public class SingleDevice extends AppCompatActivity {
         FormatGraph(graph);
     }
 
+
     private int GetDeviceType() {
-        switch (dbIrrDevice[selectedDevice].metadata.sensorType) {
+        return GetDeviceType(dbIrrDevice[selectedDevice].metadata.sensorType);
+    }
+
+    public static int GetDeviceType(String sensorType) {
+        switch (sensorType) {
             case DEVICE_TYPE_SOIL_STR:
                 return DEVICE_TYPE_SOIL;
             case DEVICE_TYPE_GAS_STR:
@@ -329,12 +368,11 @@ public class SingleDevice extends AppCompatActivity {
 
     }
 
-    private long RoundUpToNearestNiceNumber(long in) {
+    public static long RoundUpToNearestNiceNumber(long in) {
         double x = 1.1 * in;
-
         return (long) x;
-
     }
+
     private void FormatGraph(GraphView graph) {
 
         long minX, maxX, minY1, maxY1, minY2, maxY2;
@@ -371,7 +409,7 @@ public class SingleDevice extends AppCompatActivity {
             minY2 = (long) dbIrrDevice[selectedDevice].xSeriesVcc.getLowestValueY();
             maxY2 = (long) dbIrrDevice[selectedDevice].xSeriesVcc.getHighestValueY();
             maxY2 = RoundUpToNearestNiceNumber(maxY2);
-            graph.getSecondScale().setMinY(0); //minY2
+            graph.getSecondScale().setMinY(minY2); //minY2
             graph.getSecondScale().setMaxY(maxY2);
         } else {
             graph.getSecondScale().setMinY(3.3);
@@ -410,7 +448,7 @@ public class SingleDevice extends AppCompatActivity {
 
         // Drawing area
         graph.setTitleColor(YELLOW);
-        graph.setTitle("LIVE");
+        //graph.setTitle("LIVE");
         graph.setBackgroundColor(Color.DKGRAY);
         graph.getViewport().setBackgroundColor(Color.BLACK);
         graph.getGridLabelRenderer().setGridColor(Color.DKGRAY);
