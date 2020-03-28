@@ -8,10 +8,10 @@
 #include "serialPortHandler.h"
 #include <SoftwareSerial.h>
 #define HARDWARE_DESCRIPTION "PCB v5.3 WeMOS D1 r2, 12V valve switch"
-#define DEVICE_ID "#xx"
+#define DEVICE_ID "#2"
 
 // Main modes of operation (also used when developing new features)
-#define USE_GAS_SENSOR 
+//#define USE_GAS_SENSOR 
 #define USE_WIFI
 
 // Choose cloud:

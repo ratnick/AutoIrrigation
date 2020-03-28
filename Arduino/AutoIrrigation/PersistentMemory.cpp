@@ -106,6 +106,7 @@ void PersistentMemoryClass::AddSettingsJson(FirebaseJson* json) {
 	json->add(FB_mainLoopDelay, ps.mainLoopDelay);
 	json->add(FB_debugLevel, ps.debugLevel);
 	json->add(FB_deepSleepEnabled, ps.deepSleepEnabled);
+	json->add(FB_totalSecondsToSleep, ps.totalSecondsToSleep);
 	json->add(FB_wakeupTime "0", String(ps.wakeupTime[0]));
 	json->add(FB_wakeupTime "1", String(ps.wakeupTime[1]));
 	json->add(FB_wakeupTime "2", String(ps.wakeupTime[2]));
