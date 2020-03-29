@@ -44,7 +44,7 @@ void WaterValveClass::OpenValve() {
 }
 
 void WaterValveClass::KeepOpen() {
-	LogLinef(3, __FUNCTION__, "openSeconds=%d", openSeconds);
+	LogLinef(4, __FUNCTION__, "openSeconds=%d", openSeconds);
 	delay(1000 * openSeconds);
 }
 
@@ -56,7 +56,7 @@ void WaterValveClass::CloseValve() {
 }
 
 void WaterValveClass::WaitToSoak() {
-	LogLinef(3, __FUNCTION__, "soakSeconds=%d", soakSeconds);
+	LogLinef(4, __FUNCTION__, "soakSeconds=%d", soakSeconds);
 	delay(1000 * soakSeconds);
 }
 

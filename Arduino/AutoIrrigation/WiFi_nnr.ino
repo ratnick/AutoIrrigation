@@ -122,7 +122,7 @@ const int WIFI_STRENGTH_LIMIT = -75; //db
 boolean IsWifiStrenghtOK() {
 	int strength = WiFi.RSSI();
 	//Serial.printf("\n Wifi strength = %i\n", strength);
-	LogLinef(3, __FUNCTION__, "Wifi strength = %ddB", strength);
+	LogLinef(4, __FUNCTION__, "Wifi strength = %ddB", strength);
 	return (WiFi.RSSI() > WIFI_STRENGTH_LIMIT);
 }
 
@@ -156,7 +156,7 @@ boolean getCurrentTimeB() {
 		setSyncInterval(60 * 60);
 		ntpRetryCount++;
 	}
-	LogLinef(4, __FUNCTION__, "NTP time fetched in %d tries", ntpRetryCount);
+	LogLinef(5, __FUNCTION__, "NTP time fetched in %d tries", ntpRetryCount);
 	return (ntpRetryCount < max_retries);
 }
 

@@ -63,7 +63,7 @@ boolean isValidTimeString(String str) {
 
 void DeepSleepHandlerClass::GotoSleepAndWakeUpAtTime(String wakeupTime) {
 
-	LogLinef(2, __FUNCTION__, "Wake up at: %s", wakeupTime.c_str());
+	LogLinef(3, __FUNCTION__, "Wake up at: %s", wakeupTime.c_str());
 
 	// check that input is OK and convert to time_t
 	if (isValidTimeString(wakeupTime)) {
@@ -77,12 +77,12 @@ void DeepSleepHandlerClass::GotoSleepAndWakeUpAtTime(String wakeupTime) {
 
 void DeepSleepHandlerClass::GotoSleepAndWakeAfterDelay(int secondsToSleep) {
 
-	LogLinef(2, __FUNCTION__, "Wake up after %d seconds", secondsToSleep);
+	LogLinef(3, __FUNCTION__, "Wake up after %d seconds", secondsToSleep);
 	if (secondsToSleep > 0) {
 		char wakeupTime[7];
 		uint64_t t = GetOnboardTime() + secondsToSleep;
 		ConvertToShortTimeStr(t, wakeupTime);
-		LogLinef(3, __FUNCTION__, "Time string = %s", wakeupTime);
+		LogLinef(4, __FUNCTION__, "Time string = %s", wakeupTime);
 		PersistentMemory.SetWakeTime(WAKEUP_IDX_SIMPLEDELAY, wakeupTime);
 	}
 	else {
@@ -104,7 +104,7 @@ uint64_t GetNearestWakeupTime() {
 
 	String wakeupTime;
 
-	LogLinef(3, __FUNCTION__, "begin");
+	LogLinef(4, __FUNCTION__, "begin");
 
 	for (int i = 0; i < MAX_WAKEUPTIMES; i++) {
 		wakeupTime = PersistentMemory.GetWakeTime(i);
@@ -142,11 +142,11 @@ uint64_t GetNearestWakeupTime() {
 				nearestSecondsToWakeup = tmpNearestSecondsToWakeup;
 				foundValue = true;
 			}
-			LogLinef(4, __FUNCTION__, "B: nearestSecondsToWakeup = %d, tmpNearestSecondsToWakeup=%d", (long int) nearestSecondsToWakeup, (long int) tmpNearestSecondsToWakeup);
-			LogLinef(3, __FUNCTION__, "HHMM: %d:%d:%d   now=%d:%d:%d   diff=%d:%d:%d", hh, mm, ss, hh_now, mm_now, ss_now, hh_diff, mm_diff, ss_diff);
+			LogLinef(5, __FUNCTION__, "B: nearestSecondsToWakeup = %d, tmpNearestSecondsToWakeup=%d", (long int) nearestSecondsToWakeup, (long int) tmpNearestSecondsToWakeup);
+			LogLinef(4, __FUNCTION__, "HHMM: %d:%d:%d   now=%d:%d:%d   diff=%d:%d:%d", hh, mm, ss, hh_now, mm_now, ss_now, hh_diff, mm_diff, ss_diff);
 		}
 		else {
-			LogLinef(3, __FUNCTION__, "Sleep time %d NOT OK: %s", i, wakeupTime.c_str());
+			LogLinef(4, __FUNCTION__, "Sleep time %d NOT OK: %s", i, wakeupTime.c_str());
 		}
 	}
 	if (!foundValue) { nearestSecondsToWakeup = 0; }
@@ -168,10 +168,10 @@ void SetDeepSleepPeriod(int _secondsToSleep) {
 	_secondsToSleep = lroundf(floatSecondsToSleep);
 	int secondsToSleep = _secondsToSleep % MAX_DEEP_SLEEP_SECS;
 	int maxSleepCycles = _secondsToSleep / MAX_DEEP_SLEEP_SECS;
-	LogLinef(1, __FUNCTION__, "secondsToSleep = %d  maxSleepCycles = %d", secondsToSleep, maxSleepCycles);
+	LogLinef(2, __FUNCTION__, "secondsToSleep = %d  maxSleepCycles = %d", secondsToSleep, maxSleepCycles);
 	PersistentMemory.SetsecondsToSleep(secondsToSleep);
 	PersistentMemory.SetmaxSleepCycles(maxSleepCycles);
-	LogLinef(1, __FUNCTION__, "Done");
+	LogLinef(2, __FUNCTION__, "Done");
 }
 
 boolean DeepSleepHandlerClass::ContinueSleeping() {
@@ -190,7 +190,7 @@ void DeepSleepHandlerClass::GoToDeepSleep() {
 
 	boolean lastCycle = false;
 	uint64_t deepSleepPeriod = 0;
-	LogLinef(1, __FUNCTION__, "Start: currentSleepCycle = %d  GetmaxSleepCycles = %d", PersistentMemory.ps.currentSleepCycle, PersistentMemory.GetmaxSleepCycles());
+	LogLinef(2, __FUNCTION__, "Start: currentSleepCycle = %d  GetmaxSleepCycles = %d", PersistentMemory.ps.currentSleepCycle, PersistentMemory.GetmaxSleepCycles());
 
 	// if currentSleepCycle > 0 then we have an ongoing sleep session
 	if (PersistentMemory.ps.currentSleepCycle == 1) {            
@@ -231,8 +231,8 @@ void DeepSleepHandlerClass::GoToDeepSleep() {
 	uint32_t secs = deepSleepPeriod;
 	deepSleepPeriod = deepSleepPeriod * 1000000;
 	if (PersistentMemory.GetdeepSleepEnabled()) {
-		LogLinef(1, __FUNCTION__, "Finish: currentSleepCycle = %d  GetmaxSleepCycles = %d", PersistentMemory.ps.currentSleepCycle, PersistentMemory.GetmaxSleepCycles());
-		LogLinef(1, __FUNCTION__, "Go to DeepSleep.  deepSleepPeriod=%d secs    DeepSleepEnabled:%d", secs, PersistentMemory.GetdeepSleepEnabled());
+		LogLinef(2, __FUNCTION__, "Finish: currentSleepCycle = %d  GetmaxSleepCycles = %d", PersistentMemory.ps.currentSleepCycle, PersistentMemory.GetmaxSleepCycles());
+		LogLinef(2, __FUNCTION__, "Go to DeepSleep.  deepSleepPeriod=%d secs    DeepSleepEnabled:%d", secs, PersistentMemory.GetdeepSleepEnabled());
 		ESP.deepSleep(deepSleepPeriod);
 	}
 	else {
@@ -244,7 +244,7 @@ void TestHelper1(int idx, int secondsToSleep) {
 	char wakeupTime[7];
 	uint64_t t = GetOnboardTime() + secondsToSleep;
 	ConvertToShortTimeStr(t, wakeupTime);
-	LogLinef(3, __FUNCTION__, "Time string = %s", wakeupTime);
+	LogLinef(4, __FUNCTION__, "Time string = %s", wakeupTime);
 	PersistentMemory.SetWakeTime(idx, wakeupTime);
 
 }

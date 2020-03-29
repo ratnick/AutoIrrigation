@@ -30,12 +30,12 @@ void AnalogMuxClass::init(int _S1, int _S0, int _pwrCtrlPin, boolean _pwrCtrlPin
 		pwrCtrlPinActive = _pwrCtrlPinActive;
 		digitalWrite(pwrCtrlPin, !pwrCtrlPinActive);
 	}
-	LogLinef(3, __FUNCTION__, "MUX on S0: %d  abd S1:%d    power ctrl:%d", S0, S1, pwrCtrlPin);
+	LogLinef(4, __FUNCTION__, "MUX on S0: %d  abd S1:%d    power ctrl:%d", S0, S1, pwrCtrlPin);
 }
 
 void AnalogMuxClass::OpenChannel(int ch) {
 
-	LogLinef(3, __FUNCTION__, "Open channel %d ", ch);
+	LogLinef(4, __FUNCTION__, "Open channel %d ", ch);
 	int S1 = this->S1;
 	int S0 = this->S0;
 

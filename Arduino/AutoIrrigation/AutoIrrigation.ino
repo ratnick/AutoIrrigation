@@ -8,7 +8,7 @@
 #include "serialPortHandler.h"
 #include <SoftwareSerial.h>
 #define HARDWARE_DESCRIPTION "PCB v5.3 WeMOS D1 r2, 12V valve switch"
-#define DEVICE_ID "#2"
+#define DEVICE_ID "#3"
 
 // Main modes of operation (also used when developing new features)
 //#define USE_GAS_SENSOR 
@@ -150,7 +150,7 @@ void setup() {
 //	PersistentMemory.SetdebugLevel(debuglevel);
 	Serial.printf("persisten mem debugLevel=%d (should be %d)\n", PersistentMemory.GetdebugLevel(), DEBUGLEVEL);
 	SetFBDebugLevel(PersistentMemory.GetdebugLevel());
-	LogLinef(1, __FUNCTION__, "Sleep cycle %d of %d", PersistentMemory.ps.currentSleepCycle, PersistentMemory.ps.maxSleepCycles);
+	LogLinef(2, __FUNCTION__, "Sleep cycle %d of %d", PersistentMemory.ps.currentSleepCycle, PersistentMemory.ps.maxSleepCycles);
 	if (PersistentMemory.ps.currentSleepCycle != 0) {
 		DeepSleepHandler.GoToDeepSleep();
 	}
@@ -167,7 +167,7 @@ void setup() {
 	float vccTmp;
 	#ifdef SLEEP_WHEN_LOW_VOLTAGE
 		vccTmp = externalVoltMeter.ReadSingleVoltage();
-		LogLinef(3, __FUNCTION__, "Voltage: %fV. ", vccTmp);
+		LogLinef(4, __FUNCTION__, "Voltage: %fV. ", vccTmp);
 	#else
 		vccTmp = PersistentMemory.ps.vccMinLimit;
 	#endif
@@ -241,7 +241,7 @@ boolean WaterIfNeeded() {
 	// update persistent memory in case something has changed
 	PersistentMemory.ps.lastVccSummarizedReading = externalVoltMeter.lastSummarizedReading;
 	PersistentMemory.WritePersistentMemory();
-	LogLinef(2, __FUNCTION__, "Voltage reading %f", vccTmp);
+	LogLinef(3, __FUNCTION__, "Voltage reading %f", vccTmp);
 
 	LED_Flashes(1, 300);
 	if ((soilHumiditySensorA.CheckIfWater() == SoilHumiditySensor.DRY) || SIMULATE_WATERING) {
@@ -271,7 +271,7 @@ void loop() {
 	firstRun = false;
 
 	rm = PersistentMemory.GetrunMode();
-	LogLinef(4, __FUNCTION__, "runmode = %s", rm.c_str());
+	LogLinef(5, __FUNCTION__, "runmode = %s", rm.c_str());
 	if (rm.equals(RUNMODE_SOIL) || rm.equals(RUNMODE_WATER)) {
 		if (WaterIfNeeded()) {
 			// use deep sleep if it's enabled and we want to soak for a longer period of time
@@ -322,7 +322,7 @@ void loop() {
 		}
 	#else
 	int d = PersistentMemory.GetmainLoopDelay();
-		LogLinef(2, __FUNCTION__, "waiting mainLoopDelay: %d", d);
+		LogLinef(3, __FUNCTION__, "waiting mainLoopDelay: %d", d);
 		delay(d * 1000);
 	#endif
 }
@@ -437,15 +437,15 @@ boolean IsSettingsDataUpdatedByUser() {
 	String s = FB_BasePath + "/settings/" + FB_UserUpdate;
 	if (Firebase.getBool(firebaseData, s)) {
 		if (firebaseData.boolData()) {
-			LogLinef(4, __FUNCTION__, "true - %s  " , s.c_str());
+			LogLinef(5, __FUNCTION__, "true - %s  " , s.c_str());
 			return true;
 		}
 		else {
-			LogLinef(4, __FUNCTION__, "false (not set by user) - %s   ", s.c_str());
+			LogLinef(5, __FUNCTION__, "false (not set by user) - %s   ", s.c_str());
 		}
 	}
 	else {
-		LogLinef(4, __FUNCTION__, "false (data does not exist in Firebase) - %s + %s", s.c_str(), firebaseData.errorReason().c_str());
+		LogLinef(5, __FUNCTION__, "false (data does not exist in Firebase) - %s + %s", s.c_str(), firebaseData.errorReason().c_str());
 	}
 	LogLine(4, __FUNCTION__, "end");
 	return false;
@@ -469,7 +469,7 @@ void RemoveDummiesFromFirebase(String path) {
 	String s = FB_BasePath + path;   // "/telemetry/x";
 	String res;
 	if (Firebase.getString(firebaseData, s)) {
-		LogLinef(3, __FUNCTION__, "dummy exists. Will remove it. path=%s ", s.c_str());
+		LogLinef(4, __FUNCTION__, "dummy exists. Will remove it. path=%s ", s.c_str());
 		Firebase.deleteNode(firebaseData, s);
 	}
 	else {
@@ -490,7 +490,7 @@ void GetSettingsFromFirebase_(boolean firstRun) {
 
 	LogLine(4, __FUNCTION__, "begin");
 	if (firstRun || IsSettingsDataUpdatedByUser()) {
-		LogLinef(4, __FUNCTION__, "2 %s  ", FB_BasePath.c_str());
+		LogLinef(5, __FUNCTION__, "2 %s  ", FB_BasePath.c_str());
 		str = FB_BasePath + "/metadata/" + FB_deviceLocation;
 		if (Firebase.getString(firebaseData, str)) {
 			PersistentMemory.SetdeviceLocation(firebaseData.stringData());
@@ -601,7 +601,7 @@ void UploadStateAndSettings_() {
 	}
 	else {
 		CreateNewDevice();
-		LogLinef(3, __FUNCTION__, "%s created", FB_BasePath.c_str());
+		LogLinef(4, __FUNCTION__, "%s created", FB_BasePath.c_str());
 	}
 	if (IsSettingsDataUpdatedByUser()) {
 		ConnectAndUploadToCloud(GetSettings);
@@ -645,7 +645,7 @@ void SendToFirebase(String cmd, String subPath, FirebaseJson* jso) {
 
 	String s = FB_BasePath + "/" + subPath + "/";
 	(*jso).toString(jsoStr, true);
-	LogLinef(3, __FUNCTION__, " Firebase command:%s    path: %s    ", cmd.c_str(), s.c_str());
+	LogLinef(4, __FUNCTION__, " Firebase command:%s    path: %s    ", cmd.c_str(), s.c_str());
 	LogLinef(5, __FUNCTION__, " JSON:\n%s", jsoStr.c_str());
 
 	if (cmd.equals("set"))		 { 
@@ -1082,7 +1082,7 @@ void InitUnitTest() {
 	PersistentMemory.init(false, 20, "PCB v5.2 - #1", 0, 0, 10, 4);   // false: read from memory.  true: initialize
 	SetFBDebugLevel(PersistentMemory.GetdebugLevel());
 	LogLine(1, __FUNCTION__, "BEGIN");
-	LogLinef(1, __FUNCTION__, "Sleep cycle %d of %d", PersistentMemory.ps.currentSleepCycle, PersistentMemory.ps.maxSleepCycles);
+	LogLinef(2, __FUNCTION__, "Sleep cycle %d of %d", PersistentMemory.ps.currentSleepCycle, PersistentMemory.ps.maxSleepCycles);
 
 	// check for crazy values
 	if (PersistentMemory.ps.currentSleepCycle >= 12 || PersistentMemory.ps.maxSleepCycles >= 12) {

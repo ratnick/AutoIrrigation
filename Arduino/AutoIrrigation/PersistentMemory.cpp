@@ -14,14 +14,14 @@ void PersistentMemoryClass::init(
 	int _debugLevel) {
 
 	EEPROM.begin(usedSize);
-	LogLinef(2, __FUNCTION__, "EEPROM length: %d", usedSize);
+	LogLinef(3, __FUNCTION__, "EEPROM length: %d", usedSize);
 
 	if (resetMemory) {
 		// Metadata
 		strcpy(ps.deviceID, _deviceID );
 		strcpy(ps.macAddress, "ABCDEF\0");
 		strcpy(ps.deviceLocation, "not set\0");
-		strcpy(ps.sensorType, "not set\0");
+		strcpy(ps.sensorType, "soil\0");
 		strcpy(ps.hardware, _hardware);
 		strcpy(ps.softwareVersion, "AutoIrrigation.ino - Compiled: " __DATE__ " " __TIME__ "\0");
 
@@ -170,7 +170,7 @@ String mac2String(byte ar[]) {
 void PersistentMemoryClass::SetmacAddress(byte mac[]) { 
 	String s;
 	s = mac2String(mac);
-	LogLinef(3, __FUNCTION__, "macAddress       %s", s.c_str());
+	LogLinef(4, __FUNCTION__, "macAddress       %s", s.c_str());
 	strcpy(ps.macAddress, s.c_str());
 	WritePersistentMemory();
 }
@@ -192,7 +192,7 @@ void PersistentMemoryClass::SetdeviceLocation(String deviceLocation_) {
 }
 void PersistentMemoryClass::SetrunMode(String runMode_) {
 	strcpy(ps.runMode, runMode_.c_str());
-	LogLinef(3, __FUNCTION__, "ps.runMode=%s, runMode_.c_str()=%s", ps.runMode, runMode_.c_str());
+	LogLinef(4, __FUNCTION__, "ps.runMode=%s, runMode_.c_str()=%s", ps.runMode, runMode_.c_str());
 	WritePersistentMemory();
 }
 void PersistentMemoryClass::SetWakeTime(int i, String wakeTime_) {

@@ -17,7 +17,7 @@ void SoilHumiditySensorClass::init(int _pinNbr, char _name[], int _muxChannel, S
 	humLimit = WET_VALUE_HUMIDITY + humLimitPct * (DRY_VALUE_HUMIDITY - WET_VALUE_HUMIDITY) / 100.0;
 
 	pinMode(pinNbr, INPUT);
-	LogLinef(2, __FUNCTION__, "MUX channel:%d   analog pin:%d   name:%s   _humLimit=%d", muxChannel, pinNbr, name, _humLimit);
+	LogLinef(3, __FUNCTION__, "MUX channel:%d   analog pin:%d   name:%s   _humLimit=%d", muxChannel, pinNbr, name, _humLimit);
 }
 
 void SoilHumiditySensorClass::AddTelemetryJson(FirebaseJson* json) {
@@ -41,7 +41,7 @@ float SoilHumiditySensorClass::ReadSensor() {
 		AVG_COUNT = 8;
 	}
 
-	LogLinef(4, __FUNCTION__, "READING HUMIDITY FROM analog MUX channel %d", muxChannel);
+	LogLinef(5, __FUNCTION__, "READING HUMIDITY FROM analog MUX channel %d", muxChannel);
 	delay(500);  // allow voltage to settle after valve open
 	AnalogMux.OpenChannel(muxChannel);
 	for (int i = 0; i < AVG_COUNT; i++) {
@@ -52,7 +52,7 @@ float SoilHumiditySensorClass::ReadSensor() {
 	AnalogMux.CloseMUXpwr();
 	res /= AVG_COUNT;
 
-	LogLinef(1, __FUNCTION__, "Value: %d" , res);
+	LogLinef(2, __FUNCTION__, "Value: %d" , res);
 	return res;
 }
 
@@ -72,7 +72,7 @@ float SoilHumiditySensorClass::GetHumidityPct() {
 	if (hum < 0) { hum = 0; }
 	if (hum > 100) { hum = 100; }
 
-	LogLinef(2, __FUNCTION__,
+	LogLinef(3, __FUNCTION__,
 		"  water=%d  lastAna=%d  dry=%d  lastAna-water=%d  dry-water=%d  hum=%d  humLimPct=%d", 
 		WET_VALUE_HUMIDITY,
 		this->lastAnalogueReadingWater,
