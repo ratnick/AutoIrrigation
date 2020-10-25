@@ -16,12 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="AutoIrrigation.ino" />
-    <None Include="NTPTimeServices.ino">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="WiFi_nnr.ino">
-      <Filter>Source Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.AutoIrrigation.vsarduino.h">
@@ -81,6 +75,9 @@
     <ClInclude Include="serialPortHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Thermometer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp">
@@ -123,6 +120,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="serialPortHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Thermometer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

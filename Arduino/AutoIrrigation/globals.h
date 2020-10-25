@@ -9,6 +9,7 @@
 #include "WProgram.h"
 #endif
 
+#include <WifiLib.h>
 #include "FirebaseModel.h"
 const int LED_PIN = LED_BUILTIN;
 
@@ -76,13 +77,16 @@ enum BoardType {
 	Other
 };
 
-struct DeviceConfig {
-	int WifiIndex = 0;
+struct Device {
+	BoardType boardType = Other;            // OperationMode enumeration: NodeMCU, WeMos, SparkfunThing, Other
+	unsigned int deepSleepSeconds = 0;      // Number of seconds for the ESP8266 chip to deepsleep for.  GPIO16 needs to be tied to RST to wake from deepSleep http://esp8266.github.io/Arduino/versions/2.0.0/doc/libraries.html
+	WifiDevice wifi;
+/*	int WifiIndex = 0;
 	unsigned long LastWifiTime = 0;
 	int WiFiConnectAttempts = 0;
-	int wifiPairs = 1;
+	int wifiPairs = 5;
 	String currentSSID;
-	String pwd;
+	String pwd;*/
 //	BoardType boardType = Other;            // OperationMode enumeration: NodeMCU, WeMos, SparkfunThing, Other
 //	SensorMode sensorMode = None;           // OperationMode enumeration: DemoMode (no sensors, fakes data), Bmp180Mode, Dht11Mode
 //	unsigned int deepSleepSeconds = 0;      // Number of seconds for the ESP8266 chip to deepsleep for.  GPIO16 needs to be tied to RST to wake from deepSleep http://esp8266.github.io/Arduino/versions/2.0.0/doc/libraries.html
@@ -99,6 +103,7 @@ enum UploadType {
 const String RUNMODE_SOIL = "soil";
 const String RUNMODE_WATER = "water";
 const String RUNMODE_GAS = "gas";
+const String RUNMODE_DHT11 = "Temp+hum";
 const String RUNMODE_SENSORTEST = "sensor";
 const String RUNMODE_BATTERYTEST = "batt";
 const String RUNMODE_HARDWARETEST = "testhw";

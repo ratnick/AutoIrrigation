@@ -20,7 +20,9 @@ class SensorHandlerClass
 		 SoilHumiditySensor,
 		 WaterSensor,
 		 GasSensor,
-		 ExternalVoltMeter
+		 ExternalVoltMeter,
+		 Thermometer,
+		 ThermoHygrometer
 	 };
 
 	 void init(int _pinNbr, char _sensorType[], char _metricUnit[], boolean _isBooleanSensor, float _minConvertedValue, float _maxConvertedValue);

@@ -34,6 +34,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static android.graphics.Color.BLACK;
+import static android.graphics.Color.BLUE;
+import static android.graphics.Color.CYAN;
+import static android.graphics.Color.GREEN;
 import static android.graphics.Color.MAGENTA;
 import static android.graphics.Color.WHITE;
 import static android.graphics.Color.YELLOW;
@@ -80,25 +83,38 @@ public class SingleDevice extends AppCompatActivity {
         public String titleVcc;
         public boolean autoScalePrim;
         public boolean autoScaleSec;
+        public double minPrim;
+        public double maxPrim;
+        public double minSec;
+        public double maxSec;
 
         public GraphSettings(
                 String _title1, int _thickness1,
                 String _title2, int _thickness2,
                 String _title3, int _thickness3,
                 boolean _autoScalePrim,
-                boolean _autoScaleSec) {
+                boolean _autoScaleSec,
+                double _minPrim,
+                double _maxPrim,
+                double _minSec,
+                double _maxSec
+        ) {
             this.titlePrim = _title1;
             this.titleSec = _title2;
             this.titleVcc = _title3;
             this.autoScalePrim = _autoScalePrim;
             this.autoScaleSec = _autoScaleSec;
+            this.minPrim = _minPrim;
+            this.maxPrim = _maxPrim;
+            this.minSec = _minSec;
+            this.maxSec = _maxSec;
         }
     }
 
     int selectedDevice = -1;
     public static GraphSettings[] gs;
     {
-        gs = new GraphSettings[2];
+        gs = new GraphSettings[NBR_OF_DEVICE_TYPES];
     }
 
     @Override
@@ -118,14 +134,36 @@ public class SingleDevice extends AppCompatActivity {
                 "Valve",2,
                 "Batt [V]",2,
                 false,
-                false);
+                false,
+                0, 1,
+                3.3, 4.1 );
 
         gs[DEVICE_TYPE_GAS] = new GraphSettings(
                 "PPM",2,
                 "DUTY",2,
                 "Wifi",2,
                 true,
-                true);
+                true,
+                0, 1,
+                0, 1);
+
+        gs[DEVICE_TYPE_HUMTEMP] = new GraphSettings(
+                "temp C",2,
+                "Hum %",2,
+                "Wifi",2,
+                false,
+                false,
+                -10, 70,
+                -85, -30);
+
+        gs[DEVICE_TYPE_WATER] = new GraphSettings(
+                "PPM",2,
+                "DUTY",2,
+                "Wifi",2,
+                true,
+                true,
+                0, 1,
+                0, 1);
 
         Intent commandIntent = new Intent(this, FirebaseService.class);
         commandIntent.putExtra(FirebaseService.DEVICE_NBR, selectedDevice);
@@ -175,7 +213,7 @@ public class SingleDevice extends AppCompatActivity {
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.vlvSoak = Integer.valueOf(tvSoakTime.getText().toString());
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.humLim = Integer.valueOf(tvhumLim.getText().toString());
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.db = Integer.valueOf(tvDb.getText().toString());
-                //dbIrrDevice[dbSelectedIrrDeviceK].settings.totSlp = Integer.valueOf(tvSecsToSleep.getText().toString());
+                dbIrrDevice[dbSelectedIrrDeviceK].settings.totSlp = Integer.valueOf(tvSecsToSleep.getText().toString());
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.wakeTime0 = tvWaketime0.getText().toString();
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.wakeTime1 = tvWaketime1.getText().toString();
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.wakeTime2 = tvWaketime2.getText().toString();
@@ -211,7 +249,7 @@ public class SingleDevice extends AppCompatActivity {
     public void writeStateToFirebase() {
         dbDeviceReference[dbSelectedIrrDeviceK].child("metadata").child("loc").setValue(dbIrrDevice[dbSelectedIrrDeviceK].metadata.loc);
         dbDeviceReference[dbSelectedIrrDeviceK].child("metadata").child("device").setValue(dbIrrDevice[dbSelectedIrrDeviceK].metadata.device);
-        //dbDeviceReference[dbSelectedIrrDeviceK].child("settings").child("totSlp").setValue(dbIrrDevice[dbSelectedIrrDeviceK].settings.totSlp);
+        dbDeviceReference[dbSelectedIrrDeviceK].child("settings").child("totSlp").setValue(dbIrrDevice[dbSelectedIrrDeviceK].settings.totSlp);
         dbDeviceReference[dbSelectedIrrDeviceK].child("settings").child("slpEnabl").setValue(dbIrrDevice[dbSelectedIrrDeviceK].settings.slpEnabl);
         dbDeviceReference[dbSelectedIrrDeviceK].child("settings").child("vlvOpen").setValue(dbIrrDevice[dbSelectedIrrDeviceK].settings.vlvOpen);
         dbDeviceReference[dbSelectedIrrDeviceK].child("settings").child("vlvSoak").setValue(dbIrrDevice[dbSelectedIrrDeviceK].settings.vlvSoak);
@@ -282,7 +320,7 @@ public class SingleDevice extends AppCompatActivity {
 
     private void updateUISettings() {
         tvdeepSleepEnabled.setText(String.format("%b", dbIrrDevice[selectedDevice].settings.slpEnabl));
-        //tvSecsToSleep.setText(String.format("%d", dbIrrDevice[selectedDevice].settings.totSlp));
+        tvSecsToSleep.setText(String.format("%d", dbIrrDevice[selectedDevice].settings.totSlp));
         tvOpenDuration.setText(String.format("%d", dbIrrDevice[selectedDevice].settings.vlvOpen));
         tvSoakTime.setText(String.format("%d", dbIrrDevice[selectedDevice].settings.vlvSoak));
         tvhumLim.setText(String.format("%d", dbIrrDevice[selectedDevice].settings.humLim));
@@ -303,6 +341,9 @@ public class SingleDevice extends AppCompatActivity {
                 break;
             case DEVICE_TYPE_GAS_STR:
                 tvHum.setText(String.format("%.0f", dbIrrDevice[selectedDevice].telemetry_current.cur_ppm));
+                break;
+            case DEVICE_TYPE_HUMTEMP_STR:
+                tvHum.setText(String.format("%.0f", dbIrrDevice[selectedDevice].telemetry_current.Temp));
                 break;
             default:
                 break;
@@ -338,6 +379,8 @@ public class SingleDevice extends AppCompatActivity {
                 return DEVICE_TYPE_SOIL;
             case DEVICE_TYPE_GAS_STR:
                 return DEVICE_TYPE_GAS;
+            case DEVICE_TYPE_HUMTEMP_STR:
+                return DEVICE_TYPE_HUMTEMP;
             default:
                 return -1; // will crash
         }
@@ -347,23 +390,19 @@ public class SingleDevice extends AppCompatActivity {
 
         int devType = GetDeviceType();
 
-        // Raw
-        //dbIrrDevice[selectedDevice].xSeriesPrimaryTm.setTitle("Humidity %");
         dbIrrDevice[selectedDevice].xSeriesPrimaryTm.setTitle(gs[devType].titlePrim);
         dbIrrDevice[selectedDevice].xSeriesPrimaryTm.setThickness(2);
         dbIrrDevice[selectedDevice].xSeriesPrimaryTm.setColor(WHITE);
         dbIrrDevice[selectedDevice].xSeriesPrimaryTm.setDrawDataPoints(false);
 
-        // Valve position
         dbIrrDevice[selectedDevice].xSeriesSecTm.setTitle(gs[devType].titleSec);
         dbIrrDevice[selectedDevice].xSeriesSecTm.setThickness(2);
         dbIrrDevice[selectedDevice].xSeriesSecTm.setColor(YELLOW);
         dbIrrDevice[selectedDevice].xSeriesSecTm.setDrawDataPoints(false);
 
-        // Vcc
         dbIrrDevice[selectedDevice].xSeriesVcc.setTitle(gs[devType].titleVcc);
         dbIrrDevice[selectedDevice].xSeriesVcc.setThickness(2);
-        dbIrrDevice[selectedDevice].xSeriesVcc.setColor(MAGENTA);
+        dbIrrDevice[selectedDevice].xSeriesVcc.setColor(CYAN);
         dbIrrDevice[selectedDevice].xSeriesVcc.setDrawDataPoints(false);
 
     }
@@ -396,11 +435,11 @@ public class SingleDevice extends AppCompatActivity {
             graph.getViewport().setMinY(0); //minY1;
             graph.getViewport().setMaxY(maxY1);
         } else {
-            graph.getViewport().setMinY(0);
-            graph.getViewport().setMaxY(99);
+            graph.getViewport().setMinY(gs[devType].minPrim);
+            graph.getViewport().setMaxY(gs[devType].maxPrim);
         }
         graph.getGridLabelRenderer().setVerticalLabelsColor(WHITE);
-        graph.getGridLabelRenderer().setLabelsSpace(20);
+        graph.getGridLabelRenderer().setLabelsSpace(30);
 
         // Secondary Y-axis (Y2) scale
         // set second scale manually (http://www.android-graphview.org/secondary-scale-axis/ : the y bounds are always manual for second scale
@@ -412,10 +451,10 @@ public class SingleDevice extends AppCompatActivity {
             graph.getSecondScale().setMinY(minY2); //minY2
             graph.getSecondScale().setMaxY(maxY2);
         } else {
-            graph.getSecondScale().setMinY(3.3);
-            graph.getSecondScale().setMaxY(4.1);
+            graph.getSecondScale().setMinY(gs[devType].minSec);
+            graph.getSecondScale().setMaxY(gs[devType].maxSec);
         }
-        graph.getGridLabelRenderer().setVerticalLabelsSecondScaleColor(MAGENTA);
+        graph.getGridLabelRenderer().setVerticalLabelsSecondScaleColor(CYAN);
         graph.getGridLabelRenderer().setSecondScaleLabelVerticalWidth(70);
         graph.getGridLabelRenderer().setNumVerticalLabels(7);
         graph.getGridLabelRenderer().setVerticalLabelsSecondScaleAlign(Paint.Align.RIGHT);

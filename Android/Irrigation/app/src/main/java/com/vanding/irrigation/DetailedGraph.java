@@ -14,6 +14,8 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static android.graphics.Color.CYAN;
+import static android.graphics.Color.GREEN;
 import static android.graphics.Color.MAGENTA;
 import static android.graphics.Color.WHITE;
 import static android.graphics.Color.YELLOW;
@@ -76,7 +78,7 @@ public class DetailedGraph extends AppCompatActivity {
         // Vcc
         dbIrrDevice[selectedDevice].xSeriesVcc.setTitle(gs[devType].titleVcc);
         dbIrrDevice[selectedDevice].xSeriesVcc.setThickness(2);
-        dbIrrDevice[selectedDevice].xSeriesVcc.setColor(MAGENTA);
+        dbIrrDevice[selectedDevice].xSeriesVcc.setColor(CYAN);
         dbIrrDevice[selectedDevice].xSeriesVcc.setDrawDataPoints(false);
 
     }
@@ -104,8 +106,8 @@ public class DetailedGraph extends AppCompatActivity {
             graph.getViewport().setMinY(0); //minY1;
             graph.getViewport().setMaxY(maxY1);
         } else {
-            graph.getViewport().setMinY(0);
-            graph.getViewport().setMaxY(99);
+            graph.getViewport().setMinY(gs[devType].minPrim);
+            graph.getViewport().setMaxY(gs[devType].maxPrim);
         }
         graph.getGridLabelRenderer().setVerticalLabelsColor(WHITE);
         graph.getGridLabelRenderer().setLabelsSpace(20);
@@ -120,10 +122,10 @@ public class DetailedGraph extends AppCompatActivity {
             graph.getSecondScale().setMinY(minY2); //minY2
             graph.getSecondScale().setMaxY(maxY2);
         } else {
-            graph.getSecondScale().setMinY(3.3);
-            graph.getSecondScale().setMaxY(4.1);
+            graph.getSecondScale().setMinY(gs[devType].minSec);
+            graph.getSecondScale().setMaxY(gs[devType].maxSec);
         }
-        graph.getGridLabelRenderer().setVerticalLabelsSecondScaleColor(MAGENTA);
+        graph.getGridLabelRenderer().setVerticalLabelsSecondScaleColor(CYAN);
         graph.getGridLabelRenderer().setSecondScaleLabelVerticalWidth(70);
         graph.getGridLabelRenderer().setNumVerticalLabels(7);
         graph.getGridLabelRenderer().setVerticalLabelsSecondScaleAlign(Paint.Align.RIGHT);

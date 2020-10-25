@@ -28,6 +28,7 @@ class PersistentMemoryClass
 		 int _totalSecondsToSleep = 0,
 		 const char* _deviceID="n/a", 
 		 const char* _sw_vers="n/a",
+		 const char* _runmode="n/a",
 		 int _valveOpenDuration = 1,
 		 int _valveSoakTime = 1, 
 		 int _mainLoopDelay = 600,

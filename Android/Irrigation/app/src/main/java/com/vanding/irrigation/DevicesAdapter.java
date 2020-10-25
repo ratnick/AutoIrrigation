@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.vanding.datamodel.DeviceData;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import static android.graphics.Color.BLACK;
@@ -21,6 +22,8 @@ import static android.graphics.Color.RED;
 import static android.graphics.Color.YELLOW;
 import static com.vanding.irrigation.FirebaseService.DEVICE_NBR;
 import static com.vanding.irrigation.db.DEVICE_TYPE_GAS_STR;
+import static com.vanding.irrigation.db.DEVICE_TYPE_HUMTEMP;
+import static com.vanding.irrigation.db.DEVICE_TYPE_HUMTEMP_STR;
 import static com.vanding.irrigation.db.DEVICE_TYPE_SOIL_STR;
 import static com.vanding.irrigation.db.dbIrrDevice;
 import static com.vanding.irrigation.db.dbSelectedIrrDeviceK;
@@ -39,8 +42,14 @@ public class DevicesAdapter extends
         public TextView tLocation ;
         public TextView tSensorType;
         public TextView tTimestamp ;
-        public TextView tHumidity ;
-        public TextView tVcc ;
+        public TextView tVal1;
+        public TextView tVal2;
+        public TextView tVal3;
+        public TextView tVal4;
+        public TextView tUnit1;
+        public TextView tUnit2;
+        public TextView tUnit3;
+        public TextView tUnit4;
         public ImageView imStatusColor;
         protected Button btnSelectDevice ;
 
@@ -55,8 +64,14 @@ public class DevicesAdapter extends
             tLocation = (TextView) itemView.findViewById(R.id.tLocation);
             tSensorType = (TextView) itemView.findViewById(R.id.tSensorType);
             tTimestamp = (TextView) itemView.findViewById(R.id.tTimestamp);
-            tHumidity = (TextView) itemView.findViewById(R.id.tHumidity);
-            tVcc = (TextView) itemView.findViewById(R.id.tVcc);
+            tVal1 = (TextView) itemView.findViewById(R.id.tVal1);
+            tVal2 = (TextView) itemView.findViewById(R.id.tVal2);
+            tVal3 = (TextView) itemView.findViewById(R.id.tVal3);
+            tVal4 = (TextView) itemView.findViewById(R.id.tVal4);
+            tUnit1 = (TextView) itemView.findViewById(R.id.tUnit1);
+            tUnit2 = (TextView) itemView.findViewById(R.id.tUnit2);
+            tUnit3 = (TextView) itemView.findViewById(R.id.tUnit3);
+            tUnit4 = (TextView) itemView.findViewById(R.id.tUnit4);
             imStatusColor = (ImageView) itemView.findViewById(R.id.imStatusColor);
             btnSelectDevice = (Button) itemView.findViewById(R.id.btnSelectDevice);
             //btnSelectDevice.setTag(R.integer.btnSelectDevice, itemView);
@@ -102,8 +117,14 @@ public class DevicesAdapter extends
         TextView tLocation = viewHolder.tLocation;
         TextView tSensorType = viewHolder.tSensorType;
         TextView tTimestamp = viewHolder.tTimestamp;
-        TextView tHumidity = viewHolder.tHumidity;
-        TextView tVcc = viewHolder.tVcc;
+        TextView tVal1 = viewHolder.tVal1;
+        TextView tVal2 = viewHolder.tVal2;
+        TextView tVal3 = viewHolder.tVal3;
+        TextView tVal4 = viewHolder.tVal4;
+        TextView tUnit1 = viewHolder.tUnit1;
+        TextView tUnit2 = viewHolder.tUnit2;
+        TextView tUnit3 = viewHolder.tUnit3;
+        TextView tUnit4 = viewHolder.tUnit4;
         ImageView imStatusColor = viewHolder.imStatusColor;
         Button btnSelectDevice = viewHolder.btnSelectDevice;
 
@@ -111,19 +132,30 @@ public class DevicesAdapter extends
         tLocation.setText(dbIrrDevice[position].metadata.loc);
         tSensorType.setText(dbIrrDevice[position].metadata.sensorType);
         SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-        tTimestamp.setText("reimplement in Arduino");
-//TODO:reimplement in Arduino        tTimestamp.setText(sfd.format(new Date(dbIrrDevice[position].telemetry_current.timestamp)));
+        tTimestamp.setText(sfd.format(new Date(dbIrrDevice[position].telemetry_current.timestamp)));
+
         switch (dbIrrDevice[position].metadata.sensorType) {
             case DEVICE_TYPE_SOIL_STR:
-                tHumidity.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Hum));
+                tVal1.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Hum));
+                tUnit1.setText(String.format("%%"));
+                tVal3.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Vcc));
+                tUnit3.setText(String.format("V"));
                 break;
             case DEVICE_TYPE_GAS_STR:
-                tHumidity.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.cur_ppm));
+                tVal1.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.cur_ppm));
+                tUnit1.setText(String.format("ppm"));
+                break;
+            case DEVICE_TYPE_HUMTEMP_STR:
+                tVal1.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Hum));
+                tUnit1.setText(String.format("%%"));
+                tVal2.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Temp));
+                tUnit2.setText(String.format("C"));
                 break;
             default:
                 break;
         }
-        tVcc.setText(String.format("%.2f",dbIrrDevice[position].telemetry_current.Vcc));
+        tVal4.setText(String.format("%d", dbIrrDevice[position].telemetry_current.Wifi));
+        tUnit4.setText(String.format("db"));
 
         if (dbIrrDevice[position].state.deviceStatus >= 10) {
             imStatusColor.setBackgroundColor(RED);
@@ -133,7 +165,7 @@ public class DevicesAdapter extends
             imStatusColor.setBackgroundColor(BLACK);
         }
 
-        btnSelectDevice.setText("DETAILS");
+        btnSelectDevice.setText("zoom");
         btnSelectDevice.setEnabled(true);
 
         btnSelectDevice.setOnClickListener(new View.OnClickListener() {

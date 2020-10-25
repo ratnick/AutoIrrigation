@@ -114,7 +114,5 @@ typedef long __PTRDIFF_TYPE__;
 #define noInterrupts() cli()
 
 #include "AutoIrrigation.ino"
-#include "NTPTimeServices.ino"
-#include "WiFi_nnr.ino"
 #endif
 #endif

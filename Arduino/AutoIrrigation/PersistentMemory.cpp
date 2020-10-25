@@ -8,6 +8,7 @@ void PersistentMemoryClass::init(
 	int _totalSecondsToSleep,
 	const char* _deviceID,
 	const char* _hardware,
+	const char* _runmode,
 	int _valveOpenDuration,
 	int _valveSoakTime,
 	int _mainLoopDelay,
@@ -21,7 +22,7 @@ void PersistentMemoryClass::init(
 		strcpy(ps.deviceID, _deviceID );
 		strcpy(ps.macAddress, "ABCDEF\0");
 		strcpy(ps.deviceLocation, "not set\0");
-		strcpy(ps.sensorType, "soil\0");
+		strcpy(ps.sensorType, _runmode);
 		strcpy(ps.hardware, _hardware);
 		strcpy(ps.softwareVersion, "AutoIrrigation.ino - Compiled: " __DATE__ " " __TIME__ "\0");
 
@@ -35,7 +36,7 @@ void PersistentMemoryClass::init(
 		ps.deviceStatus = DEVICE_STATUS_OK;
 
 		// Settings
-		strcpy(ps.runMode, RUNMODE_SOIL.c_str());
+		strcpy(ps.runMode, _runmode);
 		ps.valveOpenDuration = _valveOpenDuration;
 		ps.valveSoakTime = _valveSoakTime;
 		ps.humLimit = 50; //pct

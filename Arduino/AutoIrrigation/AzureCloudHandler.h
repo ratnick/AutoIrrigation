@@ -9,7 +9,7 @@
 	#include "WProgram.h"
 #endif
 
-#include "globals.h"
+//#include "globals.h"
 
 class AzureCloudHandlerClass
 {

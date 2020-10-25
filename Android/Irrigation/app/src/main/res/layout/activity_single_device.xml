@@ -354,7 +354,7 @@
                     </TableRow>
 
                     <TableRow
-                        android:id="@+id/tVcc"
+                        android:id="@+id/tVal2"
                         style="@style/TableRowStyle">
 
                         <TextView

@@ -158,6 +158,12 @@ public class FirebaseObject implements Serializable {
                                                 dbIrrDevice[k].xSeriesSecTm.resetData(readAllData( "phase"));
                                                 //                            dbDeviceLoaded[k] = true;
                                                 break;
+                                            case DEVICE_TYPE_HUMTEMP_STR:
+                                                dbIrrDevice[k].xSeriesVcc.resetData(readAllData("Wifi"));
+                                                dbIrrDevice[k].xSeriesPrimaryTm.resetData(readAllData( "Temp"));
+                                                dbIrrDevice[k].xSeriesSecTm.resetData(readAllData( "Hum"));
+                                                //                            dbDeviceLoaded[k] = true;
+                                                break;
 
                                             default:
                                                 break;
@@ -215,6 +221,12 @@ public class FirebaseObject implements Serializable {
                             dbIrrDevice[i].xSeriesVcc.resetData(readAllData( "Wifi"));
                             dbIrrDevice[i].xSeriesPrimaryTm.resetData(readAllData( "cur_ppm"));
                             dbIrrDevice[i].xSeriesSecTm.resetData(readAllData( "phase"));
+                            dbDeviceLoaded[i] = true;
+                            break;
+                        case DEVICE_TYPE_HUMTEMP_STR:
+                            dbIrrDevice[i].xSeriesVcc.resetData(readAllData("Wifi"));
+                            dbIrrDevice[i].xSeriesPrimaryTm.resetData(readAllData( "Temp"));
+                            dbIrrDevice[i].xSeriesSecTm.resetData(readAllData( "Hum"));
                             dbDeviceLoaded[i] = true;
                             break;
                         default:
@@ -342,6 +354,12 @@ public class FirebaseObject implements Serializable {
                 case "Hum":
                     for (i=0;i<nbrOfTmPoints;i++) {
                         DataPoint v = new DataPoint(tm[i].timestamp, tm[i].Hum);
+                        values[i] = v;
+                    }
+                    break;
+                case "Temp":
+                    for (i=0;i<nbrOfTmPoints;i++) {
+                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].Temp);
                         values[i] = v;
                     }
                     break;

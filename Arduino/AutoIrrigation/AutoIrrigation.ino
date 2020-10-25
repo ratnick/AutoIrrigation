@@ -1,3 +1,4 @@
+
 /*
     Name:       AutoIrrigation.ino
     Created:	17-09-2018 15:08:50
@@ -5,13 +6,9 @@
 */
 
 
-#include "serialPortHandler.h"
-#include <SoftwareSerial.h>
-#define HARDWARE_DESCRIPTION "PCB v5.3 WeMOS D1 r2, 12V valve switch"
-#define DEVICE_ID "#3"
+#define HARDWARE_DESCRIPTION "WeMOS D1 r2, DHT11"
+#define DEVICE_ID "#1"
 
-// Main modes of operation (also used when developing new features)
-//#define USE_GAS_SENSOR 
 #define USE_WIFI
 
 // Choose cloud:
@@ -26,14 +23,14 @@
 #define TOTAL_SECS_TO_SLEEP 20		   // [20] Default sleep time
 #define DEEP_SLEEP_SOAK_THRESHOLD 120  // [120] if soaking time exceeds this limit, we will use deep sleep instead of delay()
 #define LOOP_DELAY 10                  // [10] secs
-#define SLEEP_WHEN_LOW_VOLTAGE		   // as the first thing, measure battery voltage. If too low, go immediately to sleep without connecting to wifi.
+//#define SLEEP_WHEN_LOW_VOLTAGE		   // as the first thing, measure battery voltage. If too low, go immediately to sleep without connecting to wifi.
 //#define MEASURE_INTERNAL_VCC         // When enabling, we cannot use analogue reading of sensor. 
 
 // Development & debugging
 #define FORCE_NEW_VALUES false           // [false] Will overwrite all values in persistent memory. Enable once, disable and recompile
 #define SIMULATE_WATERING false        // open the valve in every loop
 // See also SIMULATE_SENSORS in SensorHandler.h
-#define DEBUGLEVEL 4					// Has dual function: 1) serving as default value for Firebase Logging (which can be modified at runtime). 2) Defining debug level on serial port.
+#define DEBUGLEVEL 1					// Has dual function: 1) serving as default value for Firebase Logging (which can be modified at runtime). 2) Defining debug level on serial port.
 
 #include <jsmn.h>
 #include <FirebaseJson.h>
@@ -67,21 +64,35 @@
 #include "backoff.h"
 #endif
 
-#include "LEDHandler.h"
-#include "AnalogMux.h"
-#include "cli.h"
-#include <LogLib.h>
+#include <SoftwareSerial.h>
+#include <Wire.h>
+#include <DHTesp.h>
 #include <EEPROM.h>
 #include <SPI.h>
 #include <TimeLib.h>        // http://playground.arduino.cc/code/time - installed via library manager
 #include <time.h>
+
+// own libraries
 #include "globals.h"
 #include "ciotc_config.h" // Wifi configuration here
+#include "LEDHandler.h"
+#include "AnalogMux.h"
+#include "cli.h"
+#include <LogLib.h>
 #include "WaterValve.h"
 #include "SoilHumiditySensor.h"
 #include "VoltMeter.h"
 #include "DeepSleepHandler.h"
 #include "PersistentMemory.h"
+#include "Thermometer.h"
+#include "serialPortHandler.h"
+
+// Main modes of operation (also used when developing new features)
+//#define USE_GAS_SENSOR 
+#define USE_DHT11_SENSOR						// temperature, hum (defined by RUNMODE)
+const String DefaultRunmode = RUNMODE_DHT11;
+
+
 #ifdef USE_AZURE
 #include "AzureCloudHandler.h"
 #endif
@@ -91,26 +102,29 @@ GasSensorClass gasSensor;
 #endif
 
 // Wifi and network globals
-DeviceConfig wifiDevice;
+Device device;
 const char timeServer[] = "0.dk.pool.ntp.org"; // Danish NTP Server 
-WiFiClientSecure wifiClient;
-byte macAddr[6];
-//WiFiClient wifiClient;
+//x WiFiClientSecure wifiClient;
+byte localmacAddr[6];
 
 //Hardware pin configuration on WeMOS D1
 const int MUX_S0 = D8; // S0 = Pin A on schematic
 const int MUX_S1 = D7; // S1 = Pin B on schematic
 const int HUM_SENSOR_PWR_CTRL = D1;
 const int VALVE_CTRL = D5;
+const int DHT11_SIGNAL_PIN = D6;
 const int ANALOG_INPUT = A0;
+// MUX channels X0, X1, X2... on schematic
 const int CHANNEL_HUM = 0;
 const int CHANNEL_BATT = 1;
 const int CHANNEL_WATER = 2;
+const int CHANNEL_TEMPERATURE = 2;
 
 // Sensors and actuators
 SoilHumiditySensorClass soilHumiditySensorA;
 WaterValveClass waterValveA;
 VoltMeterClass externalVoltMeter;
+ThermometerClass thermometer;
 const int VALVE_OPEN_DURATION = 2;   // [2] time a valve can be open in one run-time cycle, i.e. between deepsleeps
 const int VALVE_SOAK_TIME     = 3;   // [30] time between two valve openings
 
@@ -143,7 +157,7 @@ void setup() {
 	PersistentMemory.SetdebugLevel(DEBUGLEVEL);
 
 	// read persistent memory
-	PersistentMemory.init(FORCE_NEW_VALUES, TOTAL_SECS_TO_SLEEP, DEVICE_ID, HARDWARE_DESCRIPTION, VALVE_OPEN_DURATION, VALVE_SOAK_TIME, LOOP_DELAY, DEBUGLEVEL);   // false: read from memory.  true: initialize
+	PersistentMemory.init(FORCE_NEW_VALUES, TOTAL_SECS_TO_SLEEP, DEVICE_ID, HARDWARE_DESCRIPTION, DefaultRunmode.c_str(), VALVE_OPEN_DURATION, VALVE_SOAK_TIME, LOOP_DELAY, DEBUGLEVEL);   // false: read from memory.  true: initialize
 	//PersistentMemory.Printps();
 	//PersistentMemory.UnitTest();  // just for testing
 	//PersistentMemory.Printps();
@@ -181,8 +195,10 @@ void setup() {
 	}	
 
 	String rm = PersistentMemory.GetrunMode();
+	LogLinef(4, __FUNCTION__, "runmode=%s", rm.c_str());
 	if (rm.equals(RUNMODE_SOIL)) {
 		soilHumiditySensorA.init(ANALOG_INPUT, "humidity sensor A", CHANNEL_HUM, SensorHandlerClass::SoilHumiditySensor, PersistentMemory.ps.humLimit);
+		thermometer.init(ANALOG_INPUT, "thermometer", CHANNEL_TEMPERATURE, SensorHandlerClass::Thermometer);
 	}
 	else if (rm.equals(RUNMODE_WATER)) {
 		soilHumiditySensorA.init(ANALOG_INPUT, "water sensor A", CHANNEL_WATER, SensorHandlerClass::WaterSensor, PersistentMemory.ps.humLimit);
@@ -193,13 +209,18 @@ void setup() {
 		gasSensor.init(ANALOG_INPUT, "gas senso", CHANNEL_HUM, SensorHandlerClass::GasSensor);
 	}
 #endif
-	
+#ifdef USE_DHT11_SENSOR
+	else if (rm.equals(RUNMODE_DHT11)) {
+		thermometer.init(DHT11_SIGNAL_PIN, "thermohygrometer", 0, SensorHandlerClass::ThermoHygrometer);
+	}
+#endif
+
 	waterValveA.init(VALVE_CTRL, "water valve A", PersistentMemory.ps.valveOpenDuration, PersistentMemory.ps.valveSoakTime);
 	#ifdef USE_WIFI 
 
 		ConnectToWifi();
-		WiFi.macAddress(macAddr);
-		PersistentMemory.SetmacAddress(macAddr);
+		WiFi.macAddress(localmacAddr);
+		PersistentMemory.SetmacAddress(localmacAddr);
 
 		// TODO: move time fetching to Wifi_nnr and generalize it.
 		configTime(0, 0, "pool.ntp.org", "time.nist.gov");   // note - it may take some HOURS before actual time is correct.
@@ -247,8 +268,8 @@ boolean WaterIfNeeded() {
 	if ((soilHumiditySensorA.CheckIfWater() == SoilHumiditySensor.DRY) || SIMULATE_WATERING) {
 		LogLine(1, __FUNCTION__, "Low water detected. Watering and soaking.");
 
-		ConnectAndUploadToCloud(UploadTelemetry);
 		waterValveA.OpenValve();
+		ConnectAndUploadToCloud(UploadTelemetry);
 		waterValveA.KeepOpen();
 
 		waterValveA.CloseValve();
@@ -271,7 +292,7 @@ void loop() {
 	firstRun = false;
 
 	rm = PersistentMemory.GetrunMode();
-	LogLinef(5, __FUNCTION__, "runmode = %s", rm.c_str());
+	LogLinef(4, __FUNCTION__, "runmode = %s", rm.c_str());
 	if (rm.equals(RUNMODE_SOIL) || rm.equals(RUNMODE_WATER)) {
 		if (WaterIfNeeded()) {
 			// use deep sleep if it's enabled and we want to soak for a longer period of time
@@ -306,6 +327,16 @@ void loop() {
 		}
 		if (loopCount++ >= NBR_OF_LOOPS_BEFORE_SLEEP) {
 			DeepSleepHandler.GotoSleepAndWakeAfterDelay(PersistentMemory.GettotalSecondsToSleep());
+		}
+	}
+#endif
+#ifdef USE_DHT11_SENSOR
+	else if (rm.equals(RUNMODE_DHT11)) {
+		ConnectAndUploadToCloud(UploadTelemetry);
+		if (PersistentMemory.GetdeepSleepEnabled()) {
+//			if (loopCount++ >= NBR_OF_LOOPS_BEFORE_SLEEP) {
+				DeepSleepHandler.GotoSleepAndWakeAfterDelay(PersistentMemory.GettotalSecondsToSleep());
+//			}
 		}
 	}
 #endif
@@ -420,9 +451,9 @@ boolean IsPersistentMemorySet() {
 
 void InitPersistentMemoryIfNeeded() {
 	if (!IsPersistentMemorySet() || FORCE_NEW_VALUES) {
-		PersistentMemory.init(true, TOTAL_SECS_TO_SLEEP, DEVICE_ID, HARDWARE_DESCRIPTION, VALVE_OPEN_DURATION, VALVE_SOAK_TIME, LOOP_DELAY, DEBUGLEVEL);   // false: read from memory.  true: initialize
-		WiFi.macAddress(macAddr);
-		PersistentMemory.SetmacAddress(macAddr);
+		PersistentMemory.init(true, TOTAL_SECS_TO_SLEEP, DEVICE_ID, HARDWARE_DESCRIPTION, DefaultRunmode.c_str(), VALVE_OPEN_DURATION, VALVE_SOAK_TIME, LOOP_DELAY, DEBUGLEVEL);   // false: read from memory.  true: initialize
+		WiFi.macAddress(localmacAddr);
+		PersistentMemory.SetmacAddress(localmacAddr);
 		#if defined (USE_DEEP_SLEEP)
 			PersistentMemory.SetdeepSleepEnabled(true);
 		#else
@@ -447,7 +478,7 @@ boolean IsSettingsDataUpdatedByUser() {
 	else {
 		LogLinef(5, __FUNCTION__, "false (data does not exist in Firebase) - %s + %s", s.c_str(), firebaseData.errorReason().c_str());
 	}
-	LogLine(4, __FUNCTION__, "end");
+	LogLine(4, __FUNCTION__, "No data changed.");
 	return false;
 }
 
@@ -617,14 +648,17 @@ void UploadTelemetry_() {
 	LogLine(4, __FUNCTION__, "begin");
 	// Build the telemetry. This is partly dependent on which sensors are present.
 
-	#ifdef USE_GAS_SENSOR
+	#if defined(USE_GAS_SENSOR)
 		newTelemetry = gasSensor.GetTelemetryJson(&jsoTelemetry);
 		LogLine(4, __FUNCTION__, "telemetry fetched from gas sensor");
+    #elif defined(USE_DHT11_SENSOR)
+		thermometer.AddTelemetryJson(&jsoTelemetry);
+		LogLine(4, __FUNCTION__, "telemetry fetched from DHT11 sensor");
 	#else
 		soilHumiditySensorA.AddTelemetryJson(&jsoTelemetry);
 		waterValveA.AddTelemetryJson(&jsoTelemetry);
+		externalVoltMeter.AddTelemetryJson(&jsoTelemetry);
 	#endif
-	externalVoltMeter.AddTelemetryJson(&jsoTelemetry);
 
 	int32_t wifiStrength = WiFi.RSSI();
 	jsoTelemetry.add(FB_wifi, wifiStrength); 
@@ -672,7 +706,7 @@ void SendToFirebase(String cmd, String subPath, FirebaseJson* jso) {
 #endif
 
 void ConnectToWifi() {
-	int wifiIndex = initWifi(PersistentMemory.ps.wifiSSID, PersistentMemory.ps.wifiPwd);
+	int wifiIndex = initWifi(PersistentMemory.ps.wifiSSID, PersistentMemory.ps.wifiPwd, &device.wifi);
 	delay(250);
 	if (wifiIndex == -1 || WiFi.status() != WL_CONNECTED) {
 		LogLine(0, __FUNCTION__, "Could not connect to wifi. ");
@@ -682,8 +716,8 @@ void ConnectToWifi() {
 }
 	else {   // then we have swapped SSID. Update persistent memory so we keep using the new hotspot
 		PrintIPAddress();
-		PersistentMemory.SetwifiSSID(wifiDevice.currentSSID);
-		PersistentMemory.SetwifiPwd(wifiDevice.pwd);
+		PersistentMemory.SetwifiSSID(device.wifi.currentSSID);
+		PersistentMemory.SetwifiPwd(device.wifi.pwd);
 	}
 }
 
@@ -1094,8 +1128,8 @@ void InitUnitTest() {
 
 #ifdef USE_WIFI 
 	ConnectToWifi();
-	WiFi.macAddress(macAddr);
-	PersistentMemory.SetmacAddress(macAddr);
+	WiFi.macAddress(localmacAddr);
+	PersistentMemory.SetmacAddress(localmacAddr);
 
 	// TODO: move time fetching to Wifi_nnr and generalize it.
 	configTime(0, 0, "pool.ntp.org", "time.nist.gov");   // note - it may take some HOURS before actual time is correct.

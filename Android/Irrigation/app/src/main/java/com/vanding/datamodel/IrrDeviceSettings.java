@@ -12,7 +12,7 @@ public class IrrDeviceSettings {
     public String pauseTime;
     public String runMode;
     public boolean slpEnabl;
-    //public int totSlp;
+    public int totSlp;
     public float vccAdj;
     public float vccMin;
     public int vlvOpen;

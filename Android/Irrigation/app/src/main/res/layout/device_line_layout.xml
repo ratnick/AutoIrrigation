@@ -13,7 +13,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="98dp">
 
                 <ImageView
                     android:id="@+id/imStatusColor"
@@ -45,9 +45,10 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:foregroundGravity="bottom"
-                    android:text="Sensor type"
+                    android:text="type"
                     android:textAlignment="textEnd"
                     android:textSize="14sp"
+                    android:textStyle="italic"
                     app:layout_constraintBottom_toTopOf="@+id/gBottomOfTitles"
                     app:layout_constraintEnd_toStartOf="@+id/g3"
                     app:layout_constraintStart_toStartOf="@+id/g2"
@@ -67,44 +68,125 @@
                     app:layout_constraintTop_toTopOf="@+id/gBottomOfTitles" />
 
                 <TextView
-                    android:id="@+id/tVcc"
+                    android:id="@+id/tVal1"
                     style="@style/TextViewStyleParent"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:text="3.75"
                     android:textAlignment="viewEnd"
                     android:textSize="14sp"
                     app:layout_constraintBottom_toTopOf="@+id/guideline3"
-                    app:layout_constraintEnd_toStartOf="@+id/g3"
-                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintEnd_toStartOf="@+id/g6"
+                    app:layout_constraintStart_toStartOf="@+id/g1"
+                    app:layout_constraintTop_toTopOf="@+id/gBottomOfTitles" />
+
+                <TextView
+                    android:id="@+id/tVal2"
+                    style="@style/TextViewStyleParent"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:textAlignment="viewEnd"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toTopOf="@+id/guideline3"
+                    app:layout_constraintEnd_toStartOf="@+id/g5"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="@+id/g2"
                     app:layout_constraintTop_toTopOf="@+id/gBottomOfTitles"
                     app:layout_constraintVertical_bias="0.0" />
 
                 <TextView
-                    android:id="@+id/tHumidity"
+                    android:id="@+id/tVal3"
                     style="@style/TextViewStyleParent"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:text="99"
                     android:textAlignment="viewEnd"
                     android:textSize="14sp"
-                    app:layout_constraintBottom_toTopOf="@+id/guideline3"
-                    app:layout_constraintEnd_toStartOf="@+id/g2"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/g6"
                     app:layout_constraintStart_toStartOf="@+id/g1"
+                    app:layout_constraintTop_toBottomOf="@+id/tVal1" />
+
+                <TextView
+                    android:id="@+id/tVal4"
+                    style="@style/TextViewStyleParent"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:textAlignment="viewEnd"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/g5"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="@+id/g2"
+                    app:layout_constraintTop_toTopOf="@+id/guideline3"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <TextView
+                    android:id="@+id/tUnit1"
+                    style="@style/TextViewStyleParent"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:textAlignment="viewEnd"
+                    android:textColor="@color/colorSecondaryDark"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toTopOf="@+id/tUnit3"
+                    app:layout_constraintEnd_toStartOf="@+id/tVal2"
+                    app:layout_constraintStart_toEndOf="@+id/tVal1"
                     app:layout_constraintTop_toTopOf="@+id/gBottomOfTitles" />
+
+                <TextView
+                    android:id="@+id/tUnit2"
+                    style="@style/TextViewStyleParent"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:textAlignment="viewEnd"
+                    android:textColor="@color/colorSecondaryDark"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toTopOf="@+id/guideline3"
+                    app:layout_constraintEnd_toStartOf="@+id/g3"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="@+id/g5"
+                    app:layout_constraintTop_toTopOf="@+id/gBottomOfTitles"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <TextView
+                    android:id="@+id/tUnit3"
+                    style="@style/TextViewStyleParent"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:textAlignment="viewEnd"
+                    android:textColor="@color/colorSecondaryDark"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/g2"
+                    app:layout_constraintStart_toStartOf="@+id/g6"
+                    app:layout_constraintTop_toTopOf="@+id/guideline3"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <TextView
+                    android:id="@+id/tUnit4"
+                    style="@style/TextViewStyleParent"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:textAlignment="viewEnd"
+                    android:textColor="@color/colorSecondaryDark"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/g3"
+                    app:layout_constraintStart_toStartOf="@+id/g5"
+                    app:layout_constraintTop_toTopOf="@+id/guideline3" />
 
                 <Button
                     android:id="@+id/btnSelectDevice"
                     style="@style/ButtonStyle"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:text="Button"
-                    android:textSize="10sp"
-                    app:layout_constraintBottom_toTopOf="@+id/guideline3"
+                    android:text="zoom"
+                    android:textSize="8sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/gRightMargin"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="@+id/g4"
-                    app:layout_constraintTop_toTopOf="@+id/gTopOfTitles" />
+                    app:layout_constraintTop_toTopOf="@+id/gTopOfTitles"
+                    app:layout_constraintVertical_bias="1.0" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/gTopOfTitles"
@@ -125,42 +207,56 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    app:layout_constraintGuide_begin="64dp" />
+                    app:layout_constraintGuide_begin="71dp" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/gLeftMargin"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_begin="@dimen/vg_margin" />
+                    app:layout_constraintGuide_begin="8dp" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/g1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="@dimen/vg_1" />
+                    app:layout_constraintGuide_percent="0.37956205" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/g2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="@dimen/vg_2" />
+                    app:layout_constraintGuide_percent="0.62" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/g3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="@dimen/vg_3" />
+                    app:layout_constraintGuide_percent="0.83" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/g4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="@dimen/vg_4" />
+                    app:layout_constraintGuide_percent="0.86" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/g5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.75" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/g6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.57" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/gRightMargin"
@@ -168,6 +264,14 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     app:layout_constraintGuide_end="@dimen/vg_margin" />
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:text="TextView"
+                    tools:layout_editor_absoluteX="208dp"
+                    tools:layout_editor_absoluteY="43dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

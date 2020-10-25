@@ -16,6 +16,9 @@ public class IrrDeviceTelemetry {
     public float Hum;
     public int vlvState;
 
+    // DHT11 humidity and temperature
+    public float Temp;
+
     // gas sensor
     public float cur_ppm;
     public float last_ppm;
@@ -34,6 +37,9 @@ public class IrrDeviceTelemetry {
         lastOpen = tm.lastOpen;
         Hum = tm.Hum;
         vlvState = tm.vlvState;
+
+        // DHT11 humidity and temperature
+        Temp = tm.Temp;
 
         // gas sensor
         cur_ppm = tm.cur_ppm;
