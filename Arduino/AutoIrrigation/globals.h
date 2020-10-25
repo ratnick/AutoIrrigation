@@ -100,6 +100,7 @@ enum UploadType {
 	UploadLog
 };
 
+/*
 const String RUNMODE_SOIL = "soil";
 const String RUNMODE_WATER = "water";
 const String RUNMODE_GAS = "gas";
@@ -107,6 +108,7 @@ const String RUNMODE_DHT11 = "Temp+hum";
 const String RUNMODE_SENSORTEST = "sensor";
 const String RUNMODE_BATTERYTEST = "batt";
 const String RUNMODE_HARDWARETEST = "testhw";
+*/
 
 // all above 10 is treated as a fault
 const int DEVICE_STATUS_OK = 0;

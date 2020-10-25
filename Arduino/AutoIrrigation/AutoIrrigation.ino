@@ -5,33 +5,7 @@
     Author:     Nikolaj Nøhr-Rasmussen
 */
 
-
-#define HARDWARE_DESCRIPTION "WeMOS D1 r2, DHT11"
-#define DEVICE_ID "#1"
-
-#define USE_WIFI
-
-// Choose cloud:
-//#define USE_GOOGLE_CLOUD
-//#define USE_AZURE
-#define USE_FIREBASE
-
-// Program control:
-//#define RUN_ONCE					   // Debug mode: no looping, just execute once
-#define USE_DEEP_SLEEP				   // [true] When enabling, connect D0 to RST (on Wemos D1 mini)
-#define NBR_OF_LOOPS_BEFORE_SLEEP 1    // [1] How many times will we perform a standard main loop before potentially sleeping
-#define TOTAL_SECS_TO_SLEEP 20		   // [20] Default sleep time
-#define DEEP_SLEEP_SOAK_THRESHOLD 120  // [120] if soaking time exceeds this limit, we will use deep sleep instead of delay()
-#define LOOP_DELAY 10                  // [10] secs
-//#define SLEEP_WHEN_LOW_VOLTAGE		   // as the first thing, measure battery voltage. If too low, go immediately to sleep without connecting to wifi.
-//#define MEASURE_INTERNAL_VCC         // When enabling, we cannot use analogue reading of sensor. 
-
-// Development & debugging
-#define FORCE_NEW_VALUES false           // [false] Will overwrite all values in persistent memory. Enable once, disable and recompile
-#define SIMULATE_WATERING false        // open the valve in every loop
-// See also SIMULATE_SENSORS in SensorHandler.h
-#define DEBUGLEVEL 1					// Has dual function: 1) serving as default value for Firebase Logging (which can be modified at runtime). 2) Defining debug level on serial port.
-
+#include "compile_flags.h"
 #include <jsmn.h>
 #include <FirebaseJson.h>
 
@@ -87,10 +61,6 @@
 #include "Thermometer.h"
 #include "serialPortHandler.h"
 
-// Main modes of operation (also used when developing new features)
-//#define USE_GAS_SENSOR 
-#define USE_DHT11_SENSOR						// temperature, hum (defined by RUNMODE)
-const String DefaultRunmode = RUNMODE_DHT11;
 
 
 #ifdef USE_AZURE
@@ -107,6 +77,7 @@ const char timeServer[] = "0.dk.pool.ntp.org"; // Danish NTP Server
 //x WiFiClientSecure wifiClient;
 byte localmacAddr[6];
 
+/*
 //Hardware pin configuration on WeMOS D1
 const int MUX_S0 = D8; // S0 = Pin A on schematic
 const int MUX_S1 = D7; // S1 = Pin B on schematic
@@ -119,6 +90,7 @@ const int CHANNEL_HUM = 0;
 const int CHANNEL_BATT = 1;
 const int CHANNEL_WATER = 2;
 const int CHANNEL_TEMPERATURE = 2;
+*/
 
 // Sensors and actuators
 SoilHumiditySensorClass soilHumiditySensorA;
@@ -130,7 +102,6 @@ const int VALVE_SOAK_TIME     = 3;   // [30] time between two valve openings
 
 // General control
 int loopCount = 0;  // used in conjunction with NBR_OF_LOOPS_BEFORE_SLEEP
-//const char SOFTWARE_VERSION[] = "AutoIrrigation.ino - Compiled: " __DATE__ " " __TIME__;
 
 #ifdef USE_GOOGLE_CLOUD
 // Google Cloud globals
