@@ -1,8 +1,8 @@
 #pragma once
 
 
-#define COMPILE_SETUP_IRRIGATION
-//#define COMPILE_SETUP_DHT11_SENSOR
+//#define COMPILE_SETUP_IRRIGATION
+#define COMPILE_SETUP_DHT11_SENSOR
 //#define COMPILE_SETUP_GAS_SENSOR
 
 // general flags used during development and debugging
