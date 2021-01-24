@@ -11,14 +11,12 @@ import android.os.Bundle;
 import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GridLabelRenderer;
-import com.jjoe64.graphview.LegendRenderer;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.util.Log;
-import android.view.OrientationEventListener;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,11 +31,8 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static android.graphics.Color.BLACK;
 import static android.graphics.Color.BLUE;
 import static android.graphics.Color.CYAN;
-import static android.graphics.Color.GREEN;
-import static android.graphics.Color.MAGENTA;
 import static android.graphics.Color.WHITE;
 import static android.graphics.Color.YELLOW;
 import static com.vanding.irrigation.FirebaseService.*;
@@ -68,8 +63,10 @@ public class SingleDevice extends AppCompatActivity {
     @BindView(R.id.tvWifiSSID)                  TextView tvWifiSSID;
     @BindView(R.id.tvTimestampState)            TextView tvTimestampState;
 
-    @BindView(R.id.tvVcc)                       TextView tvVcc;
-    @BindView(R.id.tvHum)                       TextView tvHum;
+    @BindView(R.id.tvTmtry1)                    TextView tvTmtry1;
+    @BindView(R.id.tvTmtry2)                    TextView tvTmtry2;
+    @BindView(R.id.tvTmtry1Txt)                 TextView tvTmtry1Txt;
+    @BindView(R.id.tvTmtry2Txt)                 TextView tvTmtry2Txt;
     @BindView(R.id.tvLastAnalogueReading)       TextView tvLastAnalogueReading;
     @BindView(R.id.tvLastOpenTimestamp)         TextView tvLastOpenTimestamp;
     @BindView(R.id.tvWifi)                      TextView tvWifi;
@@ -334,20 +331,24 @@ public class SingleDevice extends AppCompatActivity {
     @SuppressLint("DefaultLocale")
     private void UpdateUICurrentTelemetry() {
         tvLastAnalogueReading.setText(String.format("%d", dbIrrDevice[selectedDevice].telemetry_current.lastAnalog));
-        tvVcc.setText(String.format("%.2f", dbIrrDevice[selectedDevice].telemetry_current.Vcc));
+        tvTmtry2.setText(String.format("%.2f", dbIrrDevice[selectedDevice].telemetry_current.Vcc));
         switch (dbIrrDevice[selectedDevice].metadata.sensorType) {
             case DEVICE_TYPE_SOIL_STR:
-                tvHum.setText(String.format("%.0f", dbIrrDevice[selectedDevice].telemetry_current.Hum));
+                tvTmtry1.setText(String.format("%.0f", dbIrrDevice[selectedDevice].telemetry_current.Hum));
+                tvTmtry1Txt.setText(String.format("Humidity [%%]"));
                 break;
             case DEVICE_TYPE_GAS_STR:
-                tvHum.setText(String.format("%.0f", dbIrrDevice[selectedDevice].telemetry_current.cur_ppm));
+                tvTmtry1.setText(String.format("%.0f", dbIrrDevice[selectedDevice].telemetry_current.cur_ppm));
+                tvTmtry1Txt.setText(String.format("ppm"));
                 break;
             case DEVICE_TYPE_HUMTEMP_STR:
-                tvHum.setText(String.format("%.0f", dbIrrDevice[selectedDevice].telemetry_current.Temp));
+                tvTmtry1.setText(String.format("%.1f", dbIrrDevice[selectedDevice].telemetry_current.Temp));
+                tvTmtry1Txt.setText(String.format("Temperature [C]"));
                 break;
             default:
                 break;
         }
+
         tvLastOpenTimestamp.setText(dbIrrDevice[selectedDevice].telemetry_current.lastOpen);
         tvWifi.setText(String.format("%d", dbIrrDevice[selectedDevice].telemetry_current.Wifi));
         SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
@@ -402,7 +403,7 @@ public class SingleDevice extends AppCompatActivity {
 
         dbIrrDevice[selectedDevice].xSeriesVcc.setTitle(gs[devType].titleVcc);
         dbIrrDevice[selectedDevice].xSeriesVcc.setThickness(2);
-        dbIrrDevice[selectedDevice].xSeriesVcc.setColor(CYAN);
+        dbIrrDevice[selectedDevice].xSeriesVcc.setColor(BLUE);
         dbIrrDevice[selectedDevice].xSeriesVcc.setDrawDataPoints(false);
 
     }
@@ -465,10 +466,13 @@ public class SingleDevice extends AppCompatActivity {
         graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 2 because of the space
 
         // X-axis
-        minX = (long) dbIrrDevice[selectedDevice].xSeriesVcc.getLowestValueX();
         maxX = (long) dbIrrDevice[selectedDevice].xSeriesVcc.getHighestValueX();
-        minDate = new Date(minX);
+        minX = (long) dbIrrDevice[selectedDevice].xSeriesVcc.getLowestValueX();
         maxDate = new Date(maxX);
+        if (maxX - minX > 86400000) {    // 24 hours
+            minX = maxX - 86400000;
+        }
+        minDate = new Date(minX);
         graph.getViewport().setXAxisBoundsManual(true);
         graph.getViewport().setMinX(minX);
         graph.getViewport().setMaxX(maxX);

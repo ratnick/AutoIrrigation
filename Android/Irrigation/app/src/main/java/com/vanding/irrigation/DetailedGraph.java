@@ -14,11 +14,13 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static android.graphics.Color.BLUE;
 import static android.graphics.Color.CYAN;
 import static android.graphics.Color.GREEN;
 import static android.graphics.Color.MAGENTA;
 import static android.graphics.Color.WHITE;
 import static android.graphics.Color.YELLOW;
+import static android.graphics.Color.RED;
 import static com.vanding.irrigation.FirebaseService.DEVICE_NBR;
 import static com.vanding.irrigation.SingleDevice.RoundUpToNearestNiceNumber;
 import static com.vanding.irrigation.SingleDevice.graph;
@@ -78,7 +80,7 @@ public class DetailedGraph extends AppCompatActivity {
         // Vcc
         dbIrrDevice[selectedDevice].xSeriesVcc.setTitle(gs[devType].titleVcc);
         dbIrrDevice[selectedDevice].xSeriesVcc.setThickness(2);
-        dbIrrDevice[selectedDevice].xSeriesVcc.setColor(CYAN);
+        dbIrrDevice[selectedDevice].xSeriesVcc.setColor(BLUE);
         dbIrrDevice[selectedDevice].xSeriesVcc.setDrawDataPoints(false);
 
     }
@@ -138,6 +140,9 @@ public class DetailedGraph extends AppCompatActivity {
         // X-axis
         minX = (long) dbIrrDevice[selectedDevice].xSeriesVcc.getLowestValueX();
         maxX = (long) dbIrrDevice[selectedDevice].xSeriesVcc.getHighestValueX();
+        if (maxX - minX > 86400000) {  // 24 hours
+            minX = maxX - 86400000;
+        }
         minDate = new Date(minX);
         maxDate = new Date(maxX);
         graph.getViewport().setXAxisBoundsManual(true);

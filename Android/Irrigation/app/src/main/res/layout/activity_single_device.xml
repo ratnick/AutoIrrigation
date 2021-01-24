@@ -342,12 +342,12 @@
                         style="@style/TableRowStyle">
 
                         <TextView
-                            android:id="@+id/tvHumTxt"
+                            android:id="@+id/tvTmtry1Txt"
                             style="@style/TextViewStyle"
-                            android:text="Humidity % or PPM" />
+                            android:text="measurement 2" />
 
                         <TextView
-                            android:id="@+id/tvHum"
+                            android:id="@+id/tvTmtry1"
                             style="@style/TextViewValueStyle"
                             android:text="0.00" />
 
@@ -358,12 +358,12 @@
                         style="@style/TableRowStyle">
 
                         <TextView
-                            android:id="@+id/tvVccTxt"
+                            android:id="@+id/tvTmtry2Txt"
                             style="@style/TextViewStyle"
-                            android:text="Battery Voltage" />
+                            android:text="measurement 2" />
 
                         <TextView
-                            android:id="@+id/tvVcc"
+                            android:id="@+id/tvTmtry2"
                             style="@style/TextViewValueStyle"
                             android:text="0.00" />
 

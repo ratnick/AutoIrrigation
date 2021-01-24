@@ -57,16 +57,14 @@ public class MainActivity extends AppCompatActivity {
         //Intent intent = new Intent(MainActivity.this, testlayout.class);
         //startActivity(intent);
 
-
         /*        // start sub activity (for test)
         SleepMillis(500);
         Intent intent = new Intent(MainActivity.this, SingleDevice.class);
         intent.putExtra(DEVICE_NBR, 2);   // TESTING NNR
         startActivity(intent);
 */
-
-
     }
+
     private void SleepMillis(int millisecs){
         try {
             Thread.sleep(millisecs);

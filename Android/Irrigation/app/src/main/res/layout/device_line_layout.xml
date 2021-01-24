@@ -12,8 +12,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/deviceLine"
             android:layout_width="match_parent"
-            android:layout_height="98dp">
+            android:layout_height="91dp">
 
                 <ImageView
                     android:id="@+id/imStatusColor"
@@ -174,19 +175,13 @@
                     app:layout_constraintStart_toStartOf="@+id/g5"
                     app:layout_constraintTop_toTopOf="@+id/guideline3" />
 
-                <Button
-                    android:id="@+id/btnSelectDevice"
-                    style="@style/ButtonStyle"
+                <TextView
+                    android:id="@+id/textView3"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:text="zoom"
-                    android:textSize="8sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/gRightMargin"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toStartOf="@+id/g4"
-                    app:layout_constraintTop_toTopOf="@+id/gTopOfTitles"
-                    app:layout_constraintVertical_bias="1.0" />
+                    android:text="TextView"
+                    tools:layout_editor_absoluteX="208dp"
+                    tools:layout_editor_absoluteY="43dp" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/gTopOfTitles"
@@ -228,28 +223,28 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.62" />
+                    app:layout_constraintGuide_percent="0.65" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/g3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.83" />
+                    app:layout_constraintGuide_percent="0.9" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/g4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.86" />
+                    app:layout_constraintGuide_percent="0.96" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/g5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.75" />
+                    app:layout_constraintGuide_percent="0.8" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/g6"
@@ -264,14 +259,6 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     app:layout_constraintGuide_end="@dimen/vg_margin" />
-
-                <TextView
-                    android:id="@+id/textView3"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:text="TextView"
-                    tools:layout_editor_absoluteX="208dp"
-                    tools:layout_editor_absoluteY="43dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

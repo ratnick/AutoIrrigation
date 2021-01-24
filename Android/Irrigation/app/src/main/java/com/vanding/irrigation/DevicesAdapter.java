@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vanding.datamodel.DeviceData;
@@ -51,7 +52,7 @@ public class DevicesAdapter extends
         public TextView tUnit3;
         public TextView tUnit4;
         public ImageView imStatusColor;
-        protected Button btnSelectDevice ;
+        protected ConstraintLayout deviceLine ;
 
 
         // We also create a constructor that accepts the entire item row
@@ -73,17 +74,15 @@ public class DevicesAdapter extends
             tUnit3 = (TextView) itemView.findViewById(R.id.tUnit3);
             tUnit4 = (TextView) itemView.findViewById(R.id.tUnit4);
             imStatusColor = (ImageView) itemView.findViewById(R.id.imStatusColor);
-            btnSelectDevice = (Button) itemView.findViewById(R.id.btnSelectDevice);
-            //btnSelectDevice.setTag(R.integer.btnSelectDevice, itemView);
-            btnSelectDevice.setOnClickListener(this);
-
+            deviceLine = (ConstraintLayout) itemView.findViewById(R.id.deviceLine);
+            deviceLine.setOnClickListener(this);
         }
 
         // onClick Listener for view
         // Not sure if it's ever used. But a method to transfer view "ID" to caller
         @Override
         public void onClick(View v) {
-            View tempview = (View) btnSelectDevice.getTag(dbSelectedIrrDeviceK);
+            View tempview = (View) deviceLine.getTag(dbSelectedIrrDeviceK);
         }
     }
 
@@ -126,7 +125,7 @@ public class DevicesAdapter extends
         TextView tUnit3 = viewHolder.tUnit3;
         TextView tUnit4 = viewHolder.tUnit4;
         ImageView imStatusColor = viewHolder.imStatusColor;
-        Button btnSelectDevice = viewHolder.btnSelectDevice;
+        ConstraintLayout deviceLine = viewHolder.deviceLine;
 
         // Set item views based on your views and data model
         tLocation.setText(dbIrrDevice[position].metadata.loc);
@@ -138,7 +137,7 @@ public class DevicesAdapter extends
             case DEVICE_TYPE_SOIL_STR:
                 tVal1.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Hum));
                 tUnit1.setText(String.format("%%"));
-                tVal3.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Vcc));
+                tVal3.setText(String.format("%.1f", dbIrrDevice[position].telemetry_current.Vcc));
                 tUnit3.setText(String.format("V"));
                 break;
             case DEVICE_TYPE_GAS_STR:
@@ -148,7 +147,7 @@ public class DevicesAdapter extends
             case DEVICE_TYPE_HUMTEMP_STR:
                 tVal1.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Hum));
                 tUnit1.setText(String.format("%%"));
-                tVal2.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Temp));
+                tVal2.setText(String.format("%.1f", dbIrrDevice[position].telemetry_current.Temp));
                 tUnit2.setText(String.format("C"));
                 break;
             default:
@@ -165,10 +164,7 @@ public class DevicesAdapter extends
             imStatusColor.setBackgroundColor(BLACK);
         }
 
-        btnSelectDevice.setText("zoom");
-        btnSelectDevice.setEnabled(true);
-
-        btnSelectDevice.setOnClickListener(new View.OnClickListener() {
+        deviceLine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dbSelectedIrrDeviceK = viewHolder.getAdapterPosition();
