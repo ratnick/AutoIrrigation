@@ -4,6 +4,7 @@
 
 #include "cli.h"
 #include <ESP8266WiFi.h>
+#include "OTALib.h"
 
 
 // Basic loop for reading commands to stop the device, etc...
@@ -31,7 +32,7 @@ void cliLoop() {
 		}
 
 		if (stopped) {
-			delay(10000);
+			delayNonBlocking(10000);
 			Serial.print(".");
 		}
 	}

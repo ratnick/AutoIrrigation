@@ -4,6 +4,7 @@
 
 #include "WaterValve.h"
 #include "LogLib.h"
+#include "OTALib.h"
 
 void WaterValveClass::init(int _pinNbr, char _name[], int _openSeconds, int _soakSeconds) {
 	strcpy(name, _name);
@@ -45,7 +46,7 @@ void WaterValveClass::OpenValve() {
 
 void WaterValveClass::KeepOpen() {
 	LogLinef(4, __FUNCTION__, "openSeconds=%d", openSeconds);
-	delay(1000 * openSeconds);
+	delayNonBlocking(1000 * openSeconds);
 }
 
 void WaterValveClass::CloseValve() {
@@ -57,7 +58,7 @@ void WaterValveClass::CloseValve() {
 
 void WaterValveClass::WaitToSoak() {
 	LogLinef(4, __FUNCTION__, "soakSeconds=%d", soakSeconds);
-	delay(1000 * soakSeconds);
+	delayNonBlocking(1000 * soakSeconds);
 }
 
 void WaterValveClass::OpenValveAndWaitToSoak() {

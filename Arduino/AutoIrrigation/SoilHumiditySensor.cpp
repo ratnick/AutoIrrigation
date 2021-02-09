@@ -5,6 +5,7 @@
 #include "SoilHumiditySensor.h"
 #include "AnalogMux.h"
 #include "LogLib.h"
+#include "OTALib.h"
 
 void SoilHumiditySensorClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType, int _humLimit)
 {
@@ -42,10 +43,10 @@ float SoilHumiditySensorClass::ReadSensor() {
 	}
 
 	LogLinef(5, __FUNCTION__, "READING HUMIDITY FROM analog MUX channel %d", muxChannel);
-	delay(500);  // allow voltage to settle after valve open
+	delayNonBlocking(500);  // allow voltage to settle after valve open
 	AnalogMux.OpenChannel(muxChannel);
 	for (int i = 0; i < AVG_COUNT; i++) {
-		delay(50);  
+		delayNonBlocking(50);  
 		raw = analogRead(pinNbr);
 		res += raw;
 	}

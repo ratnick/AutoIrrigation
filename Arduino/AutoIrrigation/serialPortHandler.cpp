@@ -5,13 +5,14 @@
 #include "serialPortHandler.h"
 #include <SoftwareSerial.h>
 #include "LogLib.h"
+#include "OTALib.h"
 
 SoftwareSerial serialPort(D1, D2); // (Rx, Tx)
 boolean newData = false;
 
 void SetupSerialPort() {
 	serialPort.begin(9600);
-	delay(500);
+	delayNonBlocking(500);
 	//EmptySerialReadBuffer();
 
 }
@@ -28,7 +29,7 @@ boolean DataAvailableOnSerialPort() {
 		return true;
 	}
 	else {
-		delay(50);
+		delayNonBlocking(50);
 		if (serialPort.available() > 0) {
 			return true;
 		}
@@ -64,7 +65,7 @@ boolean ReadSerialJsonOnce(char* receivedChars, int jsonMaxSize) {
 	serialPort.write('X');
 	serialPort.flush();
 //	Serial.println("X sent ...  now wait");
-	delay(100);
+	delayNonBlocking(100);
 
 	recvInProgress = receiveUntilMarker(startMarker);
 
@@ -99,7 +100,7 @@ boolean ReadSerialJsonOnce(char* receivedChars, int jsonMaxSize) {
 
 		}
 		Serial.print(".");
-		delay(50);
+		delayNonBlocking(50);
 		if (timeOutcnt-- <= 0) { 
 			timeOut = true; 
 		}

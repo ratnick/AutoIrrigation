@@ -3,6 +3,7 @@
 // 
 
 #include "LEDHandler.h"
+#include "OTALib.h"
 
 int LED_PIN = LED_BUILTIN;
 
@@ -25,8 +26,8 @@ void LED_Flashes(int count, int blinkDelayMs)
 {
 	for (int i = 0; i < count; i++) {
 		LED_ON();
-		delay(blinkDelayMs);
+		delayNonBlocking(blinkDelayMs);
 		LED_OFF();
-		delay(blinkDelayMs);
+		delayNonBlocking(blinkDelayMs);
 	}
 }

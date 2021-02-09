@@ -5,6 +5,7 @@
 #include "GasSensor.h"
 #include "serialPortHandler.h"
 #include "LogLib.h"
+#include "OTALib.h"
 
 
 void GasSensorClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType)
@@ -90,10 +91,10 @@ float ReadSensorNotUsed() {
 	float ppm = 0;
 
 	//log	LogLine(4, __FUNCTION__, "READING GAS LEVEL FROM analog MUX channel " + String(muxChannel));
-	delay(10);  // allow voltage to settle after valve open
+	delayNonBlocking(10);  // allow voltage to settle after valve open
 	AnalogMux.OpenChannel(muxChannel);
 	for (int i = 0; i < AVG_COUNT; i++) {
-		delay(1000);
+		delayNonBlocking(1000);
 		raw = analogRead(pinNbr);
 		res += raw;
 		//log 		LogLine(4, __FUNCTION__, "Raw Value: " + String(raw) );

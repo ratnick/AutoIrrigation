@@ -13,6 +13,7 @@ H  X  X  None
 
 #include "AnalogMux.h"
 #include "LogLib.h"
+#include "OTALib.h"
 
 void AnalogMuxClass::init(int _S1, int _S0, int _pwrCtrlPin, boolean _pwrCtrlPinActive)
 {
@@ -42,7 +43,7 @@ void AnalogMuxClass::OpenChannel(int ch) {
 	if (pwrCtrlPin > 0) {
 		LogLine(3, __FUNCTION__, "activate MUX power");
 		digitalWrite(pwrCtrlPin, pwrCtrlPinActive);
-		delay(500);
+		delayNonBlocking(500);
 	}
 	else {
 		LogLine(0, __FUNCTION__, "ERROR: activate MUX power");
