@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Create adapter passing in the sample user data
     DevicesAdapter adapter = new DevicesAdapter(dummyList);
+    SwipeRefreshLayout swipeRefreshLayout;
     RecyclerView rvContacts;
     private Button btnnext;
 
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         Intent commandIntent = new Intent(MainActivity.this, FirebaseService.class);
         startFirebaseService(ActionType.LOAD_DEVICE_BASICS, commandIntent);
 
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
         // Lookup the recyclerview in activity layout
         rvContacts = (RecyclerView) findViewById(R.id.rvContacts);
 
@@ -120,6 +123,14 @@ public class MainActivity extends AppCompatActivity {
 //                Intent intent = new Intent(MainActivity.this, testlayout.class);
 //                startActivity(intent);
 
+                // SetOnRefreshListener on SwipeRefreshLayout
+                swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        swipeRefreshLayout.setRefreshing(false);
+                        // hertil - kaldes MÅSKE når der swipes
+                    }
+                });
                 break;
             case ACTION_INFO:
                 //String info = data.getStringExtra(FirebaseService.INFO_TEXT);

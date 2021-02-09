@@ -14,7 +14,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/deviceLine"
             android:layout_width="match_parent"
-            android:layout_height="91dp">
+            android:layout_height="wrap_content">
 
                 <ImageView
                     android:id="@+id/imStatusColor"
@@ -188,21 +188,21 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    app:layout_constraintGuide_begin="13dp" />
+                    app:layout_constraintGuide_begin="-11dp" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/gBottomOfTitles"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    app:layout_constraintGuide_begin="42dp" />
+                    app:layout_constraintGuide_begin="28dp" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/guideline3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    app:layout_constraintGuide_begin="71dp" />
+                    app:layout_constraintGuide_begin="54dp" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/gLeftMargin"

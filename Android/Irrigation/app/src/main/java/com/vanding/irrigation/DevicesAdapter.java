@@ -1,7 +1,9 @@
 package com.vanding.irrigation;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +13,11 @@ import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.vanding.datamodel.DeviceData;
+
+import org.json.JSONArray;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
