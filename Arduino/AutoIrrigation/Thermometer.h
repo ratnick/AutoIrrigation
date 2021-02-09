@@ -9,8 +9,8 @@
 	#include "WProgram.h"
 #endif
 
-//#include <jsmn.h>
-//#include <FirebaseJson.h>
+#include <jsmn.h>
+#include <FirebaseJson.h>
 #include "SensorHandler.h"
 #include <DHTesp.h>
 
