@@ -7,8 +7,9 @@
 #include "AnalogMux.h"
 #include "LogLib.h"
 #include "PersistentMemory.h"
+#include "OTALib.h"
 
-#define NBR_OF_SAMPLES 5  // how many samples to average over
+#define NBR_OF_SAMPLES 1  // how many samples to average over
 
 // init called during setup(), i.e. after deep sleep and boot
 void ThermometerClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType)
@@ -19,48 +20,77 @@ void ThermometerClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHa
 
 	SensorHandlerClass::SensorType sensorType = _sensorType;
 	lastAnalogueReadingTemp = 0.0;
+	lastAnalogueReadingHumidity = 0.0;
 
 	if (this->sensorType == SensorHandlerClass::Thermometer) {
 		pinMode(pinNbr, INPUT);
 	}
 	else {
-		dht.setup(_pinNbr, DHTesp::DHT11); // Connect DHT sensor to GPIO DIGITAL_IN_PIN
+		dht.setup(_pinNbr, DHTesp::AUTO_DETECT); // Connect DHT sensor to GPIO DIGITAL_IN_PIN
 	}
 	LogLinef(3, __FUNCTION__, "MUX channel:%d analog pin:%d   name:%s  ", muxChannel, pinNbr, name);
 }
 
 void  ThermometerClass::AddTelemetryJson(FirebaseJson* json) {
 	float val = this->ReadTemperature();
-	this->tempTm.temperature = (double)val;
-	json->add("Temp", this->tempTm.temperature);
-	val = this->ReadHumidity();
-	this->tempTm.humidity = (double)val;
-	json->add("Hum", this->tempTm.humidity);
-	this->tempTm.lastAnalogueReadingTemp = (int)this->GetlastAnalogueReadingTemperature();
-	json->add("lastAnalog", this->tempTm.lastAnalogueReadingTemp);
-	this->tempTm.lastAnalogueReadingHumidity = (int)this->GetlastAnalogueReadingHumidity();
-	json->add("lastAnalog", this->tempTm.lastAnalogueReadingHumidity);
+	if (!isnan(val)) {
+
+		this->tempTm.temperature = (double)val;
+		LogLinef(4, __FUNCTION__, " temp raw val=%f    tempTm.temperature=%f", val, tempTm.temperature);
+		json->add("Temp", this->tempTm.temperature);
+
+		this->tempTm.lastAnalogueReadingTemp = (int)this->GetlastAnalogueReadingTemperature();
+		json->add("lastAnalog", this->tempTm.lastAnalogueReadingTemp);
+
+		//nnr val = this->ReadHumidity();
+		val = 0.0;
+
+		if (!isnan(val)) {
+			this->tempTm.humidity = (double)val;
+			json->add("Hum", this->tempTm.humidity);
+
+			this->tempTm.lastAnalogueReadingHumidity = (int)this->GetlastAnalogueReadingHumidity();
+			json->add("lastAnalog", this->tempTm.lastAnalogueReadingHumidity);
+		}
+		else {
+			LogLine(0, __FUNCTION__, "NO DHT SENSOR READING HUMIDITY ONLY. Is it connected at all?");
+		}
+
+	}
+	else {
+		LogLine(0, __FUNCTION__, "NO DHT SENSOR READING. Is it connected at all?");
+	}
 }
 
+float ConvertDHT22NegativeReading(float in) {
+	LogLinef(3, __FUNCTION__, "in=%f", in);
+	if (in < 0) {
+		return -(in + 3276.8);
+
+	}
+	else {
+		return in;
+	}
+}
 
 float ThermometerClass::ReadTemperature() {
 	float res = 0.0;
 
 	if (this->sensorType == SensorHandlerClass::Thermometer) {
-		LogLinef(3, __FUNCTION__, "READING FROM analog MUX channel %d", muxChannel);
+		LogLinef(3, __FUNCTION__, "READING TEMPERATURE FROM analog MUX channel %d", muxChannel);
 		AnalogMux.OpenChannel(muxChannel);
 		res = analogRead(pinNbr);
 		AnalogMux.CloseMUXpwr();
 	}
 	else {
-		LogLinef(3, __FUNCTION__, "READING FROM digital thermometer pin %d", this->pinNbr);
+		LogLinef(3, __FUNCTION__, "READING TEMPERATURE FROM digital thermometer pin %d", this->pinNbr);
 		static const int bufSize = NBR_OF_SAMPLES;  // average over this amount of samples
 		float readBuffer[bufSize];
 		float sumRes = 0.0;
 
 		for (int i = 0; i < bufSize; i++) {
-			delay(dht.getMinimumSamplingPeriod() * 3);
-			sumRes += dht.getTemperature();
+			delayNonBlocking(dht.getMinimumSamplingPeriod() * 3);
+			sumRes += ConvertDHT22NegativeReading(dht.getTemperature());
 		}
 		res = sumRes / bufSize;
 	}
@@ -75,12 +105,12 @@ float ThermometerClass::ReadHumidity() {
 	if (this->sensorType == SensorHandlerClass::Thermometer) {
 	}
 	else {
-		LogLinef(3, __FUNCTION__, "READING FROM digital thermometer pin %d", this->pinNbr);
+		LogLinef(3, __FUNCTION__, "READING HUMIDITY FROM digital thermometer pin %d", this->pinNbr);
 		static const int bufSize = NBR_OF_SAMPLES;  // average over this amount of samples
 		float readBuffer[bufSize];
 		float sumRes = 0.0;
 		for (int i = 0; i < bufSize; i++) {
-			delay(dht.getMinimumSamplingPeriod() * 3);
+			delayNonBlocking(dht.getMinimumSamplingPeriod() * 3);
 			sumRes += dht.getHumidity();
 		}
 		res = sumRes / bufSize;
