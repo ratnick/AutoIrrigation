@@ -17,6 +17,7 @@
 #define FB_vccAdjustment "vadj"
 #define FB_vccMinLimit "vMin"
 #define FB_runOnce "runOnce"
+#define FB_runOTAupdate "OTA"
 #define FB_timestamp "timestamp"
 #define FB_currentSleepCycle "slpCurCyc"
 #define FB_secondsToSleep "slpDura"

@@ -131,6 +131,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="firebase functions.txt" />
+    <Text Include="board.txt">
+      <Filter>Source Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="AutoIrrigation.rc">

@@ -32,6 +32,7 @@ struct PersistentDataStruct {
 	char wifiSSID[20];
 	char wifiPwd[16];
 	boolean runOnce;
+	boolean runOTA;
 		// timestamp assigned on server side. not used in arduino.
 	int currentSleepCycle; // counts which sleep cycle we are at right now.
 	int secondsToSleep;

@@ -2,13 +2,14 @@
 
 
 //#define COMPILE_SETUP_IRRIGATION
+//#define COMPILE_SETUP_SOIL_SENSOR
 #define COMPILE_SETUP_DHT11_SENSOR
 //#define COMPILE_SETUP_GAS_SENSOR
 
 // general flags used during development and debugging
-#define DEBUGLEVEL 1					// Has dual function: 1) serving as default value for Firebase Logging (which can be modified at runtime). 2) Defining debug level on serial port.
-#define FORCE_NEW_VALUES false           // [false] Will overwrite all values in persistent memory. Enable once, disable and recompile
-#define USE_DEEP_SLEEP				   // [true] When enabling, connect D0 to RST (on Wemos D1 mini)
+#define DEBUGLEVEL 4					// Has dual function: 1) serving as default value for Firebase Logging (which can be modified at runtime). 2) Defining debug level on serial port.
+#define FORCE_NEW_VALUES false         // [false] Will overwrite all values in persistent memory. Enable once, disable and recompile
+//#define USE_DEEP_SLEEP				   // [true] When enabling, connect D0 to RST (on Wemos D1 mini)
 //#define RUN_ONCE					   // Debug mode: no looping, just execute once
 
 
@@ -19,8 +20,6 @@ const String RUNMODE_DHT11 = "Temp+hum";
 const String RUNMODE_SENSORTEST = "sensor";
 const String RUNMODE_BATTERYTEST = "batt";
 const String RUNMODE_HARDWARETEST = "testhw";
-
-
 
 // ====================================================
 #ifdef COMPILE_SETUP_IRRIGATION
@@ -58,23 +57,51 @@ const String RUNMODE_HARDWARETEST = "testhw";
 
 #endif //COMPILE_SETUP_IRRIGATION
 
+	// ====================================================
+#ifdef COMPILE_SETUP_SOIL_SENSOR
+	const String DefaultRunmode = "water";
+#define HARDWARE_DESCRIPTION "WeMOS D1 r2, DHT11, 5V"
+#define DEVICE_ID "Temp_#8"
+#define USE_WIFI
+#define USE_FIREBASE
+#define NBR_OF_LOOPS_BEFORE_SLEEP 1    // [1] How many times will we perform a standard main loop before potentially sleeping
+#define LOOP_DELAY 3                   // [10] secs
+#define TOTAL_SECS_TO_SLEEP 20		   // [20] Default sleep time
+
+// Not relevant for this device but still needed for compilation
+#define DEEP_SLEEP_SOAK_THRESHOLD 120  // [120] if soaking time exceeds this limit, we will use deep sleep instead of delay()
+#define SIMULATE_WATERING true
+
+	//Hardware pin configuration on WeMOS D1
+	const int MUX_S0 = D8; // S0 = Pin A on schematic
+	const int MUX_S1 = D7; // S1 = Pin B on schematic
+	const int HUM_SENSOR_PWR_CTRL = D1;
+	const int VALVE_CTRL = D5;
+	const int ANALOG_INPUT = A0;
+	// MUX channels X0, X1, X2... on schematic
+	const int CHANNEL_HUM = 0;
+	const int CHANNEL_BATT = 1;
+	const int CHANNEL_WATER = 2;
+	const int CHANNEL_TEMPERATURE = 2;
+#endif  //COMPILE_SETUP_SOIL_SENSOR
+
 
 // ====================================================
 #ifdef COMPILE_SETUP_DHT11_SENSOR
-	#define USE_DHT11_SENSOR						// temperature, hum (defined by RUNMODE)
-	const String DefaultRunmode = RUNMODE_DHT11;
-	#define HARDWARE_DESCRIPTION "WeMOS D1 r2, DHT11, 5V"
-	#define DEVICE_ID "#6"
-	#define USE_WIFI
-	#define USE_FIREBASE
-	#define NBR_OF_LOOPS_BEFORE_SLEEP 1    // [1] How many times will we perform a standard main loop before potentially sleeping
-	#define LOOP_DELAY 0                   // [10] secs
-	#define TOTAL_SECS_TO_SLEEP 20		   // [20] Default sleep time
+#define USE_DHT11_SENSOR						// temperature, hum (defined by RUNMODE)
+	const String DefaultRunmode = "Temp+hum";
+#define HARDWARE_DESCRIPTION "WeMOS D1 r2, DHT11, 5V"
+#define DEVICE_ID "Temp_#7"
+#define USE_WIFI
+#define USE_FIREBASE
+#define NBR_OF_LOOPS_BEFORE_SLEEP 1    // [1] How many times will we perform a standard main loop before potentially sleeping
+#define LOOP_DELAY 3                   // [10] secs
+#define TOTAL_SECS_TO_SLEEP 20		   // [20] Default sleep time
 
 
 	// Not relevant for this device but still needed for compilation
-	#define DEEP_SLEEP_SOAK_THRESHOLD 120  // [120] if soaking time exceeds this limit, we will use deep sleep instead of delay()
-	#define SIMULATE_WATERING false        
+#define DEEP_SLEEP_SOAK_THRESHOLD 120  // [120] if soaking time exceeds this limit, we will use deep sleep instead of delay()
+#define SIMULATE_WATERING false        
 	const int DHT11_SIGNAL_PIN = D6;
 
 	//Hardware pin configuration on WeMOS D1

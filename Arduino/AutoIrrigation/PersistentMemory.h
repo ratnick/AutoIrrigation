@@ -13,7 +13,7 @@
 #include <jsmn.h>
 #include <FirebaseJson.h>
 #include "globals.h"
-//#include "FirebaseModel.h"
+#include "FirebaseModel.h"
 
 class PersistentMemoryClass
 {
@@ -61,6 +61,7 @@ class PersistentMemoryClass
 	 float GetvccAdjustment();
 	 float GetvccMinLimit();
 	 boolean GetdeepSleepEnabled();
+	 boolean GetRunOTA();
 
 	 void SetdeviceID(String id_);
 	 void SetwifiSSID(String wifiSSID_);
@@ -82,6 +83,7 @@ class PersistentMemoryClass
 	 void SetvccAdjustment(float vccAdj_);
 	 void SetvccMinLimit(float vccMinLimit_);
 	 void SetdeepSleepEnabled(boolean deepSleepEnabled_);
+	 void SetRunOTA(boolean runOTA_);
 
 	 void Printps();
 	 void PrintpsRAW();

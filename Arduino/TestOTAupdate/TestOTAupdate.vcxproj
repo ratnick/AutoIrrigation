@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{AFB813E3-033D-4D03-861A-3468B327970B}</ProjectGuid>
+    <RootNamespace>TestOTAupdate</RootNamespace>
+    <ProjectName>TestOTAupdate</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>
+    </PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>
+    </PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>
+    </PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>
+    </PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\TestOTAupdate;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\Wire;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\SPI;$(ProjectDir)..\..\..\..\src\Arduino\libraries\LogLib;$(ProjectDir)..\..\..\..\src\Arduino\libraries\WifiLib;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\ESP8266SdFat\src;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\SDFS\src;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\SD\src;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\EEPROM;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\ESP8266mDNS\src;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\ArduinoOTA;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\ESP8266WiFi\src;$(ProjectDir)..\..\..\..\src\Arduino\libraries\PersistentMemory;$(ProjectDir)..\..\..\..\src\Arduino\libraries\Time;$(ProjectDir)..\..\..\..\src\Arduino\libraries\Firebase_ESP8266_Client\src;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\cores\esp8266;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\cores\esp8266\avr;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\cores\esp8266\libb64;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\cores\esp8266\spiffs;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\cores\esp8266\umm_malloc;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\variants\d1_mini;$(ProjectDir)..\AutoIrrigation;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\tools\sdk\include;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\tools\sdk\lwip2\include;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\tools\sdk\libc\xtensa-lx106-elf\include;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\tools\xtensa-lx106-elf-gcc\2.5.0-4-b40a506\xtensa-lx106-elf\include\c++\4.8.2;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\tools\xtensa-lx106-elf-gcc\2.5.0-4-b40a506\xtensa-lx106-elf\include\c++\4.8.2\xtensa-lx106-elf;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\tools\xtensa-lx106-elf-gcc\2.5.0-4-b40a506\xtensa-lx106-elf\include;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\tools\xtensa-lx106-elf-gcc\2.5.0-4-b40a506\lib\gcc\xtensa-lx106-elf\4.8.2\include;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\tools\sdk\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>$(ProjectDir)__vm\.TestOTAupdate.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
+      <PreprocessorDefinitions>__ESP8266_esp8266__;__ESP8266_ESP8266__;__ets__;ICACHE_FLASH;NONOSDK22x_190703=1;F_CPU=80000000L;LWIP_OPEN_SRC;TCP_MSS=536;LWIP_FEATURES=1;LWIP_IPV6=0;DEBUG_ESP_PORT=Serial;ARDUINO=10809;ARDUINO_ESP8266_WEMOS_D1MINI;ARDUINO_ARCH_ESP8266;FLASHMODE_DIO;ESP8266;__cplusplus=201103L;_VMICRO_INTELLISENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\TestOTAupdate;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\Wire;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\SPI;$(ProjectDir)..\..\..\..\src\Arduino\libraries\LogLib;$(ProjectDir)..\..\..\..\src\Arduino\libraries\WifiLib;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\ESP8266SdFat\src;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\SDFS\src;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\SD\src;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\EEPROM;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\ESP8266mDNS\src;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\ArduinoOTA;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\libraries\ESP8266WiFi\src;$(ProjectDir)..\..\..\..\src\Arduino\libraries\PersistentMemory;$(ProjectDir)..\..\..\..\src\Arduino\libraries\Time;$(ProjectDir)..\..\..\..\src\Arduino\libraries\Firebase_ESP8266_Client\src;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\cores\esp8266;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\cores\esp8266\avr;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\cores\esp8266\libb64;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\cores\esp8266\spiffs;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\cores\esp8266\umm_malloc;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\variants\d1_mini;$(ProjectDir)..\AutoIrrigation;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\tools\sdk\include;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\tools\sdk\lwip2\include;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\tools\sdk\libc\xtensa-lx106-elf\include;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\tools\xtensa-lx106-elf-gcc\2.5.0-4-b40a506\xtensa-lx106-elf\include\c++\4.8.2;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\tools\xtensa-lx106-elf-gcc\2.5.0-4-b40a506\xtensa-lx106-elf\include\c++\4.8.2\xtensa-lx106-elf;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\tools\xtensa-lx106-elf-gcc\2.5.0-4-b40a506\xtensa-lx106-elf\include;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\tools\xtensa-lx106-elf-gcc\2.5.0-4-b40a506\lib\gcc\xtensa-lx106-elf\4.8.2\include;C:\Users\Nikolaj\AppData\Local\arduino15\packages\esp8266\hardware\esp8266\2.6.3\tools\sdk\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>$(ProjectDir)__vm\.TestOTAupdate.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <PreprocessorDefinitions>__ESP8266_esp8266__;__ESP8266_ESP8266__;__ets__;ICACHE_FLASH;NONOSDK22x_190703=1;F_CPU=80000000L;LWIP_OPEN_SRC;TCP_MSS=536;LWIP_FEATURES=1;LWIP_IPV6=0;DEBUG_ESP_PORT=Serial;ARDUINO=10809;ARDUINO_ESP8266_WEMOS_D1MINI;ARDUINO_ARCH_ESP8266;FLASHMODE_DIO;ESP8266;__cplusplus=201103L;_VMICRO_INTELLISENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="VisualMicro" />
+  </ItemGroup>
+  <PropertyGroup>
+    <DebuggerFlavor>VisualMicroDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="TestOTAupdate.ino">
+      <FileType>CppCode</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\AutoIrrigation\compile_flags.h" />
+    <ClInclude Include="..\AutoIrrigation\FirebaseModel.h" />
+    <ClInclude Include="..\AutoIrrigation\globals.h" />
+    <ClInclude Include="..\AutoIrrigation\PersistentMemory.h" />
+    <ClInclude Include="__vm\.TestOTAupdate.vsarduino.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\AutoIrrigation\PersistentMemory.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties arduino.build.auto_discover_includes="0" arduino.upload.port="COM3" config.Debug.customdebug_esp8266_d1_mini_debugger_type="none" custom_esp8266_d1_mini_baud="921600" custom_esp8266_d1_mini_wipe="none" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

@@ -2,6 +2,8 @@
 //#include <ArduinoJson.h>
 #include "PersistentMemory.h"
 #include "LogLib.h"
+#include "OTALib.h"
+#include "OTALib.h"
 
 void PersistentMemoryClass::init(
 	bool resetMemory, 
@@ -30,6 +32,7 @@ void PersistentMemoryClass::init(
 		strcpy(ps.wifiSSID, "nohrTDC\0");
 		strcpy(ps.wifiPwd, "RASMUSSEN\0");
 		ps.runOnce = false;
+		ps.runOTA = false;
 		ps.currentSleepCycle = 0; // counts which sleep cycle we are at right now.
 		ps.secondsToSleep = 3;
 		ps.maxSleepCycles = 0;
@@ -78,7 +81,7 @@ void PersistentMemoryClass::WritePersistentMemory() {
 		EEPROM.write(addr, *b++);
 	}
 	EEPROM.commit();
-	delay(200);
+	delayNonBlocking(200);
 };
 
 void PersistentMemoryClass::AddMetadataJson(FirebaseJson* json) {
@@ -101,6 +104,7 @@ void PersistentMemoryClass::AddStateJson(FirebaseJson* json) {
 
 void PersistentMemoryClass::AddSettingsJson(FirebaseJson* json) {
 	json->add(FB_runMode, String(ps.runMode));
+	json->add(FB_runOTAupdate, ps.runOTA);
 	json->add(FB_valveOpenDuration, ps.valveOpenDuration);
 	json->add(FB_valveSoakTime, ps.valveSoakTime);
 	json->add(FB_humLimit, ps.humLimit);
@@ -154,7 +158,8 @@ int PersistentMemoryClass::GetmainLoopDelay()        { return ps.mainLoopDelay; 
 int PersistentMemoryClass::GetdebugLevel()           { return ps.debugLevel; }
 float PersistentMemoryClass::GetvccAdjustment()		 { return ps.vccAdjustment; }
 float PersistentMemoryClass::GetvccMinLimit()		 { return ps.vccMinLimit; }
-boolean PersistentMemoryClass::GetdeepSleepEnabled() { return ps.deepSleepEnabled;  }
+boolean PersistentMemoryClass::GetdeepSleepEnabled() { return ps.deepSleepEnabled; }
+boolean PersistentMemoryClass::GetRunOTA()           { return ps.runOTA; }
 
 String mac2String(byte ar[]) {
 	String s;
@@ -252,6 +257,10 @@ void PersistentMemoryClass::SetdeepSleepEnabled(boolean deepSleepEnabled_) {
 	ps.deepSleepEnabled = deepSleepEnabled_;
 	WritePersistentMemory();
 }
+void PersistentMemoryClass::SetRunOTA(boolean runOTA_) {
+	ps.runOTA = runOTA_;
+	WritePersistentMemory();
+}
 
 void PersistentMemoryClass::Printps() {
 
@@ -321,7 +330,7 @@ void PersistentMemoryClass::UnitTest() {
 
 	Printps();
 	LogLine(0, __FUNCTION__, "You may reset now during next 7 seconds to re-init values");
-	delay(7000);
+	delayNonBlocking(7000);
 
 	LogLine(0, __FUNCTION__, "reset values");
 	strcpy(ps.deviceID, "aaaaaa");
@@ -354,7 +363,7 @@ void PersistentMemoryClass::UnitTest() {
 
 	// 
 	LogLine(0, __FUNCTION__, "Power cycle the device. Should come back with these latest values");
-	delay(20000);
+	delayNonBlocking(20000);
 
 }
 
