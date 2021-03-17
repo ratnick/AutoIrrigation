@@ -10,7 +10,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.jjoe64.graphview.series.DataPoint;
 import com.vanding.datamodel.IrrDevice;
-import com.vanding.datamodel.IrrDeviceLog;
 import com.vanding.datamodel.IrrDeviceMetadata;
 import com.vanding.datamodel.IrrDeviceSettings;
 import com.vanding.datamodel.IrrDeviceState;
@@ -147,22 +146,20 @@ public class FirebaseObject implements Serializable {
                                     if(LastTimestampIsOK(dataSnapshot)) {
                                         switch (dbIrrDevice[k].metadata.sensorType) {
                                             case DEVICE_TYPE_SOIL_STR:
-                                                dbIrrDevice[k].xSeriesVcc.resetData(readAllData("Vcc"));
-                                                dbIrrDevice[k].xSeriesPrimaryTm.resetData(readAllData( "Hum"));
-                                                dbIrrDevice[k].xSeriesSecTm.resetData(readAllData( "vlvState"));
-                                                //                            dbDeviceLoaded[k] = true;
+                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData( "Hum"));
+                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData( "vlvState"));
+                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData("Vcc"));
                                                 break;
                                             case DEVICE_TYPE_GAS_STR:
-                                                dbIrrDevice[k].xSeriesVcc.resetData(readAllData( "Wifi"));
-                                                dbIrrDevice[k].xSeriesPrimaryTm.resetData(readAllData( "cur_ppm"));
-                                                dbIrrDevice[k].xSeriesSecTm.resetData(readAllData( "phase"));
-                                                //                            dbDeviceLoaded[k] = true;
+                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData( "cur_ppm"));
+                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData( "phase"));
+                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData( "Wifi"));
                                                 break;
                                             case DEVICE_TYPE_HUMTEMP_STR:
-                                                dbIrrDevice[k].xSeriesVcc.resetData(readAllData("Wifi"));
-                                                dbIrrDevice[k].xSeriesPrimaryTm.resetData(readAllData( "Temp"));
-                                                dbIrrDevice[k].xSeriesSecTm.resetData(readAllData( "Hum"));
-                                                //                            dbDeviceLoaded[k] = true;
+                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData( "Temp"));
+                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData( "DewTemp"));
+                                                //dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData( "Wifi"));
+                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData("Hum"));
                                                 break;
 
                                             default:
@@ -212,21 +209,22 @@ public class FirebaseObject implements Serializable {
                     LoadDataSnapshop(dataSnapshot);
                     switch (dbIrrDevice[i].metadata.sensorType) {
                         case DEVICE_TYPE_SOIL_STR:
-                            dbIrrDevice[i].xSeriesVcc.resetData(readAllData( "Vcc"));
-                            dbIrrDevice[i].xSeriesPrimaryTm.resetData(readAllData( "Hum"));
-                            dbIrrDevice[i].xSeriesSecTm.resetData(readAllData( "vlvState"));
+                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData( "Vcc"));
+                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData( "Hum"));
+                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData( "vlvState"));
                             dbDeviceLoaded[i] = true;
                             break;
                         case DEVICE_TYPE_GAS_STR:
-                            dbIrrDevice[i].xSeriesVcc.resetData(readAllData( "Wifi"));
-                            dbIrrDevice[i].xSeriesPrimaryTm.resetData(readAllData( "cur_ppm"));
-                            dbIrrDevice[i].xSeriesSecTm.resetData(readAllData( "phase"));
+                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData( "Wifi"));
+                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData( "cur_ppm"));
+                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData( "phase"));
                             dbDeviceLoaded[i] = true;
                             break;
                         case DEVICE_TYPE_HUMTEMP_STR:
-                            dbIrrDevice[i].xSeriesVcc.resetData(readAllData("Wifi"));
-                            dbIrrDevice[i].xSeriesPrimaryTm.resetData(readAllData( "Temp"));
-                            dbIrrDevice[i].xSeriesSecTm.resetData(readAllData( "Hum"));
+                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData( "Temp"));
+                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData( "DewTemp"));
+                            //dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData( "Wifi"));
+                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData("Hum"));
                             dbDeviceLoaded[i] = true;
                             break;
                         default:
@@ -307,6 +305,13 @@ public class FirebaseObject implements Serializable {
         }
     }
 
+    private double calcDewTemp(double hum, double temp) {
+        // https://sciencealpha.com/da/dew-point-the-dew-point-temperature/#raschet-tochki-rosy
+        double dewTemp;
+        dewTemp = temp - (1 - (hum/100))/0.05;
+        return dewTemp;
+
+    }
 
     private DataPoint[] readAllData(String parameterName)  {
         // are we on telemetry level or on child level?
@@ -354,6 +359,12 @@ public class FirebaseObject implements Serializable {
                 case "Hum":
                     for (i=0;i<nbrOfTmPoints;i++) {
                         DataPoint v = new DataPoint(tm[i].timestamp, tm[i].Hum);
+                        values[i] = v;
+                    }
+                    break;
+                case "DewTemp":
+                    for (i=0;i<nbrOfTmPoints;i++) {
+                        DataPoint v = new DataPoint(tm[i].timestamp, calcDewTemp(tm[i].Hum+50, tm[i].Temp));
                         values[i] = v;
                     }
                     break;
