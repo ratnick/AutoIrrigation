@@ -12,9 +12,9 @@ public class IrrDevice {
     public IrrDeviceSettings settings;
     public IrrDeviceTelemetry telemetry_current;
     public IrrDeviceTelemetry telemetry;
-    public LineGraphSeries<DataPoint> xSeriesVcc;
-    public LineGraphSeries<DataPoint> xSeriesSecTm;
-    public LineGraphSeries<DataPoint> xSeriesPrimaryTm;
+    public LineGraphSeries<DataPoint> xSeriesPrimAxis1;
+    public LineGraphSeries<DataPoint> xSeriesPrimAxis2;
+    public LineGraphSeries<DataPoint> xSeriesSecAxis1;
     public int nbrOfTelemetry;
     public int nbrOfLogs;
 
@@ -25,9 +25,9 @@ public class IrrDevice {
         this.state = new IrrDeviceState();
         this.settings = new IrrDeviceSettings();
         this.telemetry_current = new IrrDeviceTelemetry();
-        xSeriesVcc = new LineGraphSeries();
-        xSeriesSecTm =new LineGraphSeries();
-        xSeriesPrimaryTm = new LineGraphSeries();
+        xSeriesPrimAxis1 = new LineGraphSeries();
+        xSeriesPrimAxis2 =new LineGraphSeries();
+        xSeriesSecAxis1 = new LineGraphSeries();
         nbrOfTelemetry = -1;
         nbrOfLogs = -1;
 

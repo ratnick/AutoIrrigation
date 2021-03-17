@@ -75,9 +75,9 @@ public class SingleDevice extends AppCompatActivity {
     public static GraphView graph;
 
     public class GraphSettings {
-        public String titlePrim;
-        public String titleSec;
-        public String titleVcc;
+        public String titlePrim1;
+        public String titlePrim2;
+        public String titleSec1;
         public boolean autoScalePrim;
         public boolean autoScaleSec;
         public double minPrim;
@@ -96,9 +96,9 @@ public class SingleDevice extends AppCompatActivity {
                 double _minSec,
                 double _maxSec
         ) {
-            this.titlePrim = _title1;
-            this.titleSec = _title2;
-            this.titleVcc = _title3;
+            this.titlePrim1 = _title1;
+            this.titlePrim2 = _title2;
+            this.titleSec1 = _title3;
             this.autoScalePrim = _autoScalePrim;
             this.autoScaleSec = _autoScaleSec;
             this.minPrim = _minPrim;
@@ -146,12 +146,12 @@ public class SingleDevice extends AppCompatActivity {
 
         gs[DEVICE_TYPE_HUMTEMP] = new GraphSettings(
                 "temp C",2,
-                "Hum %",2,
                 "Wifi",2,
+                "Hum %",2,
                 false,
                 false,
-                -10, 70,
-                -85, -30);
+                -15, 50,
+                0, 100);
 
         gs[DEVICE_TYPE_WATER] = new GraphSettings(
                 "PPM",2,
@@ -359,11 +359,11 @@ public class SingleDevice extends AppCompatActivity {
         graph.removeAllSeries();
         graph.getSecondScale().removeAllSeries();
         // primary Y-axis:
-        graph.addSeries(dbIrrDevice[selectedDevice].xSeriesSecTm);
-        graph.addSeries(dbIrrDevice[selectedDevice].xSeriesPrimaryTm);
+        graph.addSeries(dbIrrDevice[selectedDevice].xSeriesPrimAxis2);
+        graph.addSeries(dbIrrDevice[selectedDevice].xSeriesPrimAxis1);
 
         // secondary Y-axis:
-        graph.getSecondScale().addSeries(dbIrrDevice[selectedDevice].xSeriesVcc);
+        graph.getSecondScale().addSeries(dbIrrDevice[selectedDevice].xSeriesSecAxis1);
 
         FormatSeries(graph);
         FormatGraph(graph);
@@ -391,20 +391,20 @@ public class SingleDevice extends AppCompatActivity {
 
         int devType = GetDeviceType();
 
-        dbIrrDevice[selectedDevice].xSeriesPrimaryTm.setTitle(gs[devType].titlePrim);
-        dbIrrDevice[selectedDevice].xSeriesPrimaryTm.setThickness(2);
-        dbIrrDevice[selectedDevice].xSeriesPrimaryTm.setColor(WHITE);
-        dbIrrDevice[selectedDevice].xSeriesPrimaryTm.setDrawDataPoints(false);
+        dbIrrDevice[selectedDevice].xSeriesPrimAxis1.setTitle(gs[devType].titlePrim1);
+        dbIrrDevice[selectedDevice].xSeriesPrimAxis1.setThickness(2);
+        dbIrrDevice[selectedDevice].xSeriesPrimAxis1.setColor(WHITE);
+        dbIrrDevice[selectedDevice].xSeriesPrimAxis1.setDrawDataPoints(false);
 
-        dbIrrDevice[selectedDevice].xSeriesSecTm.setTitle(gs[devType].titleSec);
-        dbIrrDevice[selectedDevice].xSeriesSecTm.setThickness(2);
-        dbIrrDevice[selectedDevice].xSeriesSecTm.setColor(YELLOW);
-        dbIrrDevice[selectedDevice].xSeriesSecTm.setDrawDataPoints(false);
+        dbIrrDevice[selectedDevice].xSeriesPrimAxis2.setTitle(gs[devType].titlePrim2);
+        dbIrrDevice[selectedDevice].xSeriesPrimAxis2.setThickness(2);
+        dbIrrDevice[selectedDevice].xSeriesPrimAxis2.setColor(YELLOW);
+        dbIrrDevice[selectedDevice].xSeriesPrimAxis2.setDrawDataPoints(false);
 
-        dbIrrDevice[selectedDevice].xSeriesVcc.setTitle(gs[devType].titleVcc);
-        dbIrrDevice[selectedDevice].xSeriesVcc.setThickness(2);
-        dbIrrDevice[selectedDevice].xSeriesVcc.setColor(BLUE);
-        dbIrrDevice[selectedDevice].xSeriesVcc.setDrawDataPoints(false);
+        dbIrrDevice[selectedDevice].xSeriesSecAxis1.setTitle(gs[devType].titleSec1);
+        dbIrrDevice[selectedDevice].xSeriesSecAxis1.setThickness(2);
+        dbIrrDevice[selectedDevice].xSeriesSecAxis1.setColor(BLUE);
+        dbIrrDevice[selectedDevice].xSeriesSecAxis1.setDrawDataPoints(false);
 
     }
 
@@ -430,8 +430,8 @@ public class SingleDevice extends AppCompatActivity {
         // Primary Y-axis (Y1) scale
         graph.getViewport().setYAxisBoundsManual(gs[devType].autoScalePrim);
         if(gs[devType].autoScalePrim) {
-            minY1 = (long) dbIrrDevice[selectedDevice].xSeriesPrimaryTm.getLowestValueY();
-            maxY1 = (long) dbIrrDevice[selectedDevice].xSeriesPrimaryTm.getHighestValueY();
+            minY1 = (long) dbIrrDevice[selectedDevice].xSeriesPrimAxis1.getLowestValueY();
+            maxY1 = (long) dbIrrDevice[selectedDevice].xSeriesPrimAxis1.getHighestValueY();
             maxY1 = RoundUpToNearestNiceNumber(maxY1);
             graph.getViewport().setMinY(0); //minY1;
             graph.getViewport().setMaxY(maxY1);
@@ -446,8 +446,8 @@ public class SingleDevice extends AppCompatActivity {
         // set second scale manually (http://www.android-graphview.org/secondary-scale-axis/ : the y bounds are always manual for second scale
         graph.getViewport().setYAxisBoundsManual(gs[devType].autoScaleSec);
         if(gs[devType].autoScaleSec) {
-            minY2 = (long) dbIrrDevice[selectedDevice].xSeriesVcc.getLowestValueY();
-            maxY2 = (long) dbIrrDevice[selectedDevice].xSeriesVcc.getHighestValueY();
+            minY2 = (long) dbIrrDevice[selectedDevice].xSeriesSecAxis1.getLowestValueY();
+            maxY2 = (long) dbIrrDevice[selectedDevice].xSeriesSecAxis1.getHighestValueY();
             maxY2 = RoundUpToNearestNiceNumber(maxY2);
             graph.getSecondScale().setMinY(minY2); //minY2
             graph.getSecondScale().setMaxY(maxY2);
@@ -466,8 +466,8 @@ public class SingleDevice extends AppCompatActivity {
         graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 2 because of the space
 
         // X-axis
-        maxX = (long) dbIrrDevice[selectedDevice].xSeriesVcc.getHighestValueX();
-        minX = (long) dbIrrDevice[selectedDevice].xSeriesVcc.getLowestValueX();
+        maxX = (long) dbIrrDevice[selectedDevice].xSeriesSecAxis1.getHighestValueX();
+        minX = (long) dbIrrDevice[selectedDevice].xSeriesSecAxis1.getLowestValueX();
         maxDate = new Date(maxX);
         if (maxX - minX > 86400000) {    // 24 hours
             minX = maxX - 86400000;

@@ -42,8 +42,8 @@ void  ThermometerClass::AddTelemetryJson(FirebaseJson* json) {
 		this->tempTm.lastAnalogueReadingTemp = (int)this->GetlastAnalogueReadingTemperature();
 		json->add("lastAnalog", this->tempTm.lastAnalogueReadingTemp);
 
-		//nnr val = this->ReadHumidity();
 		val = 0.0;
+		val = this->ReadHumidity();
 
 		if (!isnan(val)) {
 			this->tempTm.humidity = (double)val;

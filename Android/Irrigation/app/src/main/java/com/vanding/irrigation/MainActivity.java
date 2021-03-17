@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
     /* Here is the entry point for the returning PendingIntent.
        -- requestCode = The identifier letting us know where these results are coming from.
-       -- resultCode = The code telling us whether our webservce calls succeeded or failed.
+       -- resultCode = The code telling us whether our webservice calls succeeded or failed.
        -- data = The bundled extras that we can parse our results from once we know the call succeeded.*/
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
@@ -119,16 +119,14 @@ public class MainActivity extends AppCompatActivity {
                 // Set layout manager to position the items
                 rvContacts.setLayoutManager(new LinearLayoutManager(this));
 
-                // start sub activity (for test)
-//                Intent intent = new Intent(MainActivity.this, testlayout.class);
-//                startActivity(intent);
-
                 // SetOnRefreshListener on SwipeRefreshLayout
                 swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
                         swipeRefreshLayout.setRefreshing(false);
                         // hertil - kaldes MÅSKE når der swipes
+                        Intent commandIntent = new Intent(MainActivity.this, FirebaseService.class);
+                        startFirebaseService(ActionType.LOAD_DEVICE_BASICS, commandIntent);
                     }
                 });
                 break;

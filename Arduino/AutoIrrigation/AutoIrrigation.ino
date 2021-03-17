@@ -49,7 +49,6 @@
 #include <Wire.h>
 #include <DHTesp.h>
 #include <EEPROM.h>
-#include <SPI.h>
 #include <TimeLib.h>        // http://playground.arduino.cc/code/time - installed via library manager
 #include <time.h>
 
