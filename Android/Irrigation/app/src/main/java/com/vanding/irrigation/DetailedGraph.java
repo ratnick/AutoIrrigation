@@ -94,8 +94,8 @@ public class DetailedGraph extends AppCompatActivity {
         // Primary Y-axis (Y1) scale
         graph.getViewport().setYAxisBoundsManual(gs[devType].autoScalePrim);
         if(gs[devType].autoScalePrim) {
-            minY1 = (long) dbIrrDevice[selectedDevice].xSeriesPrimAxis1.getLowestValueY();
-            maxY1 = (long) dbIrrDevice[selectedDevice].xSeriesPrimAxis1.getHighestValueY();
+            minY1 = (long) dbIrrDevice[selectedDevice].xSeriesPrimaryTm.getLowestValueY();
+            maxY1 = (long) dbIrrDevice[selectedDevice].xSeriesPrimaryTm.getHighestValueY();
             maxY1 = RoundUpToNearestNiceNumber(maxY1);
             graph.getViewport().setMinY(0); //minY1;
             graph.getViewport().setMaxY(maxY1);
@@ -110,8 +110,8 @@ public class DetailedGraph extends AppCompatActivity {
         // set second scale manually (http://www.android-graphview.org/secondary-scale-axis/ : the y bounds are always manual for second scale
         graph.getViewport().setYAxisBoundsManual(gs[devType].autoScaleSec);
         if(gs[devType].autoScaleSec) {
-            minY2 = (long) dbIrrDevice[selectedDevice].xSeriesSecAxis1.getLowestValueY();
-            maxY2 = (long) dbIrrDevice[selectedDevice].xSeriesSecAxis1.getHighestValueY();
+            minY2 = (long) dbIrrDevice[selectedDevice].xSeriesVcc.getLowestValueY();
+            maxY2 = (long) dbIrrDevice[selectedDevice].xSeriesVcc.getHighestValueY();
             maxY2 = RoundUpToNearestNiceNumber(maxY2);
             graph.getSecondScale().setMinY(minY2); //minY2
             graph.getSecondScale().setMaxY(maxY2);
