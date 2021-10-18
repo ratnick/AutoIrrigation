@@ -421,12 +421,12 @@
                         style="@style/TableRowStyle">
 
                         <TextView
-                            android:id="@+id/tvLastAnalogueTxt"
+                            android:id="@+id/tvBattVoltageTxt"
                             style="@style/TextViewStyle"
-                            android:text="Analogue (0-1023)" />
+                            android:text="Battery voltage" />
 
                         <TextView
-                            android:id="@+id/tvLastAnalogueReading"
+                            android:id="@+id/tvBattVoltage"
                             style="@style/TextViewValueStyle"
                             android:text="TextView" />
                     </TableRow>

@@ -3,9 +3,12 @@ package com.vanding.datamodel;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.jjoe64.graphview.series.Series;
 
 @IgnoreExtraProperties
 public class IrrDevice {
+    public Series xSeriesPrimaryTm;
+
     public enum DeviceStatus {OK, WARNING, FAULT};
     public IrrDeviceMetadata metadata;
     public IrrDeviceState state;

@@ -259,7 +259,7 @@ public class FirebaseObject implements Serializable {
         long last_timestamp = 0;
         IrrDeviceTelemetry cur_tm;
         for (DataSnapshot postSnapshot : tmSnapshot.getChildren()) {
-            cur_tm = postSnapshot.getValue(IrrDeviceTelemetry.class);
+            cur_tm = postSnapshot4.getValue(IrrDeviceTelemetry.class);
             tm[i] = new IrrDeviceTelemetry(cur_tm);
             if (tm[i].timestamp == 0) {
                 tm[i].timestamp = last_timestamp + 1;

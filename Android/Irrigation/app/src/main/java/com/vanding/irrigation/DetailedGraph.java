@@ -110,8 +110,8 @@ public class DetailedGraph extends AppCompatActivity {
         // set second scale manually (http://www.android-graphview.org/secondary-scale-axis/ : the y bounds are always manual for second scale
         graph.getViewport().setYAxisBoundsManual(gs[devType].autoScaleSec);
         if(gs[devType].autoScaleSec) {
-            minY2 = (long) dbIrrDevice[selectedDevice].xSeriesVcc.getLowestValueY();
-            maxY2 = (long) dbIrrDevice[selectedDevice].xSeriesVcc.getHighestValueY();
+            minY2 = (long) dbIrrDevice[selectedDevice].xSeriesSecAxis1.getLowestValueY();
+            maxY2 = (long) dbIrrDevice[selectedDevice].xSeriesSecAxis1.getHighestValueY();
             maxY2 = RoundUpToNearestNiceNumber(maxY2);
             graph.getSecondScale().setMinY(minY2); //minY2
             graph.getSecondScale().setMaxY(maxY2);

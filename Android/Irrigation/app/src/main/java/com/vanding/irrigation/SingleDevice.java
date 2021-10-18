@@ -32,7 +32,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static android.graphics.Color.BLUE;
-import static android.graphics.Color.CYAN;
 import static android.graphics.Color.WHITE;
 import static android.graphics.Color.YELLOW;
 import static com.vanding.irrigation.FirebaseService.*;
@@ -67,7 +66,7 @@ public class SingleDevice extends AppCompatActivity {
     @BindView(R.id.tvTmtry2)                    TextView tvTmtry2;
     @BindView(R.id.tvTmtry1Txt)                 TextView tvTmtry1Txt;
     @BindView(R.id.tvTmtry2Txt)                 TextView tvTmtry2Txt;
-    @BindView(R.id.tvLastAnalogueReading)       TextView tvLastAnalogueReading;
+    @BindView(R.id.tvBattVoltage)               TextView tvBattVoltage;
     @BindView(R.id.tvLastOpenTimestamp)         TextView tvLastOpenTimestamp;
     @BindView(R.id.tvWifi)                      TextView tvWifi;
     @BindView(R.id.tvTimestampTelemetryTxt)     TextView tvTimestampTelemetryTxt;
@@ -331,7 +330,7 @@ public class SingleDevice extends AppCompatActivity {
 
     @SuppressLint("DefaultLocale")
     private void UpdateUICurrentTelemetry() {
-        tvLastAnalogueReading.setText(String.format("%d", dbIrrDevice[selectedDevice].telemetry_current.lastAnalog));
+        tvBattVoltage.setText(String.format("%.2f", dbIrrDevice[selectedDevice].telemetry_current.Vcc));
         tvTmtry2.setText(String.format("%.2f", dbIrrDevice[selectedDevice].telemetry_current.Vcc));
         switch (dbIrrDevice[selectedDevice].metadata.sensorType) {
             case DEVICE_TYPE_SOIL_STR:

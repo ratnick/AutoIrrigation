@@ -36,6 +36,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/gTopOfRecycler" />
 
+        <include layout="@layout/content_main" />
+
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <androidx.constraintlayout.widget.Guideline
@@ -100,7 +102,5 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_end="@dimen/vg_margin" />
-
-     <include        layout="@layout/content_main"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
