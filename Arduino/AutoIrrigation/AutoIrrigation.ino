@@ -1,4 +1,3 @@
-
 /*
     Name:       AutoIrrigation.ino
     Created:	17-09-2018 15:08:50
@@ -23,10 +22,6 @@
 
 // OTA upload
 #include <LEAmDNS_Priv.h>
-#include <LEAmDNS_lwIPdefs.h>
-#include <LEAmDNS.h>
-#include <ESP8266mDNS_Legacy.h>
-#include <ESP8266mDNS.h>
 #include <ArduinoOTA.h>
 // end
 
@@ -64,6 +59,7 @@
 #include <LogLib.h>
 #include "WaterValve.h"
 #include "SoilHumiditySensor.h"
+#include "DistanceSensor.h"
 #include "VoltMeter.h"
 #include "Thermometer.h"
 #include "serialPortHandler.h"
@@ -100,6 +96,7 @@ const int CHANNEL_TEMPERATURE = 2;
 */
 
 // Sensors and actuators
+DistanceSensorClass sensorA;
 SoilHumiditySensorClass soilHumiditySensorA;
 WaterValveClass waterValveA;
 VoltMeterClass externalVoltMeter;
@@ -404,23 +401,29 @@ void UploadTelemetry_() {
 	#elif defined(USE_DHT11_SENSOR)
 		thermometer.AddTelemetryJson(&jsoTelemetry);
 		LogLine(5, __FUNCTION__, "telemetry fetched from DHT11 sensor");
+//211009		externalVoltMeter.AddTelemetryJson(&jsoTelemetry);
+//		LogLine(5, __FUNCTION__, "telemetry fetched from Voltmeter");
+	#elif defined(USE_DISTANCE_SENSOR)
+		sensorA.AddTelemetryJson(&jsoTelemetry);
+		externalVoltMeter.AddTelemetryJson(&jsoTelemetry);
+		LogLine(5, __FUNCTION__, "telemetry fetched from DISTANCE sensor");
 	#else
 		soilHumiditySensorA.AddTelemetryJson(&jsoTelemetry);
 		waterValveA.AddTelemetryJson(&jsoTelemetry);
 		externalVoltMeter.AddTelemetryJson(&jsoTelemetry);
 	#endif
+		#ifdef USE_FIREBASE
+			int32_t wifiStrength = WiFi.RSSI();
+			jsoTelemetry.add(FB_wifi, wifiStrength);
+			if (newTelemetry) {
+				res = SendToFirebase(set, "telemetry_current", jsoTelemetry, firebaseData);
+				res = SendToFirebase(timestamp, "telemetry_current/timestamp", jsoTelemetry, firebaseData);
+				res = SendToFirebase(push, "telemetry", jsoTelemetry, firebaseData);
+				res = SendToFirebase(appendtimestamp, "", jsoTelemetry, firebaseData);
+			}
+		#endif
+		LogLine(5, __FUNCTION__, "done");
 
-	#ifdef USE_FIREBASE
-		int32_t wifiStrength = WiFi.RSSI();
-		jsoTelemetry.add(FB_wifi, wifiStrength);
-		if (newTelemetry) {
-			res = SendToFirebase(set, "telemetry_current", jsoTelemetry, firebaseData);
-			res = SendToFirebase(timestamp, "telemetry_current/timestamp", jsoTelemetry, firebaseData);
-			res = SendToFirebase(push, "telemetry", jsoTelemetry, firebaseData);
-			res = SendToFirebase(appendtimestamp, "", jsoTelemetry, firebaseData);
-		}
-	#endif
-	LogLine(5, __FUNCTION__, "done");
 }
 
 void setup() {
@@ -447,9 +450,11 @@ void setup() {
 	}
 
 	initFlashLED();
+	LogLine(4, __FUNCTION__, "A");
 	AnalogMux.init(MUX_S1, MUX_S0, HUM_SENSOR_PWR_CTRL, HIGH);
 	externalVoltMeter.lastSummarizedReading = PersistentMemory.ps.lastVccSummarizedReading;
 	externalVoltMeter.init(ANALOG_INPUT, "5V voltmeter", CHANNEL_BATT, SensorHandlerClass::ExternalVoltMeter, PersistentMemory.ps.lastVccSummarizedReading);
+	LogLine(4, __FUNCTION__, "B");
 
 	// If voltage is too low, go to sleep immediately. No error checking
 	float vccTmp;
@@ -476,6 +481,11 @@ void setup() {
 	}
 	else if (rm.equals(RUNMODE_WATER)) {
 		soilHumiditySensorA.init(ANALOG_INPUT, "water sensor A", CHANNEL_WATER, SensorHandlerClass::WaterSensor, PersistentMemory.ps.humLimit);
+	}
+	else if (rm.equals(RUNMODE_DISTANCE) || rm.equals(RUNMODE_SENSORTEST)) {
+		LogLine(4, __FUNCTION__, "before");
+		sensorA.init(ANALOG_INPUT, "distance sensor A", CHANNEL_HUM, SensorHandlerClass::DistanceSensor, PersistentMemory.ps.humLimit);
+		LogLine(4, __FUNCTION__, "after");
 	}
 
 #ifdef USE_GAS_SENSOR
@@ -543,7 +553,7 @@ void loop() {
 
 	rm = PersistentMemory.GetrunMode();
 	LogLinef(4, __FUNCTION__, "runmode = %s", rm.c_str());
-	if (rm.equals(RUNMODE_SOIL) || rm.equals(RUNMODE_WATER)) {
+	if (rm.equals(RUNMODE_SOIL) || rm.equals(RUNMODE_WATER) ) {
 		if (WaterIfNeeded()) {
 			// use deep sleep if it's enabled and we want to soak for a longer period of time
 			if ((waterValveA.soakSeconds <= DEEP_SLEEP_SOAK_THRESHOLD) || (!PersistentMemory.GetdeepSleepEnabled())) {
@@ -557,8 +567,17 @@ void loop() {
 			DeepSleepHandler.GotoSleepAndWakeAfterDelay(PersistentMemory.GettotalSecondsToSleep());
 		}
 	}
+	else if (rm.equals(RUNMODE_DISTANCE)) {
+		sensorA.ReadSensor();
+		UploadTelemetry_();
+	}
 	else if (rm.equals(RUNMODE_SENSORTEST)) {
-		soilHumiditySensorA.TestSensor();
+		LogLine(4, __FUNCTION__, "Test sensor input");
+//		waterValveA.OpenValve();
+		sensorA.TestSensor();
+//		sensorA.GetDistanceCentimeter();
+//		delayNonBlocking(1000);
+//		waterValveA.CloseValve();
 		UploadTelemetry_();
 	}
 	else if (rm.equals(RUNMODE_BATTERYTEST)) {
