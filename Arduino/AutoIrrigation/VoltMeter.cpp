@@ -2,10 +2,8 @@
 // 
 // 
  
-#include "globals.h"
 #include "VoltMeter.h"
 #include "AnalogMux.h"
-#include "LogLib.h"
 #include "PersistentMemory.h"
 
 float MAX_VOLTAGE = 4.0;

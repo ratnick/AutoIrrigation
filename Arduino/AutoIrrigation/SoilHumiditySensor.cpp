@@ -4,8 +4,6 @@
 
 #include "SoilHumiditySensor.h"
 #include "AnalogMux.h"
-#include "LogLib.h"
-#include "OTALib.h"
 
 void SoilHumiditySensorClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType, int _humLimit)
 {
@@ -111,12 +109,14 @@ float SoilHumiditySensorClass::GetlastAnalogueReadingWater() {
 }
 
 float SoilHumiditySensorClass::TestSensor() {
+
 	float raw;
 	for (int i = 0; i < 1; i++) {
 		raw = this->ReadSensor();
 		this->lastAnalogueReadingWater = raw;
 	}
 	return raw;
+
 }
 
 

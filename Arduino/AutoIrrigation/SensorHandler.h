@@ -9,6 +9,12 @@
 	#include "WProgram.h"
 #endif
 
+// Used by subclasses
+#include <jsmn.h>
+#include <FirebaseJson.h>
+#include <LogLib.h>
+#include <OTALib.h>
+
 #define SIMULATE_SENSORS false
 
 class SensorHandlerClass
@@ -16,21 +22,29 @@ class SensorHandlerClass
  protected:
 
  public:
-	 enum SensorType {
-		 SoilHumiditySensor,
-		 WaterSensor,
-		 GasSensor,
-		 ExternalVoltMeter,
-		 Thermometer,
-		 ThermoHygrometer
-	 };
+	enum SensorType {
+		SoilHumiditySensor,
+		DistanceSensor,
+		WaterSensor,
+		GasSensor,
+		ExternalVoltMeter,
+		Thermometer,
+		ThermoHygrometer
+	};
 
-	 void init(int _pinNbr, char _sensorType[], char _metricUnit[], boolean _isBooleanSensor, float _minConvertedValue, float _maxConvertedValue);
-	 float ReadAnalogueValue();
+	void init(int _pinNbr, SensorType _sensorType, char _metricUnit[], boolean _isAnalogue, float _minConvertedValue, float _maxConvertedValue);
+	float ReadSensor();
+	float TestSensor();
+	float ReadAnalogueValue();
 	boolean ReadDigitalValue();
 
+	struct Telemetry {
+		;
+	};
+
 	int pinNbr;
-	char sensorType[10];
+	char name[15];
+	SensorType sensorType;
 	char metricUnit[10];  
 	boolean isAnalogue;
 	float minConvertedValue;

@@ -21,19 +21,10 @@
     <ClInclude Include="__vm\.AutoIrrigation.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="globals.h">
+    <ClInclude Include="AnalogMux.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="test.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SensorHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WaterValve.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AzureCloudHandler.h">
+    <ClInclude Include="LEDHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="backoff.h">
@@ -42,37 +33,49 @@
     <ClInclude Include="cli.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VoltMeter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AnalogMux.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FirebaseModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PersistentMemory.h">
+    <ClInclude Include="test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DeepSleepHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GasSensor.h">
+    <ClInclude Include="serialPortHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LEDHandler.h">
+    <ClInclude Include="AzureCloudHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GasSensor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SoilHumiditySensor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="serialPortHandler.h">
+    <ClInclude Include="WaterValve.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Thermometer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VoltMeter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PersistentMemory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FirebaseModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SensorHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DistanceSensor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="compile_flags.h">
@@ -83,34 +86,19 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="test.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SensorHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WaterValve.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AzureCloudHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="backoff.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cli.cpp">
+    <ClCompile Include="test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VoltMeter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AnalogMux.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PersistentMemory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DeepSleepHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AnalogMux.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GasSensor.cpp">
@@ -119,25 +107,41 @@
     <ClCompile Include="LEDHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SoilHumiditySensor.cpp">
+    <ClCompile Include="serialPortHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="serialPortHandler.cpp">
+    <ClCompile Include="WaterValve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="backoff.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cli.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PersistentMemory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Thermometer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="firebase functions.txt" />
-    <Text Include="board.txt">
+    <ClCompile Include="SoilHumiditySensor.cpp">
       <Filter>Source Files</Filter>
-    </Text>
+    </ClCompile>
+    <ClCompile Include="SensorHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DistanceSensor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="AutoIrrigation.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="board.txt" />
+    <Text Include="firebase functions.txt" />
   </ItemGroup>
 </Project>

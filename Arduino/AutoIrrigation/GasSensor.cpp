@@ -4,8 +4,6 @@
 
 #include "GasSensor.h"
 #include "serialPortHandler.h"
-#include "LogLib.h"
-#include "OTALib.h"
 
 
 void GasSensorClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType)

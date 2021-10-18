@@ -3,7 +3,6 @@
 #include "PersistentMemory.h"
 #include "LogLib.h"
 #include "OTALib.h"
-#include "OTALib.h"
 
 void PersistentMemoryClass::init(
 	bool resetMemory, 

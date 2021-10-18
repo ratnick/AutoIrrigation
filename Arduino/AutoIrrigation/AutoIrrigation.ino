@@ -9,12 +9,12 @@
 #include <WifiLib.h>
 #include <SysCall.h>
 #include <sdios.h>
+#include <BlockDriver.h>
+#include <SDFSFormatter.h>
 #include <SdFatConfig.h>
 #include <SdFat.h>
 #include <MinimumSerial.h>
 #include <FreeStack.h>
-#include <BlockDriver.h>
-#include <SDFSFormatter.h>
 #include <SDFS.h>
 #include <SD.h>
 #include <FirebaseJson.h>    // works with 2.2.8, but NOT 2.3.9. This will give random errors in communication with Firebase. I think it's becaise FirebaseJSON struct or class is changed

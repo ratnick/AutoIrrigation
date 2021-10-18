@@ -9,8 +9,6 @@
 	#include "WProgram.h"
 #endif
 
-//#include "globals.h"
-
 class AzureCloudHandlerClass
 {
  protected:
