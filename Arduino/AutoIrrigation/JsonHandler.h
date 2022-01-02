@@ -23,9 +23,17 @@ class JsonHandlerClass
 	// StaticJsonBuffer allocates memory on the stack, it can be
 	// replaced by DynamicJsonBuffer which allocates in the heap.
 	//
-	StaticJsonBuffer<200> jsonBuffer;
-	// DynamicJsonBuffer  jsonBuffer(200);
+	//v5: StaticJsonBuffer<200> jsonBuffer;
 
+	 
+	// Using ArduinoJsopn v6 library 
+	// Allocate the JSON document
+	//
+	// Inside the brackets, 200 is the RAM allocated to this document.
+    // Don't forget to change this value to match your requirement.
+    // Use https://arduinojson.org/v6/assistant to compute the capacity.
+	StaticJsonDocument<200> jsonDoc; 
+	 	
 	JsonObject *root;
 
  public:

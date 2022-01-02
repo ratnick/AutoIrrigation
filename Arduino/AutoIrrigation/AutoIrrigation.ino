@@ -40,6 +40,7 @@
 #include <FirebaseESP8266HTTPClient.h>
 #endif
 
+
 #include <SoftwareSerial.h>
 #include <Wire.h>
 #include <DHTesp.h>
@@ -48,8 +49,8 @@
 #include <time.h>
 
 // own libraries
-#include "DeepSleepHandler.h"
 #include "PersistentMemory.h"
+#include "DeepSleepHandler.h"
 #include "globals.h"
 #include "ciotc_config.h" // Wifi configuration here
 #include "LEDHandler.h"

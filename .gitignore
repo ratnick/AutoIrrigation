@@ -400,3 +400,7 @@ docs/pics/IMG_20191217_200341.jpg
 /Arduino/TestOTAupdate/__vm
 /quicktest/__vm
 /TestDistanceSensor/__vm
+/3d print
+/Arduino/AutoIrrigation/DELETE PersistentMemory.h
+/Arduino/AutoIrrigation/DELETE PersistentMemory.cpp
+/Arduino/AutoIrrigation/DELETE FirebaseModel.h

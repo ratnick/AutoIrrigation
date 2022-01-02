@@ -67,7 +67,8 @@ void DeepSleepHandlerClass::GotoSleepAndWakeUpAtTime(String wakeupTime) {
 
 	// check that input is OK and convert to time_t
 	if (isValidTimeString(wakeupTime)) {
-		PersistentMemory.SetWakeTime(WAKEUP_IDX_SIMPLEDELAY, wakeupTime);
+		int simpledelay = WAKEUP_IDX_SIMPLEDELAY;
+		PersistentMemory.SetWakeTime(simpledelay, wakeupTime);
 		GoToDeepSleep();
 	}
 	else {

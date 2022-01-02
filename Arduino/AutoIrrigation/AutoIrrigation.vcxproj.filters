@@ -63,9 +63,6 @@
     <ClInclude Include="VoltMeter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PersistentMemory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FirebaseModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -117,9 +114,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cli.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PersistentMemory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Thermometer.cpp">
