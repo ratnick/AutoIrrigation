@@ -24,9 +24,6 @@
     <ClInclude Include="AnalogMux.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LEDHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="backoff.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -99,9 +96,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GasSensor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LEDHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="serialPortHandler.cpp">

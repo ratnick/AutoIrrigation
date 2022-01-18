@@ -57,7 +57,7 @@
 #include "ciotc_config.h" // Wifi configuration here
 #include "PersistentMemory.h"
 #include "DeepSleepHandler.h"
-#include "LEDHandler.h"
+#include "NNR_LEDHandler.h"
 #include "AnalogMux.h"
 #include "OTALib.h"
 #include "cli.h"
