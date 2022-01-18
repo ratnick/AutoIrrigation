@@ -12,7 +12,7 @@ H  X  X  None
 */
 
 #include "AnalogMux.h"
-#include "LogLib.h"
+#include "NNR_Logging.h"
 #include "NNR_OTAupdate.h"
 
 void AnalogMuxClass::init(int _S1, int _S0, int _pwrCtrlPin, boolean _pwrCtrlPinActive)

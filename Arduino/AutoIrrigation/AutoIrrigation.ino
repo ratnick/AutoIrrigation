@@ -61,7 +61,7 @@
 #include "AnalogMux.h"
 #include "NNR_OTAupdate.h"
 #include "cli.h"
-#include <LogLib.h>
+#include <NNR_Logging.h>
 #include "WaterValve.h"
 #include "SoilHumiditySensor.h"
 #include "DistanceSensor.h"

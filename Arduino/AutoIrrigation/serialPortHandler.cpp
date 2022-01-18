@@ -4,7 +4,7 @@
 
 #include "serialPortHandler.h"
 #include <SoftwareSerial.h>
-#include "LogLib.h"
+#include "NNR_Logging.h"
 #include "NNR_OTAupdate.h"
 
 SoftwareSerial serialPort(D1, D2); // (Rx, Tx)

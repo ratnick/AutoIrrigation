@@ -3,7 +3,7 @@
 // 
 
 #include "WaterValve.h"
-#include "LogLib.h"
+#include "NNR_Logging.h"
 #include "NNR_OTAupdate.h"
 
 void WaterValveClass::init(int _pinNbr, char _name[], int _openSeconds, int _soakSeconds) {

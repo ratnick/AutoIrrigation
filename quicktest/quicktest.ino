@@ -26,7 +26,7 @@
 #include <ESP8266mDNS.h>
 #include <ArduinoOTA.h>
 
-#include "LogLib.h"
+#include "NNR_Logging.h"
 #include "TimeLib.h"
 
 // Wifi
