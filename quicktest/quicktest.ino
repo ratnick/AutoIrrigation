@@ -30,7 +30,7 @@
 #include "TimeLib.h"
 
 // Wifi
-#include <WifiLib.h>
+#include <NNR_Wifi.h>
 #include <Wire.h>
 Device device;
 const char timeServer[] = "0.dk.pool.ntp.org"; // Danish NTP Server 

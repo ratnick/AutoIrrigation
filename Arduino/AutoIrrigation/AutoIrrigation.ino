@@ -10,7 +10,7 @@
 //#include "Firebase_PersistentMemory.h"
 #include <jsmn.h>
 #include <FirebaseJson.h>
-#include <WifiLib.h>
+#include <NNR_Wifi.h>
 #include <SysCall.h>
 #include <sdios.h>
 #include <BlockDriver.h>
