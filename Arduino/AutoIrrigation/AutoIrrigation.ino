@@ -59,7 +59,7 @@
 #include "DeepSleepHandler.h"
 #include "NNR_LEDHandler.h"
 #include "AnalogMux.h"
-#include "OTALib.h"
+#include "NNR_OTAupdate.h"
 #include "cli.h"
 #include <LogLib.h>
 #include "WaterValve.h"

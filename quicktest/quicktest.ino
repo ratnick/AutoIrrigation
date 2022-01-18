@@ -18,7 +18,7 @@
 
 // the setup function runs once when you press reset or power the board
 // OTA upload
-#include "OTALib.h"
+#include "NNR_OTAupdate.h"
 #include <LEAmDNS_Priv.h>
 #include <LEAmDNS_lwIPdefs.h>
 #include <LEAmDNS.h>
