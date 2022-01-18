@@ -18,7 +18,7 @@ void WaterSensorClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHa
 	humLimit = WATER_VALUE + humLimitPct * (DRY_VALUE - WATER_VALUE) / 100.0;
 
 	pinMode(pinNbr, INPUT);
-	LogLine(2, __FUNCTION__, "MUX channel:" + String(muxChannel) + " analog pin:" + String(pinNbr) + " name:" + String(name));
+//	LogLine(2, __FUNCTION__, "MUX channel:" + String(muxChannel) + " analog pin:" + String(pinNbr) + " name:" + String(name));
 }
 
 void WaterSensorClass::SethumLimitPct(int _humLimitPct) {
@@ -30,7 +30,7 @@ float WaterSensorClass::ReadSensor() {
 	int raw = 0;
 	float res = 0;
 
-	LogLine(4, __FUNCTION__, "READING HUMIDITY FROM analog MUX channel " + String(muxChannel));
+//	LogLine(4, __FUNCTION__, "READING HUMIDITY FROM analog MUX channel " + String(muxChannel));
 	delay(500);  // allow voltage to settle after valve open
 	AnalogMux.OpenChannel(muxChannel);
 	for (int i = 0; i < 8; i++) {
@@ -40,7 +40,7 @@ float WaterSensorClass::ReadSensor() {
 	}
 	AnalogMux.CloseMUXpwr();
 	res /= 8;
-	LogLine(2, __FUNCTION__, "Value: " + String(res));
+//	LogLine(2, __FUNCTION__, "Value: " + String(res));
 	return res;
 }
 
@@ -49,7 +49,7 @@ float WaterSensorClass::GetHumidityPct() {
 	hum = ((DRY_VALUE - this->lastAnalogueReadingWater) / (DRY_VALUE - WATER_VALUE) * 100.0);
 	if (hum < 0) { hum = 0; }
 	if (hum > 100) { hum = 100; }
-	LogLine(3, __FUNCTION__,
+/*	LogLine(3, __FUNCTION__,
 		"  water=" + String(WATER_VALUE) +
 		"  lastAna=" + String(this->lastAnalogueReadingWater) +
 		"  dry=" + String(DRY_VALUE) +
@@ -57,7 +57,7 @@ float WaterSensorClass::GetHumidityPct() {
 		"  dry-water=" + String(DRY_VALUE - WATER_VALUE) +
 		"  hum=" + String(hum) +
 		"  humLimPct=" + String(this->humLimitPct));
-	return hum;
+*/	return hum;
 }
 
 boolean WaterSensorClass::CheckIfWater() {

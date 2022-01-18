@@ -21,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testPersistentMemory", "..\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Firebase_PersistentMemory", "..\..\src\Arduino\libraries\Firebase_PersistentMemory\Firebase_PersistentMemory.vcxitems", "{BD6D97A1-6800-463F-BEDC-11F066E86EBE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NNR_LEDHandler", "NNR_LEDHandler\NNR_LEDHandler.vcxitems", "{3646138C-DEA3-430F-A6C0-4573B2F0DD85}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

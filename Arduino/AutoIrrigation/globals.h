@@ -16,7 +16,6 @@ const int LED_PIN = LED_BUILTIN;
 //#define MAX_KEPT_LOGLINES 5
 //#define MAX_LINE_LENGTH 100
 #define MAX_WAKEUPTIMES 4
-#define WAKEUP_IDX_SIMPLEDELAY 3  // Used to deep sleep for a number of seconds
 
 struct PersistentDataStruct {
 	// Metadata

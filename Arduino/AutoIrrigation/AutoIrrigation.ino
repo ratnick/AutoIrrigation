@@ -5,7 +5,11 @@
 */
 
 // Including the libraries below, allows to turn off Deep Search in libraries => faster compiling
+#include "FirebaseModel.h"
 #include "FirebaseLib.h"
+//#include "Firebase_PersistentMemory.h"
+#include <jsmn.h>
+#include <FirebaseJson.h>
 #include <WifiLib.h>
 #include <SysCall.h>
 #include <sdios.h>
@@ -49,10 +53,10 @@
 #include <time.h>
 
 // own libraries
-#include "PersistentMemory.h"
-#include "DeepSleepHandler.h"
 #include "globals.h"
 #include "ciotc_config.h" // Wifi configuration here
+#include "PersistentMemory.h"
+#include "DeepSleepHandler.h"
 #include "LEDHandler.h"
 #include "AnalogMux.h"
 #include "OTALib.h"
@@ -334,10 +338,11 @@ void CreateNewDevice() {
 
 	InitPersistentMemoryIfNeeded();
 
+/* NNR 220118
 	PersistentMemory.AddMetadataJson(&jsoMetadata);
 	PersistentMemory.AddStateJson(&jsoState);
 	PersistentMemory.AddSettingsJson(&jsoSettings);
-
+*/
 	res = SendToFirebase(set, "metadata", jsoMetadata, firebaseData);
 	res = SendToFirebase(set, "state", jsoState, firebaseData);
 	res = SendToFirebase(set, "settings", jsoSettings, firebaseData);
