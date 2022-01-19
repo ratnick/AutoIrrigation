@@ -7,7 +7,7 @@
 // Including the libraries below, allows to turn off Deep Search in libraries => faster compiling
 #include "FirebaseModel.h"
 #include "NNR_FirebaseDatabase.h"
-//#include "Firebase_PersistentMemory.h"
+#include "NNR_Firebase_PersistentMemory.h"
 #include <jsmn.h>
 #include <FirebaseJson.h>
 #include <NNR_Wifi.h>
@@ -338,11 +338,10 @@ void CreateNewDevice() {
 
 	InitPersistentMemoryIfNeeded();
 
-/* NNR 220118
-	PersistentMemory.AddMetadataJson(&jsoMetadata);
-	PersistentMemory.AddStateJson(&jsoState);
-	PersistentMemory.AddSettingsJson(&jsoSettings);
-*/
+	AddMetadataJson(&jsoMetadata, &PersistentMemory.ps);
+	AddStateJson(&jsoState, &PersistentMemory.ps);
+	AddSettingsJson(&jsoSettings, &PersistentMemory.ps);
+
 	res = SendToFirebase(set, "metadata", jsoMetadata, firebaseData);
 	res = SendToFirebase(set, "state", jsoState, firebaseData);
 	res = SendToFirebase(set, "settings", jsoSettings, firebaseData);

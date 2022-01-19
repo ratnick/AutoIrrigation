@@ -13,8 +13,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoIrrigation", "Arduino\A
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testPersistentMemory", "..\..\src\Arduino\testPersistentMemory\testPersistentMemory.vcxproj", "{8E76C318-68D3-4029-A8AB-A37685EF1904}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Firebase_PersistentMemory", "..\..\src\Arduino\libraries\Firebase_PersistentMemory\Firebase_PersistentMemory.vcxitems", "{BD6D97A1-6800-463F-BEDC-11F066E86EBE}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
