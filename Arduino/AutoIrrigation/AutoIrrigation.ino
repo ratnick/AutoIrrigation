@@ -6,7 +6,7 @@
 
 // Including the libraries below, allows to turn off Deep Search in libraries => faster compiling
 #include "FirebaseModel.h"
-#include "FirebaseLib.h"
+#include "NNR_FirebaseDatabase.h"
 //#include "Firebase_PersistentMemory.h"
 #include <jsmn.h>
 #include <FirebaseJson.h>
