@@ -4,7 +4,7 @@
  
 #include "VoltMeter.h"
 #include "AnalogMux.h"
-#include "PersistentMemory.h"
+#include "NNR_PersistentMemory.h"
 
 float MAX_VOLTAGE = 4.0;
 float factor = MAX_VOLTAGE / 1024.0;  // 3.3 = max voltage on A0, https://arduinodiy.wordpress.com/2016/12/25/monitoring-lipo-battery-voltage-with-wemos-d1-minibattery-shield-and-thingspeak/

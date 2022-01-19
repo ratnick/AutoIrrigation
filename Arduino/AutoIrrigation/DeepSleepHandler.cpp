@@ -1,5 +1,5 @@
 #include "DeepSleepHandler.h"
-#include "PersistentMemory.h"
+#include "NNR_PersistentMemory.h"
 #include "NNR_Logging.h"
 #include <TimeLib.h>
 

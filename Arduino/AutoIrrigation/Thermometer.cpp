@@ -4,7 +4,7 @@
 
 #include "Thermometer.h"
 #include "AnalogMux.h"
-#include "PersistentMemory.h"
+#include "NNR_PersistentMemory.h"
 
 #define NBR_OF_SAMPLES 1  // how many samples to average over
 

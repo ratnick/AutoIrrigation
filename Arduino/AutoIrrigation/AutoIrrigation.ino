@@ -55,7 +55,7 @@
 // own libraries
 #include "globals.h"
 #include "ciotc_config.h" // Wifi configuration here
-#include "PersistentMemory.h"
+#include "NNR_PersistentMemory.h"
 #include "DeepSleepHandler.h"
 #include "NNR_LEDHandler.h"
 #include "AnalogMux.h"
