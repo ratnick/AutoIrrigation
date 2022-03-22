@@ -3,8 +3,9 @@
 // 
 
 #include "WaterValve.h"
-#include "NNR_Logging.h"
-#include "NNR_OTAupdate.h"
+#include <NNR_Logging.h>
+#include <NNR_OTAupdate.h>
+#include <FiresbaseJSON.h>
 
 void WaterValveClass::init(int _pinNbr, char _name[], int _openSeconds, int _soakSeconds) {
 	strcpy(name, _name);
@@ -37,27 +38,29 @@ void WaterValveClass::SetvalveSoakTime(int valveSoakTime_) {
 }
 
 void WaterValveClass::OpenValve() {
-	lastOpenTimestamp = TimeString();
-	LogLine(2, __FUNCTION__, "");
+	char timeStr[50];
+	L::TimeString(timeStr);
+	lastOpenTimestamp = timeStr;
+	L::LogLine(2, __FUNCTION__, "");
 	digitalWrite(pinNbr, OPEN_VALVE);
 	digitalWrite(LED_BUILTIN, LOW);
 	valveState = 1;
 }
 
 void WaterValveClass::KeepOpen() {
-	LogLinef(4, __FUNCTION__, "openSeconds=%d", openSeconds);
+	L::LogLinef(4, __FUNCTION__, "openSeconds=%d", openSeconds);
 	delayNonBlocking(1000 * openSeconds);
 }
 
 void WaterValveClass::CloseValve() {
-	LogLine(2, __FUNCTION__, "");
+	L::LogLine(2, __FUNCTION__, "");
 	digitalWrite(pinNbr, CLOSE_VALVE);
 	digitalWrite(LED_BUILTIN, HIGH);
 	valveState = 0;
 }
 
 void WaterValveClass::WaitToSoak() {
-	LogLinef(4, __FUNCTION__, "soakSeconds=%d", soakSeconds);
+	L::LogLinef(4, __FUNCTION__, "soakSeconds=%d", soakSeconds);
 	delayNonBlocking(1000 * soakSeconds);
 }
 

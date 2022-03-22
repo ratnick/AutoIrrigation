@@ -15,7 +15,8 @@ void ThermometerClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHa
 	pinNbr = _pinNbr;
 	muxChannel = _muxChannel;
 
-	SensorHandlerClass::SensorType sensorType = _sensorType;
+	this->sensorType = _sensorType;
+	//SensorHandlerClass::SensorType sensorType = _sensorType;
 	lastAnalogueReadingTemp = 0.0;
 	lastAnalogueReadingHumidity = 0.0;
 
@@ -25,14 +26,14 @@ void ThermometerClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHa
 	else {
 		dht.setup(_pinNbr, DHTesp::AUTO_DETECT); // Connect DHT sensor to GPIO DIGITAL_IN_PIN
 	}
-	LogLinef(3, __FUNCTION__, "MUX channel:%d analog pin:%d   name:%s  ", muxChannel, pinNbr, name);
+	L::LogLinef(3, __FUNCTION__, "MUX channel:%d analog pin:%d   name:%s  ", muxChannel, pinNbr, name);
 }
 
 void  ThermometerClass::AddTelemetryJson(FirebaseJson* json) {
 	float val = this->ReadTemperature();
 	if (!isnan(val)) {
 		this->tempTm.temperature = (double)val;
-		LogLinef(4, __FUNCTION__, " temp raw val=%f    tempTm.temperature=%f", val, tempTm.temperature);
+		L::LogLinef(4, __FUNCTION__, " temp raw val=%f    tempTm.temperature=%f", val, tempTm.temperature);
 		json->add("Temp", this->tempTm.temperature);
 
 		this->tempTm.lastAnalogueReadingTemp = (int)this->GetlastAnalogueReadingTemperature();
@@ -47,17 +48,17 @@ void  ThermometerClass::AddTelemetryJson(FirebaseJson* json) {
 			json->add("lastAnalog", this->tempTm.lastAnalogueReadingHumidity);
 		}
 		else {
-			LogLine(0, __FUNCTION__, "NO DHT SENSOR READING HUMIDITY ONLY. Is it connected at all?");
+			L::LogLine(0, __FUNCTION__, "NO DHT SENSOR READING HUMIDITY ONLY. Is it connected at all?");
 		}
 
 	}
 	else {
-		LogLine(0, __FUNCTION__, "NO DHT SENSOR READING. Is it connected at all?");
+		L::LogLine(0, __FUNCTION__, "NO DHT SENSOR READING. Is it connected at all?");
 	}
 }
 
 float ConvertDHT22NegativeReading(float in) {
-	LogLinef(3, __FUNCTION__, "in=%f", in);
+	L::LogLinef(3, __FUNCTION__, "in=%f", in);
 	if (in < 0) {
 		return -(in + 3276.8);
 
@@ -73,13 +74,13 @@ float ThermometerClass::ReadTemperature() {
 	int bufSize = NBR_OF_SAMPLES;  // average over this amount of samples
 
 	if (this->sensorType == SensorHandlerClass::Thermometer) {
-		LogLinef(3, __FUNCTION__, "READING TEMPERATURE FROM analog MUX channel %d", muxChannel);
+		L::LogLinef(3, __FUNCTION__, "READING TEMPERATURE FROM analog MUX channel %d", muxChannel);
 		AnalogMux.OpenChannel(muxChannel);
 		res = analogRead(pinNbr);
 		AnalogMux.CloseMUXpwr();
 	}
 	else {
-		LogLinef(3, __FUNCTION__, "READING TEMPERATURE FROM digital thermometer pin %d", this->pinNbr);
+		L::LogLinef(3, __FUNCTION__, "READING TEMPERATURE FROM digital thermometer pin %d", this->pinNbr);
 		sumRes = 0.0;
 
 		for (int i = 0; i < bufSize; i++) {
@@ -89,7 +90,7 @@ float ThermometerClass::ReadTemperature() {
 		res = sumRes / bufSize;
 	}
 
-	LogLinef(2, __FUNCTION__, "temperature = %f ", res);
+	L::LogLinef(2, __FUNCTION__, "temperature = %f ", res);
 	this->lastAnalogueReadingTemp = res;
 	return (this->lastAnalogueReadingTemp);
 }
@@ -102,7 +103,7 @@ float ThermometerClass::ReadHumidity() {
 	if (this->sensorType == SensorHandlerClass::Thermometer) {
 	}
 	else {
-		LogLinef(3, __FUNCTION__, "READING HUMIDITY FROM digital thermometer pin %d", this->pinNbr);
+		L::LogLinef(3, __FUNCTION__, "READING HUMIDITY FROM digital thermometer pin %d", this->pinNbr);
 		sumRes = 0.0;
 		for (int i = 0; i < bufSize; i++) {
 			delayNonBlocking(dht.getMinimumSamplingPeriod() * 3);
@@ -110,7 +111,7 @@ float ThermometerClass::ReadHumidity() {
 		}
 		res = sumRes / bufSize;
 	}
-	LogLinef(1, __FUNCTION__, "humidity = %f pct", (double) res);
+	L::LogLinef(1, __FUNCTION__, "humidity = %f pct", (double) res);
 	this->lastAnalogueReadingHumidity = res;
 	return (this->lastAnalogueReadingHumidity);
 }

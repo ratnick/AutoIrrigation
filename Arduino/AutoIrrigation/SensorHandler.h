@@ -10,8 +10,7 @@
 #endif
 
 // Used by subclasses
-#include <jsmn.h>
-#include <FirebaseJson.h>
+//#include <jsmn.h>
 #include <NNR_Logging.h>
 #include <NNR_OTAupdate.h>
 
