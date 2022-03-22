@@ -407,3 +407,7 @@ docs/pics/IMG_20191217_200341.jpg
 *.lock
 *.properties
 *.bin
+PCB/archive/irrigation v5.2/irrigation v5.2-cache.lib
+PCB/archive/irrigation v5.2/irrigation v5.2.bak
+PCB/archive/irrigation v5.3/irrigation v5.3-cache.lib
+PCB/archive/irrigation v5.3/irrigation v5.3.bak
