@@ -7,22 +7,21 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
-
-import com.jjoe64.graphview.DefaultLabelFormatter;
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.GridLabelRenderer;
-import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
-import com.vanding.datamodel.DeviceSettings;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
+import com.jjoe64.graphview.DefaultLabelFormatter;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
+import com.vanding.datamodel.DeviceSettings;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -35,13 +34,26 @@ import butterknife.ButterKnife;
 import static android.graphics.Color.BLUE;
 import static android.graphics.Color.WHITE;
 import static android.graphics.Color.YELLOW;
-import static com.vanding.irrigation.FirebaseService.*;
-import static com.vanding.irrigation.db.*;
-import static com.vanding.irrigation.Common.*;
+import static com.vanding.irrigation.Common.RoundToNearestNiceNumber;
+import static com.vanding.irrigation.FirebaseService.ActionType;
+import static com.vanding.irrigation.FirebaseService.CODE_OK;
+import static com.vanding.irrigation.FirebaseService.DEVICE_NBR;
+import static com.vanding.irrigation.FirebaseService.FIREBASE_SERVICE_ID;
+import static com.vanding.irrigation.FirebaseService.WORK_DONE;
+import static com.vanding.irrigation.db.DEVICE_TYPE_DIST;
+import static com.vanding.irrigation.db.DEVICE_TYPE_DIST_STR;
+import static com.vanding.irrigation.db.DEVICE_TYPE_GAS;
+import static com.vanding.irrigation.db.DEVICE_TYPE_GAS_STR;
+import static com.vanding.irrigation.db.DEVICE_TYPE_HUMTEMP;
+import static com.vanding.irrigation.db.DEVICE_TYPE_HUMTEMP_STR;
+import static com.vanding.irrigation.db.DEVICE_TYPE_SOIL;
+import static com.vanding.irrigation.db.DEVICE_TYPE_SOIL_STR;
+import static com.vanding.irrigation.db.dbDeviceReference;
+import static com.vanding.irrigation.db.dbIrrDevice;
+import static com.vanding.irrigation.db.dbSelectedIrrDeviceK;
 
 
-
-public class SingleDevice extends AppCompatActivity {
+public class SingleDeviceDynamic extends AppCompatActivity {
 
     @BindView(R.id.purgeButton)                 Button purgeButton;
     @BindView(R.id.refreshButton)               Button refreshButton;
@@ -93,11 +105,11 @@ public class SingleDevice extends AppCompatActivity {
         DisplayDeviceData();
         Intent commandIntent = new Intent(this, FirebaseService.class);
         commandIntent.putExtra(FirebaseService.DEVICE_NBR, selectedDevice);
-        startFirebaseService(FirebaseService.ActionType.LOAD_DEVICE_TELEMETRY, commandIntent);
+        startFirebaseService(ActionType.LOAD_DEVICE_TELEMETRY, commandIntent);
 
         purgeButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(SingleDevice.this, PurgeLog.class);
+                Intent intent = new Intent(SingleDeviceDynamic.this, PurgeLog.class);
                 intent.putExtra(DEVICE_NBR, dbSelectedIrrDeviceK);
                 intent.putExtra(PurgeLog.PURGE_TYPE, PurgeLog.PURGE_LOG);
                 startActivity(intent);
@@ -112,8 +124,8 @@ public class SingleDevice extends AppCompatActivity {
             public void onClick(View v) {
                 Intent commandIntent2 = new Intent(getApplicationContext(), FirebaseService.class);
                 commandIntent2.putExtra(FirebaseService.DEVICE_NBR, selectedDevice);
-                startFirebaseService(FirebaseService.ActionType.LOAD_DEVICE_BASICS, commandIntent2);
-                startFirebaseService(FirebaseService.ActionType.LOAD_DEVICE_TELEMETRY, commandIntent2);
+                startFirebaseService(ActionType.LOAD_DEVICE_BASICS, commandIntent2);
+                startFirebaseService(ActionType.LOAD_DEVICE_TELEMETRY, commandIntent2);
 
                 DisplayDeviceData();
                 Context context = getApplicationContext();
@@ -124,7 +136,7 @@ public class SingleDevice extends AppCompatActivity {
 
         detailButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(SingleDevice.this, DetailedGraph.class);
+                Intent intent = new Intent(SingleDeviceDynamic.this, DetailedGraph.class);
                 intent.putExtra(DEVICE_NBR, dbSelectedIrrDeviceK);
                 startActivity(intent);
             }
@@ -188,11 +200,11 @@ public class SingleDevice extends AppCompatActivity {
         dbDeviceReference[dbSelectedIrrDeviceK].child("settings").child("Updated").setValue(true);
     }
 
-    private void startFirebaseService(FirebaseService.ActionType sendType, Intent commandIntent) {
+    private void startFirebaseService(ActionType sendType, Intent commandIntent) {
 
         PendingIntent returnIntent = createPendingResult(
                 FirebaseService.FIREBASE_SERVICE_ID,
-                new Intent(this, SingleDevice.class),0);
+                new Intent(this, SingleDeviceDynamic.class),0);
         commandIntent.putExtra(FirebaseService.ACTION_TYPE, sendType);
         commandIntent.putExtra(FirebaseService.PENDING_RESULT, returnIntent);
         startService(commandIntent);
@@ -202,7 +214,7 @@ public class SingleDevice extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
         if (requestCode == FIREBASE_SERVICE_ID) {
             if (resultCode == CODE_OK) {
-                FirebaseService.ActionType actionPerformed = (FirebaseService.ActionType) returnIntent.getSerializableExtra(WORK_DONE);
+                ActionType actionPerformed = (ActionType) returnIntent.getSerializableExtra(WORK_DONE);
                 processServiceReturn(actionPerformed, returnIntent);
             } else {
                 // here we could either fail silently or pop a dialog or Toast up informing the user there was a problem.
@@ -211,7 +223,7 @@ public class SingleDevice extends AppCompatActivity {
     }
 
     /* Finally, once we are here we know the service call succeeded and we can act accordingly. */
-    private void processServiceReturn(FirebaseService.ActionType action, Intent returnIntent){
+    private void processServiceReturn(ActionType action, Intent returnIntent){
         switch(action){
             case LOAD_DEVICE_BASICS:
             case LOAD_DEVICE_TELEMETRY:

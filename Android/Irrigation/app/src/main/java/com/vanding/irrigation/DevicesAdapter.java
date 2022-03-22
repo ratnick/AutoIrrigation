@@ -27,6 +27,7 @@ import static android.graphics.Color.BLACK;
 import static android.graphics.Color.RED;
 import static android.graphics.Color.YELLOW;
 import static com.vanding.irrigation.FirebaseService.DEVICE_NBR;
+import static com.vanding.irrigation.db.DEVICE_TYPE_DIST_STR;
 import static com.vanding.irrigation.db.DEVICE_TYPE_GAS_STR;
 import static com.vanding.irrigation.db.DEVICE_TYPE_HUMTEMP;
 import static com.vanding.irrigation.db.DEVICE_TYPE_HUMTEMP_STR;
@@ -152,6 +153,12 @@ public class DevicesAdapter extends
             case DEVICE_TYPE_HUMTEMP_STR:
                 tVal1.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Hum));
                 tUnit1.setText(String.format("%%"));
+                tVal2.setText(String.format("%.1f", dbIrrDevice[position].telemetry_current.Temp));
+                tUnit2.setText(String.format("C"));
+                break;
+            case DEVICE_TYPE_DIST_STR:
+                tVal1.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Dist));
+                tUnit1.setText(String.format("cm"));
                 tVal2.setText(String.format("%.1f", dbIrrDevice[position].telemetry_current.Temp));
                 tUnit2.setText(String.format("C"));
                 break;

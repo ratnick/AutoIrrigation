@@ -177,5 +177,4 @@ public class MainActivity extends AppCompatActivity {
         }
         mBackPressed = System.currentTimeMillis();
     }
-
 }

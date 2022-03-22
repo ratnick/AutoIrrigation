@@ -9,6 +9,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.jjoe64.graphview.series.DataPoint;
+import com.vanding.datamodel.DeviceSettings;
 import com.vanding.datamodel.IrrDevice;
 import com.vanding.datamodel.IrrDeviceMetadata;
 import com.vanding.datamodel.IrrDeviceSettings;
@@ -16,6 +17,7 @@ import com.vanding.datamodel.IrrDeviceState;
 import com.vanding.datamodel.IrrDeviceTelemetry;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +37,9 @@ public class FirebaseObject implements Serializable {
 
     private static IrrDeviceTelemetry[] tm;
     private static int nbrOfTmPoints;
+
+    // global constants
+    private static DeviceSettings ds; {  ds = new DeviceSettings(); }
 
     public FirebaseObject() {
     }
@@ -146,20 +151,24 @@ public class FirebaseObject implements Serializable {
                                     if(LastTimestampIsOK(dataSnapshot)) {
                                         switch (dbIrrDevice[k].metadata.sensorType) {
                                             case DEVICE_TYPE_SOIL_STR:
-                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData( "Hum"));
-                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData( "vlvState"));
-                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData("Vcc"));
+                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNamePrim1));
+                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNamePrim2));
+                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNameSec1));
                                                 break;
                                             case DEVICE_TYPE_GAS_STR:
-                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData( "cur_ppm"));
-                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData( "phase"));
-                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData( "Wifi"));
+                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNamePrim1));
+                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNamePrim2));
+                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNameSec1));
                                                 break;
                                             case DEVICE_TYPE_HUMTEMP_STR:
-                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData( "Temp"));
-                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData( "DewTemp"));
-                                                //dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData( "Wifi"));
-                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData("Hum"));
+                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNamePrim1));
+                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNamePrim2));
+                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNameSec1));
+                                                break;
+                                            case DEVICE_TYPE_DIST_STR:
+                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNamePrim1));
+                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNamePrim2));
+                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNameSec1));
                                                 break;
 
                                             default:
@@ -209,22 +218,27 @@ public class FirebaseObject implements Serializable {
                     LoadDataSnapshop(dataSnapshot);
                     switch (dbIrrDevice[i].metadata.sensorType) {
                         case DEVICE_TYPE_SOIL_STR:
-                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData( "Vcc"));
-                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData( "Hum"));
-                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData( "vlvState"));
+                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNamePrim1));
+                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNamePrim2));
+                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNameSec1));
                             dbDeviceLoaded[i] = true;
                             break;
                         case DEVICE_TYPE_GAS_STR:
-                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData( "Wifi"));
-                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData( "cur_ppm"));
-                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData( "phase"));
+                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNamePrim1));
+                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNamePrim2));
+                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNameSec1));
                             dbDeviceLoaded[i] = true;
                             break;
                         case DEVICE_TYPE_HUMTEMP_STR:
-                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData( "Temp"));
-                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData( "DewTemp"));
-                            //dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData( "Wifi"));
-                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData("Hum"));
+                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNamePrim1));
+                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNamePrim2));
+                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNameSec1));
+                            dbDeviceLoaded[i] = true;
+                            break;
+                        case DEVICE_TYPE_DIST_STR:
+                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNamePrim1));
+                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNamePrim2));
+                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNameSec1));
                             dbDeviceLoaded[i] = true;
                             break;
                         default:
@@ -238,7 +252,6 @@ public class FirebaseObject implements Serializable {
             }
         );
     }
-
 
     private void LoadDataSnapshop(DataSnapshot ds){
         // are we on telemetry level or on child level?
@@ -267,8 +280,8 @@ public class FirebaseObject implements Serializable {
                 }
                 last_timestamp = tm[i].timestamp;
                 i++;
-            } catch(Exception e) {
-                int x = 0;  //NNR
+            } catch (Exception e){  //protect from badly formed data
+                i = i;
             }
         }
     }
@@ -353,55 +366,59 @@ public class FirebaseObject implements Serializable {
             int i = 0;
             IrrDeviceTelemetry post;
 
-            switch (parameterName) {
-                case "Vcc":
-                    for (i=0;i<nbrOfTmPoints;i++) {
-                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].Vcc);
-                        values[i] = v;
+            while(i < nbrOfTmPoints) {
+                try {
+                    switch (parameterName) {
+                        case "Vcc":
+                            for (i = i; i < nbrOfTmPoints; i++) {
+                                values[i] = new DataPoint(tm[i].timestamp, tm[i].Vcc);
+                            }
+                            break;
+                        case "Hum":
+                            for (i = i; i < nbrOfTmPoints; i++) {
+                                values[i] = new DataPoint(tm[i].timestamp, tm[i].Hum);
+                            }
+                            break;
+                        case "DewTemp":
+                            for (i = i; i < nbrOfTmPoints; i++) {
+                                values[i] = new DataPoint(tm[i].timestamp, calcDewTemp(tm[i].Hum+50, tm[i].Temp));
+                            }
+                            break;
+                        case "Temp":
+                            for (i = i; i < nbrOfTmPoints; i++) {
+                                values[i] = new DataPoint(tm[i].timestamp, tm[i].Temp);
+                            }
+                            break;
+                        case "Dist":
+                            for (i = i; i < nbrOfTmPoints; i++) {
+                                values[i] = new DataPoint(tm[i].timestamp, tm[i].Dist);
+                            }
+                            break;
+                        case "cur_ppm":
+                            for (i = i; i < nbrOfTmPoints; i++) {
+                                values[i] = new DataPoint(tm[i].timestamp, tm[i].last_ppm);
+                            }
+                            break;
+                        case "phase":
+                            for (i = i; i < nbrOfTmPoints; i++) {
+                                values[i] = new DataPoint(tm[i].timestamp, tm[i].phase);
+                            }
+                            break;
+                        case "Wifi":
+                            for (i = i; i < nbrOfTmPoints; i++) {
+                                values[i] = new DataPoint(tm[i].timestamp, tm[i].Wifi);
+                            }
+                            break;
+                        default:
+                            int except = 0 / 0;   // parameter not known
                     }
-                    break;
-                case "Hum":
-                    for (i=0;i<nbrOfTmPoints;i++) {
-                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].Hum);
-                        values[i] = v;
-                    }
-                    break;
-                case "DewTemp":
-                    for (i=0;i<nbrOfTmPoints;i++) {
-                        DataPoint v = new DataPoint(tm[i].timestamp, calcDewTemp(tm[i].Hum+50, tm[i].Temp));
-                        values[i] = v;
-                    }
-                    break;
-                case "Temp":
-                    for (i=0;i<nbrOfTmPoints;i++) {
-                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].Temp);
-                        values[i] = v;
-                    }
-                    break;
-                case "cur_ppm":
-                    for (i=0;i<nbrOfTmPoints;i++) {
-                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].last_ppm);  // cur_ppm is the current measured CO value. last_ppm is the last CORRECT measurement
-                        values[i] = v;
-                    }
-                    break;
-                case "phase":
-                    for (i=0;i<nbrOfTmPoints;i++) {
-                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].phase);
-                        values[i] = v;
-                    }
-                    break;
-                case "Wifi":
-                    for (i=0;i<nbrOfTmPoints;i++) {
-                        DataPoint v = new DataPoint(tm[i].timestamp, tm[i].Wifi); // default: wifi
-                        values[i] = v;
-                    }
-                    break;
-                default:
-                    int except = 0/0;
+                } catch (Exception e) {  //protect from badly formed data
+                    values[i] = values[i - 1];
+                    i++;
+                }
             }
             return values;
         }
-
     }
 
     public void PurgeLogAndTeleData(int deviceNbr, int keepTeleDays, int keepLogDays) {

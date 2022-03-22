@@ -19,6 +19,9 @@ public class IrrDeviceTelemetry {
     // DHT11 humidity and temperature
     public float Temp;
 
+    // Distance sensor
+    public float Dist;
+
     // gas sensor
     public float cur_ppm;
     public float last_ppm;
@@ -40,6 +43,9 @@ public class IrrDeviceTelemetry {
 
         // DHT11 humidity and temperature
         Temp = tm.Temp;
+
+        // Distance sensor
+        Dist = tm.Dist;
 
         // gas sensor
         cur_ppm = tm.cur_ppm;
