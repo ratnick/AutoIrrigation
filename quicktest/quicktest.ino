@@ -18,7 +18,7 @@
 
 // the setup function runs once when you press reset or power the board
 // OTA upload
-#include "OTALib.h"
+#include "NNR_OTAupdate.h"
 #include <LEAmDNS_Priv.h>
 #include <LEAmDNS_lwIPdefs.h>
 #include <LEAmDNS.h>
@@ -26,11 +26,11 @@
 #include <ESP8266mDNS.h>
 #include <ArduinoOTA.h>
 
-#include "LogLib.h"
+#include "NNR_Logging.h"
 #include "TimeLib.h"
 
 // Wifi
-#include <WifiLib.h>
+#include <NNR_Wifi.h>
 #include <Wire.h>
 Device device;
 const char timeServer[] = "0.dk.pool.ntp.org"; // Danish NTP Server 

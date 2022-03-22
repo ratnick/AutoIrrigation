@@ -11,7 +11,7 @@ void DistanceSensorClass::init(int _pinNbr, char _name[], int _muxChannel, Senso
 	distLimitCentimeter = _distLimit;
 
 	pinMode(pinNbr, INPUT);
-	LogLinef(2, __FUNCTION__, "MUX channel:%d   analog pin:%d   name:%s   _distLimit=%d    _sensorType=%d", muxChannel, pinNbr, name, _distLimit, this->sensorType);
+	L::LogLinef(2, __FUNCTION__, "MUX channel:%d   analog pin:%d   name:%s   _distLimit=%d    _sensorType=%d", muxChannel, pinNbr, name, _distLimit, this->sensorType);
 }
 
 void DistanceSensorClass::AddTelemetryJson(FirebaseJson* json) {
@@ -35,13 +35,13 @@ float DistanceSensorClass::ReadSensor() {
 		AVG_COUNT = 3;
 	}
 
-	LogLinef(3, __FUNCTION__, "READING DISTANCE FROM analog MUX channel %d pin %d", muxChannel, this->pinNbr);
+	L::LogLinef(3, __FUNCTION__, "READING DISTANCE FROM analog MUX channel %d pin %d", muxChannel, this->pinNbr);
 	AnalogMux.OpenChannel(muxChannel);
 	delayNonBlocking(100);
 	for (int i = 0; i < AVG_COUNT; i++) {
 		delayNonBlocking(50);
 		raw = analogRead(this->pinNbr);
-		LogLinef(5, __FUNCTION__, "Value: %f", raw);
+		L::LogLinef(5, __FUNCTION__, "Value: %f", raw);
 		res += raw;
 	}
 	//	delayNonBlocking(100);
@@ -49,32 +49,34 @@ float DistanceSensorClass::ReadSensor() {
 	res /= AVG_COUNT;
 	this->lastAnalogueReadingDist = res;
 
-	LogLinef(2, __FUNCTION__, "Distance raw value: %f", res);
+	L::LogLinef(2, __FUNCTION__, "Distance raw value: %f", res);
 	return res;
 }
 
 float DistanceSensorClass::GetDistanceCentimeter() {
 
 	float adjFactor = 1.8;   // rough measure
-	float cm;
+	float cm = 0;
 	switch (this->sensorType) {
 		case SensorHandlerClass::DistanceSensor:
-			LogLinef(5, __FUNCTION__, "lastAnalogueReadingDist Value: %f", this->lastAnalogueReadingDist);
+			L::LogLinef(5, __FUNCTION__, "lastAnalogueReadingDist Value: %f", this->lastAnalogueReadingDist);
 /*			cm = adjFactor * pow(3027.4 / this->lastAnalogueReadingDist, 1.2134); //convert readings to distance(cm)
 			if (cm < 10) { cm = 10; }
 			if (cm > 120) { cm = 120; }
 */
 			cm = this->lastAnalogueReadingDist;
 			break;
+		default:
+			L::LogLine(1, __FUNCTION__, "unexpected sensor type");
+			break;
 	}
 
-	LogLinef(3, __FUNCTION__, "  raw=%f  cm=%f", this->lastAnalogueReadingDist, cm);
+	L::LogLinef(3, __FUNCTION__, "  raw=%f  cm=%f", this->lastAnalogueReadingDist, cm);
 	return cm;
 }
 
 boolean DistanceSensorClass::CheckIfWater() {
 	float res = 0;
-	int raw = 0;
 	boolean val;
 
 	val = DRY;
@@ -82,11 +84,11 @@ boolean DistanceSensorClass::CheckIfWater() {
 		res = this->ReadSensor();
 		this->lastAnalogueReadingDist = res;
 		if (GetDistanceCentimeter() <= this->distLimitCentimeter) {   // the greater distance, the less water
-			LogLine(3, __FUNCTION__, "  Soil or reservoir is WET");
+			L::LogLine(3, __FUNCTION__, "  Soil or reservoir is WET");
 			val = WET;
 		}
 		else {
-			LogLine(3, __FUNCTION__, "  Soil or reservoir is DRY");
+			L::LogLine(3, __FUNCTION__, "  Soil or reservoir is DRY");
 			val = DRY;
 		}
 	}
@@ -109,20 +111,20 @@ float DistanceSensorClass::TestSensor() {
 		AVG_COUNT = 3;
 	}
 
-	LogLinef(3, __FUNCTION__, "READING DISTANCE FROM analog MUX channel %d pin %d", muxChannel, this->pinNbr);
+	L::LogLinef(3, __FUNCTION__, "READING DISTANCE FROM analog MUX channel %d pin %d", muxChannel, this->pinNbr);
 	AnalogMux.OpenChannel(muxChannel);
 	delayNonBlocking(100);
 	for (int i = 0; i < AVG_COUNT; i++) {
 		delayNonBlocking(50);
 		raw = analogRead(this->pinNbr);
-		LogLinef(5, __FUNCTION__, "Value: %f", raw);
+		L::LogLinef(5, __FUNCTION__, "Value: %f", raw);
 		res += raw;
 	}
 //	delayNonBlocking(100);
 	AnalogMux.CloseMUXpwr();
 	res /= AVG_COUNT;
 	this->lastAnalogueReadingDist = res;
-	LogLinef(1, __FUNCTION__, "Raw average Value: %f", res);
+	L::LogLinef(1, __FUNCTION__, "Raw average Value: %f", res);
 	return res;
 
 }

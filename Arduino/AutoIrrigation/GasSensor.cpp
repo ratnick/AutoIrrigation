@@ -18,7 +18,7 @@ void GasSensorClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHand
 	lastAnalogueReading = 0.0;
 
 	pinMode(pinNbr, INPUT);
-	//log	LogLine(2, __FUNCTION__, "MUX channel:" + String(muxChannel) + " analog pin:" + String(pinNbr) + " name:" + String(name));
+	//log	L::LogLine(2, __FUNCTION__, "MUX channel:" + String(muxChannel) + " analog pin:" + String(pinNbr) + " name:" + String(name));
 }
 
 const int jsonMaxSize = 500;
@@ -27,10 +27,10 @@ char jsonStr[jsonMaxSize];
 boolean GasSensorClass::GetTelemetryJson(FirebaseJson *json) {
 	FirebaseJsonData jsonData;
 
-	LogLine(4, __FUNCTION__, "begin");
+	L::LogLine(4, __FUNCTION__, "begin");
 	if (ReadSerialJsonOnce(jsonStr, jsonMaxSize)) {
-		LogLine(4, __FUNCTION__, "fetched from serial port");
-		LogLine(4, __FUNCTION__, jsonStr);
+		L::LogLine(4, __FUNCTION__, "fetched from serial port");
+		L::LogLine(4, __FUNCTION__, jsonStr);
 
 		//	Serial.println(jsonStr);
 		json->setJsonData(jsonStr);
@@ -40,10 +40,10 @@ boolean GasSensorClass::GetTelemetryJson(FirebaseJson *json) {
 		json->get(jsonData, "last_ppm");	this->gasTm.last_CO_ppm_measurement = jsonData.doubleValue;
 		json->get(jsonData, "sens_val");	this->gasTm.sens_val = jsonData.doubleValue;
 		json->get(jsonData, "phase");		this->gasTm.phase = jsonData.intValue;
-		LogLine(4, __FUNCTION__, "finished");
+		L::LogLine(4, __FUNCTION__, "finished");
 		return true;
 	}
-	LogLine(2, __FUNCTION__, "no telemetry received from device via serial port");
+	L::LogLine(2, __FUNCTION__, "no telemetry received from device via serial port");
 	return false;
 }
 
@@ -73,7 +73,7 @@ float GasSensorClass::GetlastPPM() {
 }
 
 float GasSensorClass::TestSensor() {
-	float raw;
+	float raw=0;
 	for (int i = 0; i < 1; i++) {
 		//this->ReadSerialJsonOnce();
 		this->lastAnalogueReading = raw;
@@ -88,19 +88,19 @@ float ReadSensorNotUsed() {
 	int AVG_COUNT = 60;
 	float ppm = 0;
 
-	//log	LogLine(4, __FUNCTION__, "READING GAS LEVEL FROM analog MUX channel " + String(muxChannel));
+	//log	L::LogLine(4, __FUNCTION__, "READING GAS LEVEL FROM analog MUX channel " + String(muxChannel));
 	delayNonBlocking(10);  // allow voltage to settle after valve open
 	AnalogMux.OpenChannel(muxChannel);
 	for (int i = 0; i < AVG_COUNT; i++) {
 		delayNonBlocking(1000);
 		raw = analogRead(pinNbr);
 		res += raw;
-		//log 		LogLine(4, __FUNCTION__, "Raw Value: " + String(raw) );
+		//log 		L::LogLine(4, __FUNCTION__, "Raw Value: " + String(raw) );
 	}
 	AnalogMux.CloseMUXpwr();
 	res /= AVG_COUNT;
 	this->lastPPM = ConvertToPPM(res);
-	//log LogLine(1, __FUNCTION__, "Raw Value: " + String(res) + "  =  " + this->lastPPM + " ppm" );
+	//log L::LogLine(1, __FUNCTION__, "Raw Value: " + String(res) + "  =  " + this->lastPPM + " ppm" );
 	return res;
 }
 

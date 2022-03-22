@@ -5,23 +5,13 @@ VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "co_monitor", "..\AirQuality\Arduino\co_monitor\co_monitor.vcxproj", "{51B0E9DF-658C-4C10-BE3E-53AAAA141126}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OTALib", "..\..\src\Arduino\libraries\OTALib\OTALib.vcxitems", "{75E278E0-3391-4940-ABC9-8513E1912D3B}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "quicktest", "quicktest\quicktest.vcxproj", "{D943D1FF-CE8B-4260-B73B-E3BBC02D2098}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FirebaseLib", "..\..\src\Arduino\libraries\FirebaseLib\FirebaseLib.vcxitems", "{4815F3B6-1B96-4543-9DC7-0531506B7361}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestDistanceSensor", "TestDistanceSensor\TestDistanceSensor.vcxproj", "{D3BB1E1F-AD9E-4792-8BA4-9D101F77B12B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoIrrigation", "Arduino\AutoIrrigation\AutoIrrigation.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PersistentMemory", "..\..\src\Arduino\libraries\PersistentMemory\PersistentMemory.vcxitems", "{19325346-D335-4D0B-96DE-89756A53D579}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testPersistentMemory", "..\..\src\Arduino\testPersistentMemory\testPersistentMemory.vcxproj", "{8E76C318-68D3-4029-A8AB-A37685EF1904}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Firebase_PersistentMemory", "..\..\src\Arduino\libraries\Firebase_PersistentMemory\Firebase_PersistentMemory.vcxitems", "{BD6D97A1-6800-463F-BEDC-11F066E86EBE}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NNR_LEDHandler", "NNR_LEDHandler\NNR_LEDHandler.vcxitems", "{3646138C-DEA3-430F-A6C0-4573B2F0DD85}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

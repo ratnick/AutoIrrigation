@@ -17,6 +17,9 @@
 #define __ESP8266_ESP8266__
 #define __ets__
 #define ICACHE_FLASH
+#define _GNU_SOURCE
+#define MMU_IRAM_SIZE 0x8000
+#define MMU_ICACHE_SIZE 0x8000
 #define NONOSDK22x_190703 1
 #define F_CPU 80000000L
 #define LWIP_OPEN_SRC

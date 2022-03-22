@@ -9,8 +9,8 @@
 
 // general flags used during development and debugging
 #define DEBUGLEVEL 5					// Has dual function: 1) serving as default value for Firebase Logging (which can be modified at runtime). 2) Defining debug level on serial port.
-#define FORCE_NEW_VALUES false			// [default:false] True will overwrite all values in persistent memory. 
-										// To use: Enable once, disable and recompile
+#define FORCE_NEW_VALUES true			// [default:false] True will overwrite all values in persistent memory. 
+										// To use: Enable once, run, disable and recompile
 //#define USE_DEEP_SLEEP				   // [true] When enabling, connect D0 to RST (on Wemos D1 mini)
 //#define RUN_ONCE					   // Debug mode: no looping, just execute once
 

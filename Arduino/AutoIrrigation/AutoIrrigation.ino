@@ -6,11 +6,11 @@
 
 // Including the libraries below, allows to turn off Deep Search in libraries => faster compiling
 #include "FirebaseModel.h"
-#include "FirebaseLib.h"
-//#include "Firebase_PersistentMemory.h"
+#include "NNR_FirebaseDatabase.h"
+#include "NNR_Firebase_PersistentMemory.h"
 #include <jsmn.h>
 #include <FirebaseJson.h>
-#include <WifiLib.h>
+#include <NNR_Wifi.h>
 #include <SysCall.h>
 #include <sdios.h>
 #include <BlockDriver.h>
@@ -55,20 +55,19 @@
 // own libraries
 #include "globals.h"
 #include "ciotc_config.h" // Wifi configuration here
-#include "PersistentMemory.h"
-#include "DeepSleepHandler.h"
-#include "LEDHandler.h"
-#include "AnalogMux.h"
-#include "OTALib.h"
 #include "cli.h"
-#include <LogLib.h>
-#include "WaterValve.h"
+#include "NNR_PersistentMemory.h"
+#include <NNR_DeepSleep.h>
+#include "NNR_LEDHandler.h"
+#include "NNR_OTAupdate.h"
+#include <NNR_Logging.h>
+#include "AnalogMux.h"
 #include "SoilHumiditySensor.h"
 #include "DistanceSensor.h"
 #include "VoltMeter.h"
 #include "Thermometer.h"
 #include "serialPortHandler.h"
-
+#include "WaterValve.h"
 
 
 #ifdef USE_AZURE
@@ -219,11 +218,12 @@ boolean IsSettingsDataUpdatedByUser() {
 }
 
 boolean DeviceExistsInFirebase() {
+	Serial.println(FB_BasePath + "/state/" + FB_wifiSSID);
 	if (!Firebase.getString(firebaseData, FB_BasePath + "/state/" + FB_wifiSSID)) {
 		//UploadLog_("Device seems not to exist. Double checking.");
-		Serial.println("XXXXXXXXXXXXXXXX");
+		Serial.println("X2");
 		PersistentMemory.PrintpsRAW();
-		Serial.println("XXXXXXXXXXXXXXXX");
+		Serial.println("X3");
 		if (!Firebase.getString(firebaseData, FB_BasePath + "/metadata/" + FB_macAddress)) {
 			LogLine(0, __FUNCTION__, "** Device does not exist");
 			return false;
@@ -338,11 +338,10 @@ void CreateNewDevice() {
 
 	InitPersistentMemoryIfNeeded();
 
-/* NNR 220118
-	PersistentMemory.AddMetadataJson(&jsoMetadata);
-	PersistentMemory.AddStateJson(&jsoState);
-	PersistentMemory.AddSettingsJson(&jsoSettings);
-*/
+	AddMetadataJson(&jsoMetadata, &PersistentMemory.ps);
+	AddStateJson(&jsoState, &PersistentMemory.ps);
+	AddSettingsJson(&jsoSettings, &PersistentMemory.ps);
+
 	res = SendToFirebase(set, "metadata", jsoMetadata, firebaseData);
 	res = SendToFirebase(set, "state", jsoState, firebaseData);
 	res = SendToFirebase(set, "settings", jsoSettings, firebaseData);
@@ -355,7 +354,6 @@ void CreateNewDevice() {
 
 void UploadStateAndSettings_(boolean &firstRun) {
 
-	boolean settingsUpdatedByUser = false;
 	LogLine(4, __FUNCTION__, "begin");
 
 	// Check if device has been created. 
@@ -537,7 +535,7 @@ void setup() {
 	UploadStateAndSettings_(firstRun);
 #endif
 
-	LogLinef(1, __FUNCTION__, "OTA check. IP address:%s", ipAddr.c_str());
+	LogLinef(1, __FUNCTION__, "OTA check. IP address:%s", ipAddr.c_str()); 
 }
 
 

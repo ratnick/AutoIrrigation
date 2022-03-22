@@ -5,7 +5,11 @@
 #include "globals.h"
 #include "WaterSensor.h"
 #include "AnalogMux.h"
-#include "LogLib.h"
+#include <FirebaseESP8266.h>
+#include <ESP8266WiFi.h>
+
+
+#include <NNR_Logging.h>
 
 void WaterSensorClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHandlerClass::SensorType _sensorType, int _humLimit)
 {
@@ -18,7 +22,7 @@ void WaterSensorClass::init(int _pinNbr, char _name[], int _muxChannel, SensorHa
 	humLimit = WATER_VALUE + humLimitPct * (DRY_VALUE - WATER_VALUE) / 100.0;
 
 	pinMode(pinNbr, INPUT);
-//	LogLine(2, __FUNCTION__, "MUX channel:" + String(muxChannel) + " analog pin:" + String(pinNbr) + " name:" + String(name));
+//	L::LogLine(2, __FUNCTION__, "MUX channel:" + String(muxChannel) + " analog pin:" + String(pinNbr) + " name:" + String(name));
 }
 
 void WaterSensorClass::SethumLimitPct(int _humLimitPct) {
@@ -30,7 +34,7 @@ float WaterSensorClass::ReadSensor() {
 	int raw = 0;
 	float res = 0;
 
-//	LogLine(4, __FUNCTION__, "READING HUMIDITY FROM analog MUX channel " + String(muxChannel));
+//	L::LogLine(4, __FUNCTION__, "READING HUMIDITY FROM analog MUX channel " + String(muxChannel));
 	delay(500);  // allow voltage to settle after valve open
 	AnalogMux.OpenChannel(muxChannel);
 	for (int i = 0; i < 8; i++) {
@@ -40,7 +44,7 @@ float WaterSensorClass::ReadSensor() {
 	}
 	AnalogMux.CloseMUXpwr();
 	res /= 8;
-//	LogLine(2, __FUNCTION__, "Value: " + String(res));
+//	L::LogLine(2, __FUNCTION__, "Value: " + String(res));
 	return res;
 }
 
@@ -49,7 +53,7 @@ float WaterSensorClass::GetHumidityPct() {
 	hum = ((DRY_VALUE - this->lastAnalogueReadingWater) / (DRY_VALUE - WATER_VALUE) * 100.0);
 	if (hum < 0) { hum = 0; }
 	if (hum > 100) { hum = 100; }
-/*	LogLine(3, __FUNCTION__,
+/*	L::LogLine(3, __FUNCTION__,
 		"  water=" + String(WATER_VALUE) +
 		"  lastAna=" + String(this->lastAnalogueReadingWater) +
 		"  dry=" + String(DRY_VALUE) +
@@ -62,7 +66,6 @@ float WaterSensorClass::GetHumidityPct() {
 
 boolean WaterSensorClass::CheckIfWater() {
 	float res = 0;
-	int raw = 0;
 	boolean val;
 
 	val = DRY;
@@ -72,15 +75,18 @@ boolean WaterSensorClass::CheckIfWater() {
 		switch (sensorType) {
 			case SensorHandlerClass::SoilHumiditySensor:
 				if (GetHumidityPct() >= this->humLimitPct) {
-					LogLine(3, __FUNCTION__, "  Return WET");
+					L::LogLine(3, __FUNCTION__, "  Return WET");
 					val = WET;
 				}
 				else {
-					LogLine(3, __FUNCTION__, "  Return DRY");
+					L::LogLine(3, __FUNCTION__, "  Return DRY");
 				}
 				break;
 			case SensorHandlerClass::WaterSensor:
-				LogLine(0, __FUNCTION__, "*** ERROR: WaterSensor type is not yet implemented");
+				L::LogLine(0, __FUNCTION__, "*** ERROR: WaterSensor type is not yet implemented");
+				break;
+			default:
+				L::LogLinef(0, __FUNCTION__, "ERROR: Unexpected sesortype %d", sensorType);
 				break;
 		}
 	}

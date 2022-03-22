@@ -16,7 +16,7 @@ void SoilHumiditySensorClass::init(int _pinNbr, char _name[], int _muxChannel, S
 	humLimit = WET_VALUE_HUMIDITY + humLimitPct * (DRY_VALUE_HUMIDITY - WET_VALUE_HUMIDITY) / 100.0;
 
 	pinMode(pinNbr, INPUT);
-	LogLinef(3, __FUNCTION__, "MUX channel:%d   analog pin:%d   name:%s   _humLimit=%d", muxChannel, pinNbr, name, _humLimit);
+	L::LogLinef(3, __FUNCTION__, "MUX channel:%d   analog pin:%d   name:%s   _humLimit=%d", muxChannel, pinNbr, name, _humLimit);
 }
 
 void SoilHumiditySensorClass::AddTelemetryJson(FirebaseJson* json) {
@@ -40,7 +40,7 @@ float SoilHumiditySensorClass::ReadSensor() {
 		AVG_COUNT = 8;
 	}
 
-	LogLinef(5, __FUNCTION__, "READING HUMIDITY FROM analog MUX channel %d", muxChannel);
+	L::LogLinef(5, __FUNCTION__, "READING HUMIDITY FROM analog MUX channel %d", muxChannel);
 	delayNonBlocking(500);  // allow voltage to settle after valve open
 	AnalogMux.OpenChannel(muxChannel);
 	for (int i = 0; i < AVG_COUNT; i++) {
@@ -51,12 +51,12 @@ float SoilHumiditySensorClass::ReadSensor() {
 	AnalogMux.CloseMUXpwr();
 	res /= AVG_COUNT;
 
-	LogLinef(2, __FUNCTION__, "Value: %d" , res);
+	L::LogLinef(2, __FUNCTION__, "Value: %d" , res);
 	return res;
 }
 
 float SoilHumiditySensorClass::GetHumidityPct() {
-	float hum;
+	float hum=0;
 
 	switch (sensorType) {
 		case SensorHandlerClass::SoilHumiditySensor:
@@ -65,13 +65,15 @@ float SoilHumiditySensorClass::GetHumidityPct() {
 		case SensorHandlerClass::WaterSensor:
 			hum = ((DRY_VALUE_WATER - this->lastAnalogueReadingWater) / (DRY_VALUE_WATER - WET_VALUE_WATER) * 100.0);
 			break;
-		break;
+		default:
+			L::LogLinef(0, __FUNCTION__, "ERROR: Unexpected sesortype %d", sensorType);
+			break;
 	}
 
 	if (hum < 0) { hum = 0; }
 	if (hum > 100) { hum = 100; }
 
-	LogLinef(3, __FUNCTION__,
+	L::LogLinef(3, __FUNCTION__,
 		"  water=%d  lastAna=%d  dry=%d  lastAna-water=%d  dry-water=%d  hum=%d  humLimPct=%d", 
 		WET_VALUE_HUMIDITY,
 		this->lastAnalogueReadingWater,
@@ -85,7 +87,6 @@ float SoilHumiditySensorClass::GetHumidityPct() {
 
 boolean SoilHumiditySensorClass::CheckIfWater() {
 	float res = 0;
-	int raw = 0;
 	boolean val;
 
 	val = DRY;
@@ -93,11 +94,11 @@ boolean SoilHumiditySensorClass::CheckIfWater() {
 		res = this->ReadSensor();
 		this->lastAnalogueReadingWater = res;
 		if (GetHumidityPct() >= this->humLimitPct) {
-			LogLine(3, __FUNCTION__, "  Soil or reservoir is WET");
+			L::LogLine(3, __FUNCTION__, "  Soil or reservoir is WET");
 			val = WET;
 		}
 		else {
-			LogLine(3, __FUNCTION__, "  Soil or reservoir is DRY");
+			L::LogLine(3, __FUNCTION__, "  Soil or reservoir is DRY");
 			val = DRY;
 		}
 	}

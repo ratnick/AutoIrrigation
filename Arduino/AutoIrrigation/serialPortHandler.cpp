@@ -4,8 +4,8 @@
 
 #include "serialPortHandler.h"
 #include <SoftwareSerial.h>
-#include "LogLib.h"
-#include "OTALib.h"
+#include "NNR_Logging.h"
+#include "NNR_OTAupdate.h"
 
 SoftwareSerial serialPort(D1, D2); // (Rx, Tx)
 boolean newData = false;
@@ -18,9 +18,10 @@ void SetupSerialPort() {
 }
 
 void EmptySerialReadBuffer() {
-	char c;
+	char c;  // OK warning: variable 'c' set but not used 
 	while (serialPort.available() > 0) {
 		c = serialPort.read();
+		c = c;  // to avoid compiler warning of c not being used.
 	}
 }
 
@@ -38,14 +39,13 @@ boolean DataAvailableOnSerialPort() {
 }
 
 boolean receiveUntilMarker(char marker) {
-	int i = 0;
 	char rc = '\0';
-	LogLine(4, __FUNCTION__, "wait for start marker");
+	L::LogLine(4, __FUNCTION__, "wait for start marker");
 	while (DataAvailableOnSerialPort()) {
 		rc = serialPort.read();
 		//Serial.print(rc);
 		if (rc == marker) {
-			LogLine(4, __FUNCTION__, "start receiving data");
+			L::LogLine(4, __FUNCTION__, "start receiving data");
 			return true;
 		}
 	}
@@ -71,7 +71,7 @@ boolean ReadSerialJsonOnce(char* receivedChars, int jsonMaxSize) {
 
 	newData = false;
 	if (!recvInProgress) {
-		LogLine(1, __FUNCTION__, "not receiving from serial port");
+		L::LogLine(1, __FUNCTION__, "not receiving from serial port");
 		return false;
 	}
 
@@ -105,4 +105,5 @@ boolean ReadSerialJsonOnce(char* receivedChars, int jsonMaxSize) {
 			timeOut = true; 
 		}
 	}
+	return false; // will not reach this point
 }

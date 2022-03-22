@@ -12,8 +12,8 @@ H  X  X  None
 */
 
 #include "AnalogMux.h"
-#include "LogLib.h"
-#include "OTALib.h"
+#include "NNR_Logging.h"
+#include "NNR_OTAupdate.h"
 
 void AnalogMuxClass::init(int _S1, int _S0, int _pwrCtrlPin, boolean _pwrCtrlPinActive)
 {
@@ -31,22 +31,22 @@ void AnalogMuxClass::init(int _S1, int _S0, int _pwrCtrlPin, boolean _pwrCtrlPin
 		pwrCtrlPinActive = _pwrCtrlPinActive;
 		digitalWrite(pwrCtrlPin, !pwrCtrlPinActive);
 	}
-	LogLinef(4, __FUNCTION__, "MUX on S0: %d  abd S1:%d    power ctrl:%d", S0, S1, pwrCtrlPin);
+	L::LogLinef(4, __FUNCTION__, "MUX on S0: %d  abd S1:%d    power ctrl:%d", S0, S1, pwrCtrlPin);
 }
 
 void AnalogMuxClass::OpenChannel(int ch) {
 
-	LogLinef(4, __FUNCTION__, "Open channel %d ", ch);
+	L::LogLinef(4, __FUNCTION__, "Open channel %d ", ch);
 	int S1 = this->S1;
 	int S0 = this->S0;
 
 	if (pwrCtrlPin > 0) {
-		LogLine(3, __FUNCTION__, "activate MUX power");
+		L::LogLine(3, __FUNCTION__, "activate MUX power");
 		digitalWrite(pwrCtrlPin, pwrCtrlPinActive);
 		delayNonBlocking(500);
 	}
 	else {
-		LogLine(0, __FUNCTION__, "ERROR: activate MUX power");
+		L::LogLine(0, __FUNCTION__, "ERROR: activate MUX power");
 	}
 
 	switch (ch) {
@@ -66,8 +66,8 @@ void AnalogMuxClass::OpenChannel(int ch) {
 		digitalWrite(S1, HIGH);
 		digitalWrite(S0, HIGH);
 		break;
-	otherwise:
-		LogLinef(0, __FUNCTION__, "ERROR: Undefined channel %d", ch);
+	default:
+		L::LogLinef(0, __FUNCTION__, "ERROR: Undefined channel %d", ch);
 		break;
 	}
 }
@@ -75,7 +75,7 @@ void AnalogMuxClass::OpenChannel(int ch) {
 void AnalogMuxClass::CloseMUXpwr() {
 	if (pwrCtrlPin > 0) {
 		digitalWrite(pwrCtrlPin, !pwrCtrlPinActive);
-		LogLine(3, __FUNCTION__, "de-activate MUX power");
+		L::LogLine(3, __FUNCTION__, "de-activate MUX power");
 	}
 
 

@@ -10,10 +10,9 @@
 #endif
 
 // Used by subclasses
-#include <jsmn.h>
-#include <FirebaseJson.h>
-#include <LogLib.h>
-#include <OTALib.h>
+//#include <jsmn.h>
+#include <NNR_Logging.h>
+#include <NNR_OTAupdate.h>
 
 #define SIMULATE_SENSORS false
 

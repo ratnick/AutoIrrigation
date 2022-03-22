@@ -9,7 +9,7 @@
 #include "WProgram.h"
 #endif
 
-#include <WifiLib.h>
+#include <NNR_Wifi.h>
 const int LED_PIN = LED_BUILTIN;
 
 #define MAX_DEEP_SLEEP 3600000000   // micro seconds
