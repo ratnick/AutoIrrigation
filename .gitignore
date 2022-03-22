@@ -404,3 +404,6 @@ docs/pics/IMG_20191217_200341.jpg
 /Arduino/AutoIrrigation/DELETE PersistentMemory.h
 /Arduino/AutoIrrigation/DELETE PersistentMemory.cpp
 /Arduino/AutoIrrigation/DELETE FirebaseModel.h
+*.lock
+*.properties
+*.bin
