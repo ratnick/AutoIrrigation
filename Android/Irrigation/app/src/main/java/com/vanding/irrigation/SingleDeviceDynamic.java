@@ -46,6 +46,8 @@ import static com.vanding.irrigation.db.DEVICE_TYPE_GAS;
 import static com.vanding.irrigation.db.DEVICE_TYPE_GAS_STR;
 import static com.vanding.irrigation.db.DEVICE_TYPE_HUMTEMP;
 import static com.vanding.irrigation.db.DEVICE_TYPE_HUMTEMP_STR;
+import static com.vanding.irrigation.db.DEVICE_TYPE_PUMP;
+import static com.vanding.irrigation.db.DEVICE_TYPE_PUMP_STR;
 import static com.vanding.irrigation.db.DEVICE_TYPE_SOIL;
 import static com.vanding.irrigation.db.DEVICE_TYPE_SOIL_STR;
 import static com.vanding.irrigation.db.dbDeviceReference;
@@ -290,6 +292,10 @@ public class SingleDeviceDynamic extends AppCompatActivity {
                 tvTmtry1.setText(String.format("%.1f", dbIrrDevice[selectedDevice].telemetry_current.Dist));
                 tvTmtry1Txt.setText(String.format("Distance [cm]"));
                 break;
+            case DEVICE_TYPE_PUMP_STR:
+                tvTmtry1.setText(String.format("%d", dbIrrDevice[selectedDevice].telemetry_current.state));
+                tvTmtry1Txt.setText(String.format("on/off"));
+                break;
             default:
                 break;
         }
@@ -314,6 +320,8 @@ public class SingleDeviceDynamic extends AppCompatActivity {
                 return DEVICE_TYPE_HUMTEMP;
             case DEVICE_TYPE_DIST_STR:
                 return DEVICE_TYPE_DIST;
+            case DEVICE_TYPE_PUMP_STR:
+                return DEVICE_TYPE_PUMP;
             default:
                 return -1; // will crash
         }

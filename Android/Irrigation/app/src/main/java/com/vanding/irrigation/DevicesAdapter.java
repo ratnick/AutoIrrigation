@@ -1,23 +1,17 @@
 package com.vanding.irrigation;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.vanding.datamodel.DeviceData;
-
-import org.json.JSONArray;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,8 +23,8 @@ import static android.graphics.Color.YELLOW;
 import static com.vanding.irrigation.FirebaseService.DEVICE_NBR;
 import static com.vanding.irrigation.db.DEVICE_TYPE_DIST_STR;
 import static com.vanding.irrigation.db.DEVICE_TYPE_GAS_STR;
-import static com.vanding.irrigation.db.DEVICE_TYPE_HUMTEMP;
 import static com.vanding.irrigation.db.DEVICE_TYPE_HUMTEMP_STR;
+import static com.vanding.irrigation.db.DEVICE_TYPE_PUMP_STR;
 import static com.vanding.irrigation.db.DEVICE_TYPE_SOIL_STR;
 import static com.vanding.irrigation.db.dbIrrDevice;
 import static com.vanding.irrigation.db.dbSelectedIrrDeviceK;
@@ -161,6 +155,12 @@ public class DevicesAdapter extends
                 tUnit1.setText(String.format("cm"));
                 tVal2.setText(String.format("%.1f", dbIrrDevice[position].telemetry_current.Temp));
                 tUnit2.setText(String.format("C"));
+                break;
+            case DEVICE_TYPE_PUMP_STR:
+                tVal1.setText(String.format("%d", dbIrrDevice[position].telemetry_current.state));
+                tUnit1.setText(String.format("on"));
+                tVal2.setText(String.format("%d", dbIrrDevice[position].telemetry_current.Wifi));
+                tUnit2.setText(String.format("dB"));
                 break;
             default:
                 break;

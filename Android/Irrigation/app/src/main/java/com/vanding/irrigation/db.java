@@ -22,14 +22,16 @@ public class db {
     public static final String DEVICE_TYPE_GAS_STR = "gas";
     public static final String DEVICE_TYPE_HUMTEMP_STR = "Temp+hum";
     public static final String DEVICE_TYPE_DIST_STR = "dist";
+    public static final String DEVICE_TYPE_PUMP_STR = "pump";
 
     public static final int DEVICE_TYPE_SOIL = 0;
     public static final int DEVICE_TYPE_GAS = 1;
     public static final int DEVICE_TYPE_HUMTEMP = 2;
     public static final int DEVICE_TYPE_WATER = 3;
     public static final int DEVICE_TYPE_DIST = 4;
+    public static final int DEVICE_TYPE_PUMP = 5;
 
-    public static final int NBR_OF_DEVICE_TYPES = 5;
-//    public static enum DEVICE_TYPE_ENUM {SOIL, GAS, HUMTEMP, WATER, DIST};
+    public static final int NBR_OF_DEVICE_TYPES = 6;
+//    public static enum DEVICE_TYPE_ENUM {SOIL, GAS, HUMTEMP, WATER, DIST, PUMP};
 
 }

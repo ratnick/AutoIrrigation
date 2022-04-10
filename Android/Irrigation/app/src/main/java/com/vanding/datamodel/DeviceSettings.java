@@ -5,6 +5,7 @@ import com.vanding.irrigation.SingleDevice;
 import static com.vanding.irrigation.db.DEVICE_TYPE_DIST;
 import static com.vanding.irrigation.db.DEVICE_TYPE_GAS;
 import static com.vanding.irrigation.db.DEVICE_TYPE_HUMTEMP;
+import static com.vanding.irrigation.db.DEVICE_TYPE_PUMP;
 import static com.vanding.irrigation.db.DEVICE_TYPE_SOIL;
 import static com.vanding.irrigation.db.DEVICE_TYPE_WATER;
 import static com.vanding.irrigation.db.NBR_OF_DEVICE_TYPES;
@@ -56,13 +57,21 @@ public class DeviceSettings {
 
         gs[DEVICE_TYPE_DIST] = new DeviceSetting(
                 "dist cm",2, "Dist",
-                "Temp C",2, "Temp", //"DewTemp"
+                "Temp C",2, "Temp",
                 "Wifi",2, "Wifi",
-                // "Dug tmp",2,
                 true,
                 true,
                 -15, 50,
                 0, 100);
+
+        gs[DEVICE_TYPE_PUMP] = new DeviceSetting(
+                "State",2, "vlvState",
+                "n/a",2, "N/A",
+                "Wifi",2, "Wifi",
+                false,
+                false,
+                -1, 2,
+                -80, -50);
 
     }
 

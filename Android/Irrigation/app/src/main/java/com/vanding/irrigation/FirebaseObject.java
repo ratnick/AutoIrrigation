@@ -17,7 +17,6 @@ import com.vanding.datamodel.IrrDeviceState;
 import com.vanding.datamodel.IrrDeviceTelemetry;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -170,6 +169,11 @@ public class FirebaseObject implements Serializable {
                                                 dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNamePrim2));
                                                 dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNameSec1));
                                                 break;
+                                            case DEVICE_TYPE_PUMP_STR:
+                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNamePrim1));
+                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNamePrim2));
+                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNameSec1));
+                                                break;
 
                                             default:
                                                 break;
@@ -239,6 +243,12 @@ public class FirebaseObject implements Serializable {
                             dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNamePrim1));
                             dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNamePrim2));
                             dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNameSec1));
+                            dbDeviceLoaded[i] = true;
+                            break;
+                        case DEVICE_TYPE_PUMP_STR:
+                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNamePrim1));
+                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNamePrim2));
+                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNameSec1));
                             dbDeviceLoaded[i] = true;
                             break;
                         default:
@@ -339,17 +349,17 @@ public class FirebaseObject implements Serializable {
             int j=0;  // counts the number of added points
             IrrDeviceTelemetry post;
 
-            float prevValveState = 0;
+            int prevValveState = 0;
             for (i=0;i<nbrOfTmPoints;i++) {
-                float factor = 20;
-                if (prevValveState != tm[i].vlvState) {  // insert extra point before real point to make a sharp edge on the graph
+                float factor = 1;  // used to visually scale the state when displaying
+                if (prevValveState != tm[i].state) {  // insert extra point before real point to make a sharp edge on the graph
                     DataPoint x = new DataPoint(tm[i].timestamp -1, (float) factor * prevValveState);
                     values[i+j] = x;
                     j++;
                 }
-                DataPoint v = new DataPoint(tm[i].timestamp, (float) factor * tm[i].vlvState);
+                DataPoint v = new DataPoint(tm[i].timestamp, (float) factor * tm[i].state);
                 values[i+j] = v;
-                prevValveState = tm[i].vlvState;
+                prevValveState = tm[i].state;
             }
             //Log.d("data fetch", "i=" + Integer.toString(i) + "  nbrOfTmPoints=" + Integer.toString(nbrOfTmPoints*2));
             while (j < nbrOfTmPoints) {
@@ -409,11 +419,18 @@ public class FirebaseObject implements Serializable {
                                 values[i] = new DataPoint(tm[i].timestamp, tm[i].Wifi);
                             }
                             break;
+                        case "N/A":
+                            for (i = i; i < nbrOfTmPoints; i++) {
+                                values[i] = new DataPoint(tm[i].timestamp, -1);
+                            }
+                            break;
                         default:
                             int except = 0 / 0;   // parameter not known
                     }
                 } catch (Exception e) {  //protect from badly formed data
-                    values[i] = values[i - 1];
+                    if(i>0) {
+                        values[i] = values[i - 1];
+                    }
                     i++;
                 }
             }

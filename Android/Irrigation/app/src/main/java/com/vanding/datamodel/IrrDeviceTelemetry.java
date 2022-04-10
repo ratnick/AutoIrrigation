@@ -14,7 +14,9 @@ public class IrrDeviceTelemetry {
     public int lastAnalog;
     public String lastOpen;
     public float Hum;
-    public int vlvState;
+
+    // Pump controller
+    public int state;
 
     // DHT11 humidity and temperature
     public float Temp;
@@ -39,7 +41,7 @@ public class IrrDeviceTelemetry {
         lastAnalog = tm.lastAnalog;
         lastOpen = tm.lastOpen;
         Hum = tm.Hum;
-        vlvState = tm.vlvState;
+        state = tm.state;
 
         // DHT11 humidity and temperature
         Temp = tm.Temp;
@@ -52,5 +54,6 @@ public class IrrDeviceTelemetry {
         last_ppm = tm.last_ppm;
         sens_val = tm.sens_val;
         phase = tm.phase;
+
     }
 }
