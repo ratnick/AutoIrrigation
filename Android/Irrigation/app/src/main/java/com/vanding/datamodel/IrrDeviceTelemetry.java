@@ -7,19 +7,19 @@ public class IrrDeviceTelemetry {
 
     // generic
     public float Vcc;
-    public int Wifi;
+    public int W;  // Wifi
     public long timestamp;
 
     // irrigation device
     public int lastAnalog;
     public String lastOpen;
-    public float Hum;
+    public float H;  // Humidity
 
     // Pump controller
     public int state;
 
     // DHT11 humidity and temperature
-    public float Temp;
+    public float T;  // Temperature
 
     // Distance sensor
     public float Dist;
@@ -34,17 +34,17 @@ public class IrrDeviceTelemetry {
     public IrrDeviceTelemetry(IrrDeviceTelemetry tm) {
         // Default constructor required for calls to DataSnapshot.getValue(Comment.class)
         Vcc = tm.Vcc;
-        Wifi = tm.Wifi;
+        W = tm.W;
         timestamp = tm.timestamp;
 
         // irrigation device
         lastAnalog = tm.lastAnalog;
         lastOpen = tm.lastOpen;
-        Hum = tm.Hum;
+        H = tm.H;
         state = tm.state;
 
         // DHT11 humidity and temperature
-        Temp = tm.Temp;
+        T = tm.T;
 
         // Distance sensor
         Dist = tm.Dist;

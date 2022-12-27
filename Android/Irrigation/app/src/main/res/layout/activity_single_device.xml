@@ -60,7 +60,8 @@
                             android:layout_weight="65"
                             android:inputType="text"
                             android:text="Location"
-                            android:textSize="18dp" />
+                            android:textSize="18dp"
+                            tools:ignore="TouchTargetSizeCheck" />
 
                         <EditText
                             android:id="@+id/tvDeviceID"
@@ -69,7 +70,8 @@
                             android:inputType="text"
                             android:text="device ID"
                             android:textAlignment="viewEnd"
-                            android:textSize="18dp" />
+                            android:textSize="18dp"
+                            tools:ignore="TouchTargetSizeCheck" />
                     </TableRow>
 
                 </TableLayout>
@@ -102,7 +104,8 @@
                             android:id="@+id/tvOpenDuration"
                             style="@style/EditTextStyle"
                             android:inputType="number"
-                            android:text="123" />
+                            android:text="123"
+                            tools:ignore="TouchTargetSizeCheck" />
 
                     </TableRow>
 
@@ -119,7 +122,8 @@
                             android:id="@+id/tvSoakTime"
                             style="@style/EditTextStyle"
                             android:inputType="number"
-                            android:text="123" />
+                            android:text="123"
+                            tools:ignore="TouchTargetSizeCheck" />
 
                     </TableRow>
 
@@ -136,7 +140,8 @@
                             android:id="@+id/tvhumLim"
                             style="@style/EditTextStyle"
                             android:inputType="number"
-                            android:text="123" />
+                            android:text="123"
+                            tools:ignore="TouchTargetSizeCheck" />
 
                     </TableRow>
                 </TableLayout>
@@ -157,7 +162,8 @@
                         <EditText
                             android:id="@+id/tvDb"
                             style="@style/EditTextStyle"
-                            android:inputType="number"/>
+                            android:inputType="number"
+                            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
                     </TableRow>
 
@@ -168,13 +174,14 @@
                         <TextView
                             android:id="@+id/tvrunModeTxt"
                             style="@style/TextViewStyle"
-                            android:text="normal|soil|batt|testhw mode|gas"
+                            android:text="dist|soil|Temp+hum|pump|gas|water|A/C"
                             tools:textSize="12sp" />
 
                         <EditText
                             android:id="@+id/tvrunMode"
                             style="@style/EditTextStyle"
-                            android:inputType="text"/>
+                            android:inputType="text"
+                            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
                     </TableRow>
 
@@ -188,7 +195,7 @@
                         android:id="@+id/SecToSleep"
                         style="@style/TableRowStyle">
 
-                    <TextView
+                        <TextView
                             android:id="@+id/tvSecsToSleepTxt"
                             style="@style/TextViewStyle"
                             android:text="Total secs to sleep" />
@@ -196,7 +203,8 @@
                         <EditText
                             android:id="@+id/tvSecsToSleep"
                             style="@style/EditTextStyle"
-                            android:inputType="number"/>
+                            android:inputType="number"
+                            tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
                     </TableRow>
 
@@ -213,7 +221,8 @@
                             android:id="@+id/tvdeepSleepEnabled"
                             style="@style/EditTextStyle"
                             android:inputType="text"
-                            android:text="Deep sleep enabled" />
+                            android:text="Deep sleep enabled"
+                            tools:ignore="TouchTargetSizeCheck" />
                     </TableRow>
 
                     <TableRow
@@ -249,33 +258,99 @@
 
                     <TableRow
                         android:id="@+id/Waketimes"
-                        style="@style/TableRowStyle">
+                        style="@style/TableRowStyle"
+                        android:visibility="gone"
+                        tools:visibility="gone">
 
                         <TextView
                             android:id="@+id/tvWaketimeTxt"
                             style="@style/TextViewStyle"
-                            android:text="Wakeup at:" />
+                            android:text="Wakeup at:"
+                            android:visibility="gone"
+                            tools:visibility="gone" />
 
                         <EditText
                             android:id="@+id/tvWaketime0"
                             style="@style/EditTextStyle"
                             android:hint="Leave blank to delete"
-                            android:inputType="text"/>
+                            android:inputType="text"
+                            android:visibility="gone"
+                            tools:ignore="TouchTargetSizeCheck"
+                            tools:visibility="gone" />
 
                         <EditText
                             android:id="@+id/tvWaketime1"
                             style="@style/EditTextStyle"
                             android:hint="Leave blank to delete"
-                            android:inputType="text"/>
+                            android:inputType="text"
+                            android:visibility="gone"
+                            tools:ignore="TouchTargetSizeCheck"
+                            tools:visibility="gone" />
 
                         <EditText
                             android:id="@+id/tvWaketime2"
                             style="@style/EditTextStyle"
                             android:hint="Leave blank to delete"
-                            android:inputType="text"/>
+                            android:inputType="text"
+                            android:visibility="gone"
+                            tools:ignore="TouchTargetSizeCheck"
+                            tools:visibility="gone" />
 
                     </TableRow>
 
+                </TableLayout>
+
+                <TableLayout
+                    android:id="@+id/DisplayControls"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TableRow android:id="@+id/Offsets">
+
+                        <TextView
+                            android:id="@+id/tvOffsetPrim1txt"
+                            android:layout_width="0px"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="50"
+                            android:text="Offsets to add" />
+
+                        <EditText
+                            android:id="@+id/tvOffsetPrim1"
+                            style="@style/EditTextStyle"
+                            android:layout_width="0px"
+                            android:layout_height="match_parent"
+                            android:layout_weight="20"
+                            android:ems="10"
+                            android:inputType="numberSigned|number|numberDecimal"
+                            android:text="0.0"
+                            android:textAlignment="center"
+                            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                        <EditText
+                            android:id="@+id/tvOffsetPrim2"
+                            style="@style/EditTextStyle"
+                            android:layout_width="0px"
+                            android:layout_height="match_parent"
+                            android:layout_weight="20"
+                            android:ems="10"
+                            android:inputType="numberSigned|number|numberDecimal"
+                            android:text="0.0"
+                            android:textAlignment="center"
+                            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                        <EditText
+                            android:id="@+id/tvOffsetSec1"
+                            style="@style/EditTextStyle"
+                            android:layout_width="0px"
+                            android:layout_height="match_parent"
+                            android:layout_weight="20"
+                            android:ems="10"
+                            android:inputType="numberSigned|number|numberDecimal"
+                            android:text="0.0"
+                            android:textAlignment="center"
+                            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                    </TableRow>
                 </TableLayout>
 
                 <LinearLayout
@@ -298,8 +373,9 @@
 
                     <Button
                         android:id="@+id/purgeButton"
+                        style="@style/ButtonStyle"
                         android:text="PURGE"
-                        style="@style/ButtonStyle"/>
+                        tools:ignore="TextContrastCheck,TouchTargetSizeCheck" />
 
                     <Space
                         android:layout_width="wrap_content"
@@ -309,7 +385,8 @@
                     <Button
                         android:id="@+id/refreshButton"
                         style="@style/ButtonStyle"
-                        android:text="RESET" />
+                        android:text="RESET"
+                        tools:ignore="TextContrastCheck,TouchTargetSizeCheck" />
 
                     <Space
                         android:layout_width="wrap_content"
@@ -319,7 +396,8 @@
                     <Button
                         android:id="@+id/detailButton"
                         style="@style/ButtonStyle"
-                        android:text="DETAIL" />
+                        android:text="DETAIL"
+                        tools:ignore="TouchTargetSizeCheck,TextContrastCheck" />
 
                     <Space
                         android:layout_width="wrap_content"
@@ -328,8 +406,9 @@
 
                     <Button
                         android:id="@+id/executeButton"
+                        style="@style/ButtonStyle"
                         android:text="SET"
-                        style="@style/ButtonStyle"/>
+                        tools:ignore="TouchTargetSizeCheck,TextContrastCheck" />
 
                 </LinearLayout>
 
@@ -418,7 +497,8 @@
 
                     <TableRow
                         android:id="@+id/LastAnalogue"
-                        style="@style/TableRowStyle">
+                        style="@style/TableRowStyle"
+                        tools:visibility="gone">
 
                         <TextView
                             android:id="@+id/tvBattVoltageTxt"

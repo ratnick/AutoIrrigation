@@ -25,6 +25,7 @@ public class PurgeLog extends AppCompatActivity {
     @BindView(R.id.tvNbrOfLogs)         TextView tvNbrOfLogs;
     @BindView(R.id.tvKeepLogDays)       EditText tvKeepLogDays;
     @BindView(R.id.tvKeepTeleDays)      EditText tvKeepTeleDays;
+    @BindView(R.id.tvKeepEveryN)        EditText tvKeepEveryN;
 
 
     // global constants
@@ -36,7 +37,7 @@ public class PurgeLog extends AppCompatActivity {
     private int selectedDevice = -1;
     private int keepLogDays = -1;
     private int keepTeleDays = -1;
-
+    private int keepEveryN = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,17 +55,20 @@ public class PurgeLog extends AppCompatActivity {
         tvNbrOfLogs.setText(String.format("%d", dbIrrDevice[selectedDevice].nbrOfLogs));
         tvKeepLogDays.setText(String.format("%d", -1));
         tvKeepTeleDays.setText(String.format("%d", -1));
+        tvKeepEveryN.setText(String.format("%d", -1));
 
         executeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 keepLogDays = Integer.valueOf(tvKeepLogDays.getText().toString());
                 keepTeleDays = Integer.valueOf(tvKeepTeleDays.getText().toString());
-                if (keepLogDays >= 0 || keepTeleDays >= 0) {
+                keepEveryN = Integer.valueOf(tvKeepEveryN.getText().toString());
+                if (keepLogDays >= 0 || keepTeleDays >= 0 || keepEveryN >= 0) {
                     Intent commandIntent = new Intent(PurgeLog.this, FirebaseService.class);
                     commandIntent.putExtra(FirebaseService.DEVICE_NBR, selectedDevice);
                     commandIntent.putExtra("keepLogDays", keepLogDays);
                     commandIntent.putExtra("keepTeleDays", keepTeleDays);
+                    commandIntent.putExtra("keepEveryN", keepEveryN);
                     startFirebaseService(FirebaseService.ActionType.PURGE_LOG_AND_TELE, commandIntent);
                 }
             }

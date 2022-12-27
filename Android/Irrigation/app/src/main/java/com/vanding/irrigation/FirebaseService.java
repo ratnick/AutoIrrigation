@@ -23,6 +23,7 @@ public class FirebaseService extends IntentService {
     /* String and int constants used either by both the Action Service and caller Activity.  This
        defines the protocol by which we pass information back and forth between the two via
        Intent extras. */
+    public final static String FIREBASE_ROOT = FirebaseObject.FB_PATH;
     public final static String DEVICE_NBR = "DEVICE_NBR";
     public final static String PENDING_RESULT = "PENDING_RESULT";
     public final static String ACTION_TYPE = "ACTION_TYPE";
@@ -61,7 +62,7 @@ public class FirebaseService extends IntentService {
             case INIT_SERVICE:
                     if (dbLoadingState == NOT_STARTED) // in all other cases, the service has already been initialized
                     {
-                        dbAllDevicesReference = FirebaseDatabase.getInstance().getReference().child("irrdevices");
+                        dbAllDevicesReference = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT);
                         dbLoadingState = INITIALIZED;
                     }
                     workResultCode = CODE_OK;
@@ -117,8 +118,9 @@ public class FirebaseService extends IntentService {
             case PURGE_LOG_AND_TELE:
                 int keepTeleDays = commandIntent.getIntExtra("keepTeleDays",-1);
                 int keepLogDays = commandIntent.getIntExtra("keepLogDays",-1);
+                int keepEveryN = commandIntent.getIntExtra("keepEveryN",-1);
                 int selectedDevice = commandIntent.getIntExtra(FirebaseService.DEVICE_NBR, -1);
-                fbo.PurgeLogAndTeleData(selectedDevice, keepTeleDays, keepLogDays);
+                fbo.PurgeLogAndTeleData(selectedDevice, keepTeleDays, keepLogDays, keepEveryN);
                 workResultCode = CODE_OK;
 
                 break;

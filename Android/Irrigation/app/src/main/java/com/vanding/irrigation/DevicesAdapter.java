@@ -135,37 +135,37 @@ public class DevicesAdapter extends
 
         switch (dbIrrDevice[position].metadata.sensorType) {
             case DEVICE_TYPE_SOIL_STR:
-                tVal1.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Hum));
+                tVal1.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.H + dbIrrDevice[position].settings.offsetPrim1));
                 tUnit1.setText(String.format("%%"));
-                tVal3.setText(String.format("%.1f", dbIrrDevice[position].telemetry_current.Vcc));
+                tVal3.setText(String.format("%.1f", dbIrrDevice[position].telemetry_current.Vcc + dbIrrDevice[position].settings.offsetSec1));
                 tUnit3.setText(String.format("V"));
                 break;
             case DEVICE_TYPE_GAS_STR:
-                tVal1.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.cur_ppm));
+                tVal1.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.cur_ppm + dbIrrDevice[position].settings.offsetPrim1));
                 tUnit1.setText(String.format("ppm"));
                 break;
             case DEVICE_TYPE_HUMTEMP_STR:
-                tVal1.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Hum));
-                tUnit1.setText(String.format("%%"));
-                tVal2.setText(String.format("%.1f", dbIrrDevice[position].telemetry_current.Temp));
-                tUnit2.setText(String.format("C"));
+                tVal1.setText(String.format("%.1f", dbIrrDevice[position].telemetry_current.T + dbIrrDevice[position].settings.offsetPrim1));
+                tUnit1.setText(String.format("C"));
+                tVal2.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.H + dbIrrDevice[position].settings.offsetSec1));
+                tUnit2.setText(String.format("%%"));
                 break;
             case DEVICE_TYPE_DIST_STR:
-                tVal1.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Dist));
+                tVal1.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.Dist + dbIrrDevice[position].settings.offsetPrim1));
                 tUnit1.setText(String.format("cm"));
-                tVal2.setText(String.format("%.1f", dbIrrDevice[position].telemetry_current.Temp));
+                tVal2.setText(String.format("%.1f", dbIrrDevice[position].telemetry_current.T + dbIrrDevice[position].settings.offsetSec1));
                 tUnit2.setText(String.format("C"));
                 break;
             case DEVICE_TYPE_PUMP_STR:
-                tVal1.setText(String.format("%d", dbIrrDevice[position].telemetry_current.state));
+                tVal1.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.state + dbIrrDevice[position].settings.offsetPrim1));
                 tUnit1.setText(String.format("on"));
-                tVal2.setText(String.format("%d", dbIrrDevice[position].telemetry_current.Wifi));
+                tVal2.setText(String.format("%.0f", dbIrrDevice[position].telemetry_current.W + dbIrrDevice[position].settings.offsetSec1));
                 tUnit2.setText(String.format("dB"));
                 break;
             default:
                 break;
         }
-        tVal4.setText(String.format("%d", dbIrrDevice[position].telemetry_current.Wifi));
+        tVal4.setText(String.format("%d", dbIrrDevice[position].telemetry_current.W));
         tUnit4.setText(String.format("db"));
 
         if (dbIrrDevice[position].state.deviceStatus >= 10) {

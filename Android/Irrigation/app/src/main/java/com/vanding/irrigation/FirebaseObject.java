@@ -28,7 +28,7 @@ public class FirebaseObject implements Serializable {
     // Firebase setup
     private static final String FB_PROJECT_ID = "irrfire";
     private static final String FB_URL = "https://" + FB_PROJECT_ID + ".firebaseio.com";
-    private static final String FB_PATH = "irrdevices";
+    public static final String FB_PATH = "v2";
     private static final String INITIAL_DEVICE_ID = "84:F3:EB: C:38:7A";
 
     private static boolean firebase_initialized = false;
@@ -100,7 +100,7 @@ public class FirebaseObject implements Serializable {
 
 
             for (int k=0; k< dbNbrOfDevices; k++) {
-                dbDeviceReference[k] = FirebaseDatabase.getInstance().getReference().child("irrdevices").child(dbIrrDeviceStrings[k]);
+                dbDeviceReference[k] = FirebaseDatabase.getInstance().getReference().child(FB_PATH).child(dbIrrDeviceStrings[k]);
                 dbDeviceReference[k].addChildEventListener(
                     new ChildEventListener() {
 
@@ -150,29 +150,29 @@ public class FirebaseObject implements Serializable {
                                     if(LastTimestampIsOK(dataSnapshot)) {
                                         switch (dbIrrDevice[k].metadata.sensorType) {
                                             case DEVICE_TYPE_SOIL_STR:
-                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNamePrim1));
-                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNamePrim2));
-                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNameSec1));
+                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNamePrim1, dbIrrDevice[k].settings.offsetPrim1));
+                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNamePrim2, dbIrrDevice[k].settings.offsetPrim2));
+                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNameSec1, dbIrrDevice[k].settings.offsetSec1));
                                                 break;
                                             case DEVICE_TYPE_GAS_STR:
-                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNamePrim1));
-                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNamePrim2));
-                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNameSec1));
+                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNamePrim1, dbIrrDevice[k].settings.offsetPrim1));
+                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNamePrim2, dbIrrDevice[k].settings.offsetPrim2));
+                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNameSec1, dbIrrDevice[k].settings.offsetSec1));
                                                 break;
                                             case DEVICE_TYPE_HUMTEMP_STR:
-                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNamePrim1));
-                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNamePrim2));
-                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNameSec1));
+                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNamePrim1, dbIrrDevice[k].settings.offsetPrim1));
+                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNamePrim2, dbIrrDevice[k].settings.offsetPrim2));
+                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNameSec1, dbIrrDevice[k].settings.offsetSec1));
                                                 break;
                                             case DEVICE_TYPE_DIST_STR:
-                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNamePrim1));
-                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNamePrim2));
-                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNameSec1));
+                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNamePrim1, dbIrrDevice[k].settings.offsetPrim1));
+                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNamePrim2, dbIrrDevice[k].settings.offsetPrim2));
+                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNameSec1, dbIrrDevice[k].settings.offsetSec1));
                                                 break;
                                             case DEVICE_TYPE_PUMP_STR:
-                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNamePrim1));
-                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNamePrim2));
-                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNameSec1));
+                                                dbIrrDevice[k].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNamePrim1, dbIrrDevice[k].settings.offsetPrim1));
+                                                dbIrrDevice[k].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNamePrim2, dbIrrDevice[k].settings.offsetPrim2));
+                                                dbIrrDevice[k].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNameSec1, dbIrrDevice[k].settings.offsetSec1));
                                                 break;
 
                                             default:
@@ -206,7 +206,7 @@ public class FirebaseObject implements Serializable {
     public void LoadDeviceTelemetry(int _k) {
 
         final int k = _k;
-        dbDeviceReference[k] = FirebaseDatabase.getInstance().getReference().child("irrdevices").child(dbIrrDeviceStrings[k]);
+        dbDeviceReference[k] = FirebaseDatabase.getInstance().getReference().child(FB_PATH).child(dbIrrDeviceStrings[k]);
         dbDeviceReference[k].addListenerForSingleValueEvent(
             new ValueEventListener() {
 
@@ -222,33 +222,33 @@ public class FirebaseObject implements Serializable {
                     LoadDataSnapshop(dataSnapshot);
                     switch (dbIrrDevice[i].metadata.sensorType) {
                         case DEVICE_TYPE_SOIL_STR:
-                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNamePrim1));
-                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNamePrim2));
-                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNameSec1));
+                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNamePrim1, dbIrrDevice[i].settings.offsetPrim1));
+                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNamePrim2, dbIrrDevice[i].settings.offsetPrim2));
+                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_SOIL].dataNameSec1, dbIrrDevice[i].settings.offsetSec1));
                             dbDeviceLoaded[i] = true;
                             break;
                         case DEVICE_TYPE_GAS_STR:
-                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNamePrim1));
-                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNamePrim2));
-                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNameSec1));
+                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNamePrim1, dbIrrDevice[i].settings.offsetPrim1));
+                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNamePrim2, dbIrrDevice[i].settings.offsetPrim2));
+                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_GAS].dataNameSec1, dbIrrDevice[i].settings.offsetSec1));
                             dbDeviceLoaded[i] = true;
                             break;
                         case DEVICE_TYPE_HUMTEMP_STR:
-                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNamePrim1));
-                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNamePrim2));
-                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNameSec1));
+                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNamePrim1, dbIrrDevice[i].settings.offsetPrim1));
+                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNamePrim2, dbIrrDevice[i].settings.offsetPrim2));
+                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_HUMTEMP].dataNameSec1, dbIrrDevice[i].settings.offsetSec1));
                             dbDeviceLoaded[i] = true;
                             break;
                         case DEVICE_TYPE_DIST_STR:
-                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNamePrim1));
-                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNamePrim2));
-                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNameSec1));
+                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNamePrim1, dbIrrDevice[i].settings.offsetPrim1));
+                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNamePrim2, dbIrrDevice[i].settings.offsetPrim2));
+                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_DIST].dataNameSec1, dbIrrDevice[i].settings.offsetSec1));
                             dbDeviceLoaded[i] = true;
                             break;
                         case DEVICE_TYPE_PUMP_STR:
-                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNamePrim1));
-                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNamePrim2));
-                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNameSec1));
+                            dbIrrDevice[i].xSeriesPrimAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNamePrim1, dbIrrDevice[i].settings.offsetPrim1));
+                            dbIrrDevice[i].xSeriesPrimAxis2.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNamePrim2, dbIrrDevice[i].settings.offsetPrim2));
+                            dbIrrDevice[i].xSeriesSecAxis1.resetData(readAllData(ds.gs[DEVICE_TYPE_PUMP].dataNameSec1, dbIrrDevice[i].settings.offsetSec1));
                             dbDeviceLoaded[i] = true;
                             break;
                         default:
@@ -267,7 +267,7 @@ public class FirebaseObject implements Serializable {
         // are we on telemetry level or on child level?
         DataSnapshot tmSnapshot;
         String parentKey = ds.getRef().getParent().getKey();
-        if (parentKey.equals("irrdevices")) {
+        if (parentKey.equals(FB_PATH)) {
             tmSnapshot = ds.child("telemetry");
         }
         else if (ds.getKey().equals("telemetry")) {
@@ -310,7 +310,7 @@ public class FirebaseObject implements Serializable {
         // are we on telemetry level or on child level?
         DataSnapshot teledataSnapshot;
         String parentKey = dataSnapshot.getRef().getParent().getKey();
-        if (parentKey.equals("irrdevices")) {
+        if (parentKey.equals(FB_PATH)) {
             teledataSnapshot = dataSnapshot.child("telemetry");
         }
         else if (dataSnapshot.getKey().equals("telemetry")) {
@@ -340,7 +340,7 @@ public class FirebaseObject implements Serializable {
 
     }
 
-    private DataPoint[] readAllData(String parameterName)  {
+    private DataPoint[] readAllData(String parameterName, float offsetToAdd)  {
         // are we on telemetry level or on child level?
 
         if (parameterName.equals("vlvState")) {
@@ -381,51 +381,57 @@ public class FirebaseObject implements Serializable {
                     switch (parameterName) {
                         case "Vcc":
                             for (i = i; i < nbrOfTmPoints; i++) {
-                                values[i] = new DataPoint(tm[i].timestamp, tm[i].Vcc);
+                                values[i] = new DataPoint(tm[i].timestamp, tm[i].Vcc + offsetToAdd);
                             }
                             break;
-                        case "Hum":
+                        case "H":  // Humidity
                             for (i = i; i < nbrOfTmPoints; i++) {
-                                values[i] = new DataPoint(tm[i].timestamp, tm[i].Hum);
+                                values[i] = new DataPoint(tm[i].timestamp, tm[i].H + offsetToAdd);
                             }
                             break;
                         case "DewTemp":
                             for (i = i; i < nbrOfTmPoints; i++) {
-                                values[i] = new DataPoint(tm[i].timestamp, calcDewTemp(tm[i].Hum+50, tm[i].Temp));
+                                values[i] = new DataPoint(tm[i].timestamp, calcDewTemp(tm[i].H+50, tm[i].T + offsetToAdd));
                             }
                             break;
-                        case "Temp":
+                        case "T":  // Temp
                             for (i = i; i < nbrOfTmPoints; i++) {
-                                values[i] = new DataPoint(tm[i].timestamp, tm[i].Temp);
+                                values[i] = new DataPoint(tm[i].timestamp, tm[i].T + offsetToAdd);
                             }
                             break;
                         case "Dist":
                             for (i = i; i < nbrOfTmPoints; i++) {
-                                values[i] = new DataPoint(tm[i].timestamp, tm[i].Dist);
+                                values[i] = new DataPoint(tm[i].timestamp, tm[i].Dist + offsetToAdd);
                             }
                             break;
                         case "cur_ppm":
                             for (i = i; i < nbrOfTmPoints; i++) {
-                                values[i] = new DataPoint(tm[i].timestamp, tm[i].last_ppm);
+                                values[i] = new DataPoint(tm[i].timestamp, tm[i].last_ppm + offsetToAdd);
                             }
                             break;
                         case "phase":
                             for (i = i; i < nbrOfTmPoints; i++) {
-                                values[i] = new DataPoint(tm[i].timestamp, tm[i].phase);
+                                values[i] = new DataPoint(tm[i].timestamp, tm[i].phase + offsetToAdd);
                             }
                             break;
-                        case "Wifi":
+                        case "W": // Wifi
                             for (i = i; i < nbrOfTmPoints; i++) {
-                                values[i] = new DataPoint(tm[i].timestamp, tm[i].Wifi);
+                                values[i] = new DataPoint(tm[i].timestamp, tm[i].W + offsetToAdd);
+                            }
+                            break;
+                        case "state": // pump state
+                            for (i = i; i < nbrOfTmPoints; i++) {
+                                values[i] = new DataPoint(tm[i].timestamp, tm[i].state);
                             }
                             break;
                         case "N/A":
                             for (i = i; i < nbrOfTmPoints; i++) {
-                                values[i] = new DataPoint(tm[i].timestamp, -1);
+                                values[i] = new DataPoint(tm[i].timestamp,  offsetToAdd);
                             }
                             break;
                         default:
                             int except = 0 / 0;   // parameter not known
+                            break;
                     }
                 } catch (Exception e) {  //protect from badly formed data
                     if(i>0) {
@@ -438,7 +444,7 @@ public class FirebaseObject implements Serializable {
         }
     }
 
-    public void PurgeLogAndTeleData(int deviceNbr, int keepTeleDays, int keepLogDays) {
+    public void PurgeLogAndTeleData(int deviceNbr, int keepTeleDays, int keepLogDays, int keepEveryN) {
         if (keepLogDays >= 0) {
             Date logDateFilter = new Date(System.currentTimeMillis() - (keepLogDays * 1000 * 60 * 60 * 24));
             final DatabaseReference allLog = dbDeviceReference[deviceNbr].child("log");
@@ -483,6 +489,33 @@ public class FirebaseObject implements Serializable {
                 }
             });
         };
+
+        if (keepEveryN >= 0) {
+            Date teleDateFilter = new Date(System.currentTimeMillis() - (keepTeleDays * 1000 * 60 * 60 * 24));
+            final DatabaseReference allTele = dbDeviceReference[deviceNbr].child("telemetry");
+            allTele.orderByChild("timestamp").addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    int count = (int) dataSnapshot.getChildrenCount();
+                    if (count > 0) {
+                        int n = 0;
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren() ) {
+                            if (n++ == keepEveryN-1) {
+                                n = 0;
+                            } else {
+                                allTele.child(postSnapshot.getKey()).removeValue();
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // ...
+                }
+            });
+        }
     }
 
 

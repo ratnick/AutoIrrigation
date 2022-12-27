@@ -83,7 +83,9 @@
             android:layout_width="match_parent"
             android:layout_height="20dp" />
 
-        <TableLayout style="@style/TableLayoutStyle">
+        <TableLayout
+            style="@style/TableLayoutStyle"
+            android:layout_height="wrap_content">
 
             <TableRow
                 style="@style/TableRowStyle"
@@ -118,12 +120,37 @@
                     android:text="-1" />
             </TableRow>
 
-            <TableRow style="@style/TableRowStyle">
+            <TableRow
+                style="@style/TableRowStyle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
                 <TextView
                     style="@style/TextViewStyle"
                     android:text="(-1 => don't delete,    0 => delete all)"
                     android:textStyle="italic" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvKeepEveryNTxt"
+                    style="@style/TextViewStyle"
+                    android:layout_width="0px"
+                    android:layout_height="wrap_content"
+                    android:text="Keep every Nth sample" />
+
+                <EditText
+                    android:id="@+id/tvKeepEveryN"
+                    style="@style/EditTextStyle"
+                    android:layout_width="0px"
+                    android:layout_height="match_parent"
+                    android:layout_weight="60"
+                    android:inputType="number"
+                    android:text="-1"
+                    tools:ignore="TouchTargetSizeCheck" />
             </TableRow>
 
         </TableLayout>

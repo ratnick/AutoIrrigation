@@ -9,6 +9,9 @@ public class IrrDeviceSettings {
     public int db;
     public int humLim;
     public int loopSec;
+    public float offsetPrim1;
+    public float offsetPrim2;
+    public float offsetSec1;
     public String pauseTime;
     public String runMode;
     public boolean slpEnabl;
@@ -21,7 +24,6 @@ public class IrrDeviceSettings {
     public String wakeTime1;
     public String wakeTime2;
     public String wakeTime3;
-
 
     public IrrDeviceSettings() {
         // Default constructor required for calls to DataSnapshot.getValue(Comment.class)

@@ -19,7 +19,7 @@ public class DeviceSettings {
 
     public DeviceSettings () {
         gs[DEVICE_TYPE_SOIL] = new DeviceSetting(
-                "Humidity %",2, "Hum",
+                "Humidity %",2, "H",
                 "Valve",2, "vlvState",
                 "Batt [V]",2, "Vcc",
                 false,
@@ -30,26 +30,26 @@ public class DeviceSettings {
         gs[DEVICE_TYPE_GAS] = new DeviceSetting(
                 "PPM",2, "cur_ppm",
                 "DUTY",2, "phase",
-                "Wifi",2, "Wifi",
+                "Wifi",2, "W",
                 true,
                 true,
                 0, 1,
                 0, 1);
 
         gs[DEVICE_TYPE_HUMTEMP] = new DeviceSetting(
-                "temp C",2, "Temp",
-                "Hum %",2, "Hum", //"DewTemp"
-                "Wifi",2, "Wifi",
+                "temp C",2, "T",
+                "n/a",2, "N/A",
+                "Hum %",2, "H", //"DewTemp"
                 // "Dug tmp",2,
-                true,
-                true,
-                -15, 50,
+                false,
+                false,
+                5, 30,
                 0, 100);
 
         gs[DEVICE_TYPE_WATER] = new DeviceSetting(
                 "PPM",2, "ppm",
                 "DUTY",2, "duty",
-                "Wifi",2, "Wifi",
+                "Wifi",2, "W",
                 true,
                 true,
                 0, 1,
@@ -57,17 +57,17 @@ public class DeviceSettings {
 
         gs[DEVICE_TYPE_DIST] = new DeviceSetting(
                 "dist cm",2, "Dist",
-                "Temp C",2, "Temp",
-                "Wifi",2, "Wifi",
-                true,
-                true,
-                -15, 50,
-                0, 100);
+                "n/a",2, "N/A",
+                "Temp C",2, "T",
+                false,
+                false,
+                -20, 20,
+                -20, 30);
 
         gs[DEVICE_TYPE_PUMP] = new DeviceSetting(
-                "State",2, "vlvState",
+                "State",2, "state",
                 "n/a",2, "N/A",
-                "Wifi",2, "Wifi",
+                "Wifi",2, "W",
                 false,
                 false,
                 -1, 2,

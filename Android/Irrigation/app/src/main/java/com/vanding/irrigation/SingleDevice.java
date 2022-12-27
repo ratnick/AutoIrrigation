@@ -57,6 +57,9 @@ public class SingleDevice extends AppCompatActivity {
     @BindView(R.id.tvhumLim)                    EditText tvhumLim;
     @BindView(R.id.tvrunMode)                   EditText tvrunMode;
     @BindView(R.id.tvDb)                        TextView tvDb;
+    @BindView(R.id.tvOffsetPrim1)               EditText tvOffsetPrim1;
+    @BindView(R.id.tvOffsetPrim2)               EditText tvOffsetPrim2;
+    @BindView(R.id.tvOffsetSec1)                EditText tvOffsetSec1;
     @BindView(R.id.tvMaxSlpCycles)              TextView tvMaxSlpCycles;
     @BindView(R.id.tvCurrentSleepCycle)         TextView tvCurrentSleepCycle;
     @BindView(R.id.tvWaketime0)                 TextView tvWaketime0;
@@ -139,6 +142,9 @@ public class SingleDevice extends AppCompatActivity {
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.vlvSoak = Integer.valueOf(tvSoakTime.getText().toString());
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.humLim = Integer.valueOf(tvhumLim.getText().toString());
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.db = Integer.valueOf(tvDb.getText().toString());
+                dbIrrDevice[dbSelectedIrrDeviceK].settings.offsetPrim1 = Float.valueOf(tvOffsetPrim1.getText().toString());
+                dbIrrDevice[dbSelectedIrrDeviceK].settings.offsetPrim2 = Float.valueOf(tvOffsetPrim2.getText().toString());
+                dbIrrDevice[dbSelectedIrrDeviceK].settings.offsetSec1 = Float.valueOf(tvOffsetSec1.getText().toString());
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.totSlp = Integer.valueOf(tvSecsToSleep.getText().toString());
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.wakeTime0 = tvWaketime0.getText().toString();
                 dbIrrDevice[dbSelectedIrrDeviceK].settings.wakeTime1 = tvWaketime1.getText().toString();
@@ -181,6 +187,9 @@ public class SingleDevice extends AppCompatActivity {
         dbDeviceReference[dbSelectedIrrDeviceK].child("settings").child("vlvSoak").setValue(dbIrrDevice[dbSelectedIrrDeviceK].settings.vlvSoak);
         dbDeviceReference[dbSelectedIrrDeviceK].child("settings").child("humLim").setValue(dbIrrDevice[dbSelectedIrrDeviceK].settings.humLim);
         dbDeviceReference[dbSelectedIrrDeviceK].child("settings").child("db").setValue(dbIrrDevice[dbSelectedIrrDeviceK].settings.db);
+        dbDeviceReference[dbSelectedIrrDeviceK].child("settings").child("offsetPrim1").setValue(dbIrrDevice[dbSelectedIrrDeviceK].settings.offsetPrim1);
+        dbDeviceReference[dbSelectedIrrDeviceK].child("settings").child("offsetPrim2").setValue(dbIrrDevice[dbSelectedIrrDeviceK].settings.offsetPrim2);
+        dbDeviceReference[dbSelectedIrrDeviceK].child("settings").child("offsetSec1").setValue(dbIrrDevice[dbSelectedIrrDeviceK].settings.offsetSec1);
         dbDeviceReference[dbSelectedIrrDeviceK].child("settings").child("wakeTime0").setValue(dbIrrDevice[dbSelectedIrrDeviceK].settings.wakeTime0);
         dbDeviceReference[dbSelectedIrrDeviceK].child("settings").child("wakeTime1").setValue(dbIrrDevice[dbSelectedIrrDeviceK].settings.wakeTime1);
         dbDeviceReference[dbSelectedIrrDeviceK].child("settings").child("wakeTime2").setValue(dbIrrDevice[dbSelectedIrrDeviceK].settings.wakeTime2);
@@ -251,6 +260,9 @@ public class SingleDevice extends AppCompatActivity {
         tvSoakTime.setText(String.format("%d", dbIrrDevice[selectedDevice].settings.vlvSoak));
         tvhumLim.setText(String.format("%d", dbIrrDevice[selectedDevice].settings.humLim));
         tvDb.setText(String.format("%d", dbIrrDevice[selectedDevice].settings.db));
+        tvOffsetPrim1.setText(String.format("%.1f", dbIrrDevice[selectedDevice].settings.offsetPrim1));
+        tvOffsetPrim2.setText(String.format("%.1f", dbIrrDevice[selectedDevice].settings.offsetPrim2));
+        tvOffsetSec1.setText(String.format("%.1f", dbIrrDevice[selectedDevice].settings.offsetSec1));
         tvWaketime0.setText(dbIrrDevice[selectedDevice].settings.wakeTime0);
         tvWaketime1.setText(dbIrrDevice[selectedDevice].settings.wakeTime1);
         tvWaketime2.setText(dbIrrDevice[selectedDevice].settings.wakeTime2);
@@ -261,33 +273,42 @@ public class SingleDevice extends AppCompatActivity {
     private void UpdateUICurrentTelemetry() {
         tvBattVoltage.setText(String.format("%.2f", dbIrrDevice[selectedDevice].telemetry_current.Vcc));
         tvTmtry2.setText(String.format("%.2f", dbIrrDevice[selectedDevice].telemetry_current.Vcc));
+        int devType = 0;
         switch (dbIrrDevice[selectedDevice].metadata.sensorType) {
             case DEVICE_TYPE_SOIL_STR:
-                tvTmtry1.setText(String.format("%.0f", dbIrrDevice[selectedDevice].telemetry_current.Hum));
-                tvTmtry1Txt.setText(String.format("Humidity [%%]"));
+                devType = DEVICE_TYPE_SOIL ;
+                tvTmtry1.setText(String.format("%.0f", dbIrrDevice[selectedDevice].telemetry_current.H + dbIrrDevice[selectedDevice].settings.offsetPrim1));
+                tvTmtry2.setText(String.format("%.1f", dbIrrDevice[selectedDevice].telemetry_current.Vcc + dbIrrDevice[selectedDevice].settings.offsetSec1));
                 break;
             case DEVICE_TYPE_GAS_STR:
-                tvTmtry1.setText(String.format("%.0f", dbIrrDevice[selectedDevice].telemetry_current.cur_ppm));
-                tvTmtry1Txt.setText(String.format("ppm"));
+                devType = DEVICE_TYPE_GAS ;
+                tvTmtry1.setText(String.format("%.0f", dbIrrDevice[selectedDevice].telemetry_current.cur_ppm + dbIrrDevice[selectedDevice].settings.offsetPrim1));
+                tvTmtry2.setText(String.format("%.1f", dbIrrDevice[selectedDevice].telemetry_current.W + dbIrrDevice[selectedDevice].settings.offsetSec1));
                 break;
             case DEVICE_TYPE_HUMTEMP_STR:
-                tvTmtry1.setText(String.format("%.1f", dbIrrDevice[selectedDevice].telemetry_current.Temp));
-                tvTmtry1Txt.setText(String.format("Temperature [C]"));
+                devType = DEVICE_TYPE_HUMTEMP ;
+                tvTmtry1.setText(String.format("%.1f", dbIrrDevice[selectedDevice].telemetry_current.T + dbIrrDevice[selectedDevice].settings.offsetPrim1));
+                tvTmtry2.setText(String.format("%.1f", dbIrrDevice[selectedDevice].telemetry_current.H + dbIrrDevice[selectedDevice].settings.offsetSec1));
                 break;
             case DEVICE_TYPE_DIST_STR:
-                tvTmtry1.setText(String.format("%.1f", dbIrrDevice[selectedDevice].telemetry_current.Dist));
-                tvTmtry1Txt.setText(String.format("Distance [cm]"));
+                devType = DEVICE_TYPE_DIST ;
+                tvTmtry1.setText(String.format("%.1f", dbIrrDevice[selectedDevice].telemetry_current.Dist + dbIrrDevice[selectedDevice].settings.offsetPrim1));
+                tvTmtry2.setText(String.format("%.1f", dbIrrDevice[selectedDevice].telemetry_current.T + dbIrrDevice[selectedDevice].settings.offsetSec1));
                 break;
             case DEVICE_TYPE_PUMP_STR:
-                tvTmtry1.setText(String.format("%d", dbIrrDevice[selectedDevice].telemetry_current.state));
-                tvTmtry1Txt.setText(String.format("On/off"));
+                devType = DEVICE_TYPE_PUMP ;
+                tvTmtry1.setText(String.format("%d", dbIrrDevice[selectedDevice].telemetry_current.state + dbIrrDevice[selectedDevice].settings.offsetPrim1));
+                tvTmtry2.setText(String.format("%.1f", dbIrrDevice[selectedDevice].telemetry_current.W + dbIrrDevice[selectedDevice].settings.offsetSec1));
                 break;
             default:
                 break;
+
         }
+        tvTmtry1Txt.setText(DeviceSettings.gs[devType].titlePrim1);
+        tvTmtry2Txt.setText(DeviceSettings.gs[devType].titleSec1);
 
         tvLastOpenTimestamp.setText(dbIrrDevice[selectedDevice].telemetry_current.lastOpen);
-        tvWifi.setText(String.format("%d", dbIrrDevice[selectedDevice].telemetry_current.Wifi));
+        tvWifi.setText(String.format("%d", dbIrrDevice[selectedDevice].telemetry_current.W));
         SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         tvTimestampTelemetryTime.setText(sfd.format(new Date(dbIrrDevice[selectedDevice].telemetry_current.timestamp)));
     }
